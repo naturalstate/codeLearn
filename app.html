@@ -163,6 +163,12 @@ code.inl{font:12.5px var(--mono);background:var(--panel2);border:1px solid var(-
 .backupta{width:100%;min-height:118px;background:#0A0D12;border:1px solid var(--line);border-radius:10px;color:var(--ink);font:12px/1.5 var(--mono);padding:10px;resize:vertical;-webkit-user-select:text;user-select:text}
 .sheetbtns{display:flex;flex-wrap:wrap;gap:8px}
 .sheetbtns .btn{flex:1;min-width:130px}
+.refs{margin-top:14px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel)}
+.refslabel{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);margin-bottom:8px}
+.reflink{display:flex;align-items:center;justify-content:space-between;gap:10px;text-decoration:none;color:var(--ink);font-size:13.5px;padding:9px 0;border-top:1px solid var(--line)}
+.reflink:first-of-type{border-top:none}
+.reflink .arw{color:var(--mut);font-size:14px;flex:none}
+.reflink:active{color:var(--amber)}
 .daily{border:1px solid var(--amber-dim);background:linear-gradient(160deg,#1d1608,var(--panel))}
 .dailytag{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
 kbd,strong{color:var(--ink)}
@@ -287,7 +293,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.2.0';
+const APP_VERSION='1.3.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -676,6 +682,49 @@ const TRACKS = [
 ];
 
 /* =========================================================
+   LESSON_REFS — authoritative "learn more" links per lesson.
+   Rendered on the last card; open in a new tab.
+   ========================================================= */
+const LESSON_REFS = {
+ 'r1':[{t:'OWASP: Attack categories (sources &amp; sinks)',u:'https://owasp.org/www-community/attacks/'}],
+ 'r4':[{t:'OWASP Top 10: Broken Access Control',u:'https://owasp.org/Top10/A01_2021-Broken_Access_Control/'}],
+ 'p1':[{t:'PHP Manual: Variables from outside PHP',u:'https://www.php.net/manual/en/language.variables.external.php'}],
+ 'p2':[{t:'PHP Manual: Prepared statements (mysqli)',u:'https://www.php.net/manual/en/mysqli.quickstart.prepared-statements.php'},{t:'W3Schools: SQL prepared statements',u:'https://www.w3schools.com/sql/sql_prepared_statements.asp'},{t:'OWASP: SQL Injection Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html'}],
+ 'p3':[{t:'OWASP: Command Injection',u:'https://owasp.org/www-community/attacks/Command_Injection'},{t:'PortSwigger: OS command injection',u:'https://portswigger.net/web-security/os-command-injection'}],
+ 'p4':[{t:'OWASP: Cross-Site Scripting (XSS)',u:'https://owasp.org/www-community/attacks/xss/'},{t:'PHP Manual: htmlspecialchars()',u:'https://www.php.net/manual/en/function.htmlspecialchars.php'}],
+ 'd1':[{t:'Microsoft: Model binding in ASP.NET Core',u:'https://learn.microsoft.com/en-us/aspnet/core/mvc/models/model-binding'}],
+ 'd2':[{t:'Microsoft: SqlCommand.Parameters',u:'https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters'},{t:'OWASP: SQL Injection Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html'}],
+ 'd3':[{t:'Microsoft: BinaryFormatter security guide',u:'https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-security-guide'},{t:'OWASP: Deserialization Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html'}],
+ 'c1':[{t:'CWE-787: Out-of-bounds Write',u:'https://cwe.mitre.org/data/definitions/787.html'},{t:'OWASP: Buffer Overflow',u:'https://owasp.org/www-community/vulnerabilities/Buffer_Overflow'}],
+ 'c2':[{t:'CWE-120: Classic Buffer Overflow',u:'https://cwe.mitre.org/data/definitions/120.html'},{t:'cppreference: printf family (snprintf)',u:'https://en.cppreference.com/w/c/io/fprintf'}],
+ 'c3':[{t:'CWE-190: Integer Overflow or Wraparound',u:'https://cwe.mitre.org/data/definitions/190.html'},{t:'CWE-416: Use After Free',u:'https://cwe.mitre.org/data/definitions/416.html'}],
+ 'j1':[{t:'OWASP: DOM-based XSS',u:'https://owasp.org/www-community/attacks/DOM_Based_XSS'},{t:'MDN: Element.innerHTML (security)',u:'https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML'}],
+ 'j2':[{t:'Node.js: child_process',u:'https://nodejs.org/api/child_process.html'},{t:'OWASP: Command Injection',u:'https://owasp.org/www-community/attacks/Command_Injection'}],
+ 'py1':[{t:'Flask: The Request object',u:'https://flask.palletsprojects.com/en/stable/api/'}],
+ 'py2':[{t:'Python docs: sqlite3 placeholders',u:'https://docs.python.org/3/library/sqlite3.html'},{t:'OWASP: SQL Injection Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html'}],
+ 'py3':[{t:'Python docs: subprocess security',u:'https://docs.python.org/3/library/subprocess.html'}],
+ 'py4':[{t:'PortSwigger: Server-side template injection',u:'https://portswigger.net/web-security/server-side-template-injection'}],
+ 'py5':[{t:'Python docs: pickle (security warning)',u:'https://docs.python.org/3/library/pickle.html'},{t:'OWASP: Deserialization Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html'}],
+ 'w1':[{t:'OWASP: Server-Side Request Forgery',u:'https://owasp.org/www-community/attacks/Server_Side_Request_Forgery'},{t:'PortSwigger: SSRF',u:'https://portswigger.net/web-security/ssrf'}],
+ 'w2':[{t:'PortSwigger: IDOR',u:'https://portswigger.net/web-security/access-control/idor'},{t:'OWASP Top 10: Broken Access Control',u:'https://owasp.org/Top10/A01_2021-Broken_Access_Control/'}],
+ 'w3':[{t:'OWASP: Path Traversal',u:'https://owasp.org/www-community/attacks/Path_Traversal'},{t:'PortSwigger: File path traversal',u:'https://portswigger.net/web-security/file-path-traversal'}],
+ 'w4':[{t:'PortSwigger: JWT attacks',u:'https://portswigger.net/web-security/jwt'}],
+ 'a1':[{t:'OWASP Top 10 (2021)',u:'https://owasp.org/www-project-top-ten/'}],
+ 'a2':[{t:'GitHub Advisory Database',u:'https://github.com/advisories'},{t:'npm docs: npm audit',u:'https://docs.npmjs.com/cli/v10/commands/npm-audit'}],
+ 'a3':[{t:'OWASP: Password Storage Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html'}],
+ 'b1':[{t:'NVD: CVE-2021-44228 (Log4Shell)',u:'https://nvd.nist.gov/vuln/detail/CVE-2021-44228'},{t:'Apache Log4j Security',u:'https://logging.apache.org/log4j/2.x/security.html'}],
+ 'b2':[{t:'Heartbleed.com',u:'https://heartbleed.com/'},{t:'NVD: CVE-2014-0160',u:'https://nvd.nist.gov/vuln/detail/CVE-2014-0160'}],
+ 'b3':[{t:'Krebs on Security: Capital One breach',u:'https://krebsonsecurity.com/2019/07/capital-one-data-theft-impacts-106m-people/'},{t:'OWASP: Server-Side Request Forgery',u:'https://owasp.org/www-community/attacks/Server_Side_Request_Forgery'}]
+};
+function refsHTML(lessonId){
+  const r=LESSON_REFS[lessonId];
+  if(!r || !r.length) return '';
+  return '<div class="refs"><div class="refslabel">Learn more</div>'+
+    r.map(x=>'<a class="reflink" href="'+x.u+'" target="_blank" rel="noopener noreferrer">'+
+      '<span>'+x.t+'</span><span class="arw">&#8599;</span></a>').join('')+'</div>';
+}
+
+/* =========================================================
    HUNT — find-the-vulnerable-line challenges
    each: id, title, lang, xp, difficulty, lines[], vuln[](0-indexed),
          brief, debrief (why those lines)
@@ -911,13 +960,16 @@ function vLesson(){
      '<span class="count">'+(LS.card+1)+'/'+total+'</span></div>';
   h+='<h1 class="pg" style="font-size:20px;margin-top:6px">'+l.name+'</h1>';
 
+  const refs = (LS.card===total-1) ? refsHTML(l.id) : '';
   if(card.t==='md'){
     h+='<div class="card">'+card.html+'</div>';
+    h+=refs;
     h+='<button class="btn" data-act="next">Continue</button>';
   }
   else if(card.t==='read'){
     h+=codebox(card.code,card.lang,card.label||langName(card.lang));
     if(card.note) h+='<div class="explain" style="border-color:var(--violet)">'+card.note+'</div>';
+    h+=refs;
     h+='<button class="btn" data-act="next">Got it</button>';
   }
   else if(card.t==='quiz'){
@@ -936,6 +988,7 @@ function vLesson(){
     if(LS.answered){
       const ok=LS.pick===card.a;
       h+='<div class="explain"><b>'+(ok?'Correct.':'Not quite.')+'</b> '+card.why+'</div>';
+      h+=refs;
       h+='<button class="btn" data-act="next">Continue</button>';
     }
   }
