@@ -154,12 +154,13 @@ More content is on the way:
 codeLearn is a Progressive Web App, so it installs to your home screen and runs full-screen and offline — no app store required.
 
 **iPhone / iPad (Safari)**
-1. Open the app's URL in Safari.
+1. Open the app's [URL](https://naturalstate.github.io/codeLearn/)
+ in Safari.
 2. Tap the **Share** button.
 3. Choose **Add to Home Screen**, then **Add**.
 
 **Android (Chrome)**
-1. Open the app's URL in Chrome.
+1. Open the app's [URL](https://naturalstate.github.io/codeLearn/) in Chrome.
 2. Tap the **⋮** menu.
 3. Choose **Install app** (or **Add to Home screen**).
 
@@ -244,5 +245,4 @@ codeLearn is an educational tool for defensive security, code review, and **auth
 ---
 
 ## License
-
 Released under the [MIT License](LICENSE).
