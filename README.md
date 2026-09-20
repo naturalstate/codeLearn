@@ -84,7 +84,7 @@ strcpy(buf, user_input);   // no length check — overflow if input > 64 bytes
 
 ## Languages & lessons
 
-Six tracks, nineteen lessons in the current release.
+Nine tracks, thirty-one lessons in the current release.
 
 | Track | Focus | Lessons |
 |-------|-------|:-------:|
@@ -93,7 +93,10 @@ Six tracks, nineteen lessons in the current release.
 | **ASP.NET / C#** | Request binding, ADO.NET SQL injection, insecure deserialization | 3 |
 | **C / C++** | Pointers & buffers, dangerous C functions, integer overflow & use-after-free | 3 |
 | **JS & Web Logic** | DOM XSS sinks, `eval`, prototype pollution, Node `child_process` sinks | 2 |
+| **Python** | Where input enters, SQL & command injection, server-side template injection, insecure deserialization | 5 |
+| **Web Attack Patterns** | SSRF, IDOR & broken access control, path traversal, authentication & token flaws | 4 |
 | **Auditor's Eye** | The source-to-sink method, spotting vulnerable/outdated libraries, weak crypto & hardcoded secrets | 3 |
+| **Breach Files** | Real incidents, decoded: Log4Shell, Heartbleed, and the Capital One SSRF breach | 3 |
 
 <details>
 <summary><b>Full lesson list</b></summary>
@@ -126,16 +129,34 @@ Six tracks, nineteen lessons in the current release.
 - DOM XSS & dangerous sinks
 - `eval`, prototype & Node sinks
 
+**Python**
+- Reading Python & where input enters
+- SQL injection in Python
+- Command injection in Python
+- Server-Side Template Injection
+- Insecure deserialization (pickle)
+
+**Web Attack Patterns**
+- SSRF — Server-Side Request Forgery
+- IDOR & broken access control
+- Path traversal & file inclusion
+- Authentication & token flaws
+
 **Auditor's Eye**
 - The source-to-sink method
 - Spotting outdated & vulnerable libraries
 - Weak crypto & hardcoded secrets
 
+**Breach Files** — real-world incidents
+- Log4Shell — logging turned into RCE (CVE-2021-44228)
+- Heartbleed — a missing length check (CVE-2014-0160)
+- Capital One — SSRF to cloud metadata (2019)
+
 </details>
 
 ### Vulnerability Hunt challenges
 
-Eight tap-to-find challenges across the languages above, covering **SQL injection, command injection / RCE, reflected & stored XSS, path traversal, stack & heap buffer overflows, use-after-free, insecure deserialization, weak password hashing, timing side-channels, file inclusion (LFI/RFI),** and **variable injection**.
+Eleven tap-to-find challenges across the languages above, covering **SQL injection, command injection / RCE, reflected & stored XSS, server-side template injection (SSTI), SSRF, path traversal, stack & heap buffer overflows, use-after-free, insecure deserialization, weak password hashing, timing side-channels, file inclusion (LFI/RFI), variable injection,** and a **Log4Shell-style logging sink**.
 
 ---
 
@@ -143,7 +164,8 @@ Eight tap-to-find challenges across the languages above, covering **SQL injectio
 
 More content is on the way:
 
-- **More languages** — Java, Go, Ruby, a dedicated Python track, TypeScript, Rust, and shell scripting.
+- **More languages** — a full Java track, plus Go, Ruby, TypeScript, Rust, and shell scripting.
+- **More Breach Files** — additional real-world incidents decoded down to the vulnerable line.
 - **Exploitation lessons** — later modules will go beyond *spotting* a bug to *exploiting* it: extracting data through SQL injection, turning command injection into a shell, building XSS payloads, and the fundamentals of memory-corruption exploitation.
 - **More Hunt challenges** with difficulty tiers, plus a spaced-repetition review mode to keep your pattern recognition sharp.
 
