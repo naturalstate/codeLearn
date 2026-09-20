@@ -47,7 +47,7 @@ No signup. No account. No tracking. Progress is saved locally on your device.
 
 ## How it works
 
-**Learn** — Bite-sized lessons. Each one walks you through plain-language explanation cards, then annotated, syntax-highlighted code you read like a reviewer, then a quick check with a written debrief so you learn *why*, not just *what*. Every lesson ends with **Learn more** links to the authoritative sources — the PHP manual, Microsoft Learn, MDN, the OWASP Cheat Sheets, PortSwigger's Web Security Academy, CWE, and the original CVE advisories — that open in a new tab.
+**Learn** — Bite-sized lessons. Each one walks you through plain-language explanation cards, then annotated, syntax-highlighted code you read like a reviewer, then a quick check with a written debrief so you learn *why*, not just *what*. Every lesson ends with **Learn more** links to the authoritative sources — the PHP manual, Microsoft Learn, MDN, the OWASP Cheat Sheets, PortSwigger's Web Security Academy, CWE, and the original CVE advisories — that open in a new tab, and each track page closes with a consolidated **References & further reading** list gathering all of them in one place.
 
 **Hunt** — Realistic code snippets where you tap the lines you believe are dangerous and submit. You get a per-line breakdown of every bug — and some challenges deliberately reward you for **not** flagging code that only *looks* scary (like a properly parameterized query).
 

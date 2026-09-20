@@ -180,6 +180,14 @@ code.inl{font:12.5px var(--mono);background:var(--panel2);border:1px solid var(-
 .reflink:first-of-type{border-top:none}
 .reflink .arw{color:var(--mut);font-size:14px;flex:none}
 .reflink:active{color:var(--amber)}
+.trackrefs{margin:30px 2px 4px;padding-top:18px;border-top:1px solid var(--line)}
+.trackrefs-h{font-family:var(--disp);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
+.treflist{list-style:none;margin:0;padding:0}
+.treflist li{position:relative;padding:7px 0 7px 20px;font-size:13.5px;line-height:1.45}
+.treflist li+li{border-top:1px dashed var(--line)}
+.treflist li::before{content:"↗";position:absolute;left:2px;top:7px;color:var(--mut);font-size:11px}
+.treflist a{color:var(--violet);text-decoration:none}
+.treflist a:active{color:var(--amber)}
 .daily{border:1px solid var(--amber-dim);background:linear-gradient(160deg,#1d1608,var(--panel))}
 .dailytag{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
 kbd,strong{color:var(--ink)}
@@ -304,7 +312,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.5.0';
+const APP_VERSION='1.6.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -918,6 +926,19 @@ function refsHTML(lessonId){
     r.map(x=>'<a class="reflink" href="'+x.u+'" target="_blank" rel="noopener noreferrer">'+
       '<span>'+x.t+'</span><span class="arw">&#8599;</span></a>').join('')+'</div>';
 }
+/* aggregated, de-duplicated reference list for a whole track (shown at the
+   bottom of the track page as plain reading material, not a lesson) */
+function trackRefsHTML(track){
+  const seen={}, items=[];
+  for(const l of track.lessons){
+    const r=LESSON_REFS[l.id]; if(!r) continue;
+    for(const x of r){ if(seen[x.u]) continue; seen[x.u]=1; items.push(x); }
+  }
+  if(!items.length) return '';
+  return '<div class="trackrefs"><div class="trackrefs-h">References &amp; further reading</div><ul class="treflist">'+
+    items.map(x=>'<li><a href="'+x.u+'" target="_blank" rel="noopener noreferrer">'+x.t+'</a></li>').join('')+
+    '</ul></div>';
+}
 
 /* =========================================================
    HUNT — find-the-vulnerable-line challenges
@@ -1149,6 +1170,7 @@ function vTrack(tid){
         '<span class="chip'+(done?' good':'')+'">'+(done?'+'+l.xp:'+'+l.xp)+' XP</span>'+
        '</button>';
   });
+  h+=trackRefsHTML(t);
   return h;
 }
 
