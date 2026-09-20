@@ -304,7 +304,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.3.0';
+const APP_VERSION='1.4.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -446,6 +446,60 @@ const TRACKS = [
      {t:'quiz',q:'The gate is <code class="inl">if ($user["role"] == "admin")</code>. As an attacker, what is your first question?',
       opts:['How is $user["role"] set, and can I influence it?','What color is the button?','How fast does the loop run?','Is the code indented correctly?'],a:0,
       why:'Access control lives in conditions. If <b>role</b> comes from a cookie, hidden form field, or unsigned token you can tamper with, the gate is bypassable. Always trace where the checked value originates.'}
+   ]}
+  ]
+ },
+ {
+  id:'phpbasics', name:'PHP Basics', tag:'BASICS', icon:'php', accent:'violet',
+  sub:'From zero: run PHP, use the interactive CLI shell, embed it in HTML, and read the syntax.',
+  lessons:[
+   {id:'pb1', name:'What PHP is & how it runs', xp:15, cards:[
+     {t:'md',html:'<p><b>PHP</b> is a server-side scripting language that powers a huge share of the web (WordPress, Laravel, and a great deal of legacy code). It is <b>interpreted</b>, not compiled: you do not build an executable — the <b>PHP interpreter</b> reads your <code class="inl">.php</code> file and runs it directly.</p><p>On a website the flow is: a browser requests a page → the web server hands the <code class="inl">.php</code> file to PHP → PHP runs it and produces <b>HTML</b> → that HTML is sent back. The visitor never sees the PHP source, only its output.</p>'},
+     {t:'read',lang:'php',label:'hello.php',code:'<?php\necho "Hello from PHP!";\n// no build step — the interpreter runs this file directly',note:'Run it and PHP prints the text. Unlike C or Java there is no separate compile step — you hand the source straight to the interpreter.'},
+     {t:'quiz',q:'PHP is best described as which kind of language?',
+      opts:['Compiled to a standalone .exe before running','Interpreted — the PHP engine runs the source directly','A database','A styling language like CSS'],a:1,
+      why:'PHP is <b>interpreted</b>: the engine reads and executes your source at request time. There is no manual compile step (PHP 8\'s JIT is internal and automatic).'}
+   ]},
+   {id:'pb2', name:'Running PHP from the command line', xp:20, cards:[
+     {t:'md',html:'<p>You do not need a web server to run PHP — the <code class="inl">php</code> command does it all:</p><p>• <code class="inl">php file.php</code> — run a script<br>• <code class="inl">php -a</code> — an <b>interactive shell</b> (REPL): type PHP, press enter, see the result<br>• <code class="inl">php -r \'code\'</code> — run a one-liner with no file<br>• <code class="inl">php -S localhost:8000</code> — a built-in <b>web server</b> for quick testing<br>• <code class="inl">php -v</code> / <code class="inl">php -m</code> — version and loaded modules</p>'},
+     {t:'read',lang:'php',label:'terminal',code:'$ php -v\nPHP 8.3.2 (cli)\n\n$ php -a               # interactive shell (REPL)\nphp > echo 2 + 2;\n4\nphp > $name = "world";\nphp > echo "hi $name";\nhi world\n\n$ php -S localhost:8000   # built-in dev web server',note:'<code class="inl">php -a</code> is the interactive shell — ideal for testing a snippet. <code class="inl">php -S localhost:8000</code> spins up a throwaway web server so you can open the page in a browser.'},
+     {t:'quiz',q:'Which command drops you into an interactive PHP shell (REPL) in the terminal?',
+      opts:['<code class="inl">php -S</code>','<code class="inl">php -a</code>','<code class="inl">php -v</code>','<code class="inl">php --compile</code>'],a:1,
+      why:'<code class="inl">php -a</code> opens the interactive shell. <code class="inl">php -S</code> starts a dev web server, <code class="inl">php -v</code> prints the version, and there is no <code class="inl">--compile</code> — PHP is interpreted.'}
+   ]},
+   {id:'pb3', name:'Mixing PHP into HTML', xp:20, cards:[
+     {t:'md',html:'<p>PHP\'s original superpower is embedding directly inside HTML. Anything between <code class="inl">&lt;?php</code> and <code class="inl">?&gt;</code> runs as PHP; everything outside those tags is sent as plain HTML.</p><p><code class="inl">&lt;?= $x ?&gt;</code> is shorthand for <code class="inl">&lt;?php echo $x; ?&gt;</code> — a quick way to print a value into the page.</p>'},
+     {t:'read',lang:'php',label:'page.php',code:'<!DOCTYPE html>\n<html>\n<body>\n  <h1>Welcome</h1>\n  <?php $user = "Sam"; ?>\n  <p>Hello, <?= $user ?>!</p>\n  <?php if ($user === "Sam") { ?>\n    <p>You are an admin.</p>\n  <?php } ?>\n</body>\n</html>',note:'The HTML is sent as-is; the <code class="inl">&lt;?php ... ?&gt;</code> islands run on the server and their output is spliced in. This templating is also why <b>unescaped output</b> here becomes XSS — a direct link to the security track.'},
+     {t:'quiz',q:'What does <code class="inl">&lt;?= $user ?&gt;</code> do in an HTML page?',
+      opts:['Declares a variable','Short for <code class="inl">&lt;?php echo $user; ?&gt;</code> — prints the value','Imports a file','Starts a loop'],a:1,
+      why:'<code class="inl">&lt;?= ... ?&gt;</code> is the <b>short echo tag</b> — it prints the expression into the HTML, identical to <code class="inl">&lt;?php echo ...; ?&gt;</code>.'}
+   ]},
+   {id:'pb4', name:'Variables, types & echo', xp:20, cards:[
+     {t:'md',html:'<p>PHP variables always start with <code class="inl">$</code> and need no type declaration. The core types: <b>string</b>, <b>int</b>, <b>float</b>, <b>bool</b>, <b>array</b>, and <b>null</b>.</p><p>Print with <code class="inl">echo</code>. Join strings with the <b>dot</b> operator <code class="inl">.</code>. Inside <b>double quotes</b> variables are expanded; inside <b>single quotes</b> they stay literal.</p>'},
+     {t:'read',lang:'php',label:'types.php',code:'<?php\n$name = "Ada";     // string\n$age  = 36;         // int\n$pi   = 3.14;       // float\n$ok   = true;       // bool\n\necho "Name: " . $name;      // -> Name: Ada\necho "Hi $name, age $age";  // -> Hi Ada, age 36\necho \'Hi $name\';            // -> Hi $name  (literal)',note:'Double quotes interpolate variables; single quotes do not. The <code class="inl">.</code> operator concatenates — and, as the security track shows, concatenating user input into SQL or HTML is where bugs begin.'},
+     {t:'quiz',q:'What prints from <code class="inl">echo \'Hello $name\';</code> when <code class="inl">$name = "Sam"</code>?',
+      opts:['Hello Sam','Hello $name','An error','Hello'],a:1,
+      why:'<b>Single quotes</b> do not interpolate — the text is literal, so it prints <code class="inl">Hello $name</code>. Double quotes would expand it to <code class="inl">Hello Sam</code>.'}
+   ]},
+   {id:'pb5', name:'Arrays, loops & functions', xp:25, cards:[
+     {t:'md',html:'<p>Two array styles: <b>indexed</b> (<code class="inl">[10, 20, 30]</code>) and <b>associative</b> (key ⇒ value). Loop with <code class="inl">foreach</code>, branch with <code class="inl">if/else</code>, and package reusable logic in a <code class="inl">function</code>.</p>'},
+     {t:'read',lang:'php',label:'basics.php',code:'<?php\n$user = ["name" => "Ada", "role" => "admin"];   // associative array\n\nforeach ($user as $key => $value) {\n    echo "$key = $value\\n";\n}\n\nif ($user["role"] === "admin") {\n    echo "Access granted";\n}\n\nfunction greet($who) {\n    return "Hello " . $who;\n}\necho greet($user["name"]);',note:'This is the exact shape you decode when auditing: an <code class="inl">if</code> gate on <code class="inl">$user["role"]</code>, a <code class="inl">function</code> that returns a value, arrays holding request data. Reading it is the whole skill.'},
+     {t:'quiz',q:'Which construct loops over every key/value pair in a PHP array?',
+      opts:['<code class="inl">switch</code>','<code class="inl">foreach ($arr as $k =&gt; $v)</code>','<code class="inl">echo</code>','<code class="inl">function</code>'],a:1,
+      why:'<code class="inl">foreach</code> iterates arrays; the <code class="inl">$k =&gt; $v</code> form gives you both the key and the value on each pass.'}
+   ]},
+   {id:'pb6', name:'Composer — packages & autoloading', xp:20, cards:[
+     {t:'md',html:'<p><b>Composer</b> is PHP\'s package manager (like npm for Node or pip for Python). It reads a <code class="inl">composer.json</code> file, downloads libraries from <b>Packagist</b> into a <code class="inl">vendor/</code> folder, and writes a <code class="inl">composer.lock</code> pinning the exact versions.</p><p>One line — <code class="inl">require "vendor/autoload.php";</code> — then loads all of them automatically.</p>'},
+     {t:'read',lang:'js',label:'composer.json',code:'{\n  "require": {\n    "monolog/monolog": "^3.0",\n    "guzzlehttp/guzzle": "^7.8"\n  }\n}',note:'Run <code class="inl">composer install</code> to fetch these into <code class="inl">vendor/</code>, or <code class="inl">composer require vendor/pkg</code> to add one. For a pentester, <code class="inl">composer.lock</code> is gold: it lists every dependency and exact version to check against known CVEs.'},
+     {t:'quiz',q:'What is Composer to a PHP project?',
+      opts:['A web server','The package manager — it installs the libraries listed in composer.json','A database engine','A debugger'],a:1,
+      why:'<b>Composer</b> manages dependencies: it reads <code class="inl">composer.json</code>, pulls packages from Packagist into <code class="inl">vendor/</code>, and pins them in <code class="inl">composer.lock</code> — the file you audit for vulnerable versions.'}
+   ]},
+   {id:'pb7', name:'From syntax to security', xp:20, cards:[
+     {t:'md',html:'<p>You can now read PHP. Here is how the basics map straight onto the security skills:</p><p>• <code class="inl">echo</code> into HTML → <b>XSS</b> if the value is untrusted<br>• string concatenation into a query → <b>SQL injection</b><br>• <code class="inl">$_GET</code> / <code class="inl">$_POST</code> superglobals → the <b>sources</b> of attacker input<br>• <code class="inl">include</code> with a variable path → <b>file inclusion</b><br>• <code class="inl">composer.lock</code> → the <b>dependency</b> audit surface</p><p>Next stop: the <b>PHP</b> security track, to hunt these for real.</p>'},
+     {t:'quiz',q:'You can now read PHP well enough to audit it. Which basic feature becomes XSS when misused?',
+      opts:['A foreach loop','Echoing untrusted input into HTML without encoding','Defining a function','Using Composer'],a:1,
+      why:'Any <code class="inl">echo</code> of untrusted data into a page is the XSS sink — the exact pattern from the PHP security track. The basics and the bugs are the same code, read two ways.'}
    ]}
   ]
  },
@@ -697,6 +751,13 @@ const TRACKS = [
    Rendered on the last card; open in a new tab.
    ========================================================= */
 const LESSON_REFS = {
+ 'pb1':[{t:'PHP Manual: Getting started',u:'https://www.php.net/manual/en/getting-started.php'}],
+ 'pb2':[{t:'PHP Manual: Command-line usage',u:'https://www.php.net/manual/en/features.commandline.php'},{t:'PHP Manual: Built-in web server',u:'https://www.php.net/manual/en/features.commandline.webserver.php'}],
+ 'pb3':[{t:'PHP Manual: Escaping from HTML',u:'https://www.php.net/manual/en/language.basic-syntax.phpmode.php'}],
+ 'pb4':[{t:'PHP Manual: Variables',u:'https://www.php.net/manual/en/language.variables.basics.php'},{t:'PHP Manual: Types',u:'https://www.php.net/manual/en/language.types.php'}],
+ 'pb5':[{t:'PHP Manual: Arrays',u:'https://www.php.net/manual/en/language.types.array.php'},{t:'PHP Manual: Control structures',u:'https://www.php.net/manual/en/language.control-structures.php'}],
+ 'pb6':[{t:'Composer: Getting started',u:'https://getcomposer.org/doc/00-intro.md'},{t:'Packagist (package registry)',u:'https://packagist.org/'}],
+ 'pb7':[{t:'W3Schools: PHP tutorial',u:'https://www.w3schools.com/php/'},{t:'PHP Manual: Security',u:'https://www.php.net/manual/en/security.php'}],
  'r1':[{t:'OWASP: Attack categories (sources &amp; sinks)',u:'https://owasp.org/www-community/attacks/'}],
  'r4':[{t:'OWASP Top 10: Broken Access Control',u:'https://owasp.org/Top10/A01_2021-Broken_Access_Control/'}],
  'p1':[{t:'PHP Manual: Variables from outside PHP',u:'https://www.php.net/manual/en/language.variables.external.php'}],
@@ -919,18 +980,27 @@ function vHome(){
        '<span class="chip '+(dDone?'good':'amber')+'">'+(dDone?'✓ DONE':'+'+dh.xp+' XP')+'</span>'+
      '</div></div>';
 
-  h+='<div class="sect">Learning tracks</div>';
-  for(const t of TRACKS){
-    const p=trackProgress(t);
-    h+='<button class="card tap trackcard" data-act="track" data-id="'+t.id+'">'+
-        '<div class="tricon">'+t.icon+'</div>'+
-        '<div class="trmeta">'+
-          '<div class="trname">'+t.name+' <span class="chip '+(t.accent)+'" style="vertical-align:2px">'+t.tag+'</span></div>'+
-          '<div class="trsub">'+t.sub+'</div>'+
-          '<div class="pbar'+(t.accent==='violet'?' v':'')+'"><i style="width:'+p.pct+'%"></i></div>'+
-        '</div>'+
-        '<div class="count">'+p.done+'/'+p.total+'</div>'+
-       '</button>';
+  const GROUP_ORDER=['Foundations','Language basics','Languages & vulnerabilities','Attack patterns & real-world'];
+  const groupOf=(id)=> id==='recon' ? 'Foundations'
+    : id==='phpbasics' ? 'Language basics'
+    : ['php','dotnet','cpp','web','python'].includes(id) ? 'Languages & vulnerabilities'
+    : 'Attack patterns & real-world';
+  for(const g of GROUP_ORDER){
+    const inGroup=TRACKS.filter(t=>groupOf(t.id)===g);
+    if(!inGroup.length) continue;
+    h+='<div class="sect">'+g+'</div>';
+    for(const t of inGroup){
+      const p=trackProgress(t);
+      h+='<button class="card tap trackcard" data-act="track" data-id="'+t.id+'">'+
+          '<div class="tricon">'+t.icon+'</div>'+
+          '<div class="trmeta">'+
+            '<div class="trname">'+t.name+' <span class="chip '+(t.accent)+'" style="vertical-align:2px">'+t.tag+'</span></div>'+
+            '<div class="trsub">'+t.sub+'</div>'+
+            '<div class="pbar'+(t.accent==='violet'?' v':'')+'"><i style="width:'+p.pct+'%"></i></div>'+
+          '</div>'+
+          '<div class="count">'+p.done+'/'+p.total+'</div>'+
+         '</button>';
+    }
   }
   return h;
 }

@@ -84,11 +84,12 @@ strcpy(buf, user_input);   // no length check — overflow if input > 64 bytes
 
 ## Languages & lessons
 
-Nine tracks, thirty-one lessons in the current release.
+Ten tracks, thirty-eight lessons in the current release, organized into **Foundations**, a new **Language Basics** series, **Languages & vulnerabilities**, and **Attack patterns & real-world**.
 
 | Track | Focus | Lessons |
 |-------|-------|:-------:|
 | **Code Recon** | Read any program with no coding background: input → logic → output, variables, functions, control flow | 4 |
+| **PHP Basics** | Learn the language from zero: run PHP, the interactive CLI shell, the built-in server, embedding in HTML, syntax, and Composer | 7 |
 | **PHP** | Superglobals as input sources, SQL injection, command injection / RCE, XSS | 4 |
 | **ASP.NET / C#** | Request binding, ADO.NET SQL injection, insecure deserialization | 3 |
 | **C / C++** | Pointers & buffers, dangerous C functions, integer overflow & use-after-free | 3 |
@@ -108,6 +109,15 @@ Nine tracks, thirty-one lessons in the current release.
 - Variables, strings & concatenation
 - Functions & what they return
 - Control flow: if, loops & branches
+
+**PHP Basics** — learn the language
+- What PHP is & how it runs
+- Running PHP from the command line (`php -a`, `php -S`, one-liners)
+- Mixing PHP into HTML
+- Variables, types & echo
+- Arrays, loops & functions
+- Composer — packages & autoloading
+- From syntax to security
 
 **PHP**
 - Reading PHP superglobals
@@ -164,6 +174,7 @@ Eleven tap-to-find challenges across the languages above, covering **SQL injecti
 
 More content is on the way:
 
+- **More Language Basics** — the same from-zero treatment (run it, the CLI, the package manager, the syntax) for Python, JavaScript/Node, C#, and more.
 - **More languages** — a full Java track, plus Go, Ruby, TypeScript, Rust, and shell scripting.
 - **More Breach Files** — additional real-world incidents decoded down to the vulnerable line.
 - **Exploitation lessons** — later modules will go beyond *spotting* a bug to *exploiting* it: extracting data through SQL injection, turning command injection into a shell, building XSS payloads, and the fundamentals of memory-corruption exploitation.
