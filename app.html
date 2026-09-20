@@ -177,6 +177,24 @@ code.inl{font:12.5px var(--mono);background:var(--panel2);border:1px solid var(-
 .treflist li::before{content:"↗";position:absolute;left:2px;top:7px;color:var(--mut);font-size:11px}
 .treflist a{color:var(--violet);text-decoration:none}
 .treflist a:active{color:var(--amber)}
+/* language-basics grid tiles */
+.basicsgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.basicscard{display:block;text-align:left;border-radius:14px;padding:14px;border:1px solid #4a3f86;background:linear-gradient(150deg,#241d3f,#181428);color:var(--ink);transition:transform .08s ease}
+.basicscard:active{transform:scale(.98)}
+.bc-icon{font-family:var(--mono);font-weight:600;font-size:13px;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(161,139,250,.16);border:1px solid #4a3f86;color:var(--violet);margin-bottom:10px}
+.bc-name{font-family:var(--disp);font-weight:700;font-size:15px;line-height:1.15}
+.bc-count{font-family:var(--mono);font-size:11px;color:var(--mut);margin:3px 0 9px;font-variant-numeric:tabular-nums}
+.bc-bar{height:5px;border-radius:3px;background:rgba(0,0,0,.32);overflow:hidden}
+.bc-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--violet),var(--amber))}
+/* language fact file */
+.factfile{border:1px solid #4a3f86;background:linear-gradient(150deg,#201a38,var(--panel));border-radius:14px;padding:14px 16px;margin:2px 0 20px}
+.ff-note{font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:12px}
+.ff-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ff-cell{background:rgba(0,0,0,.22);border-radius:9px;padding:8px 10px;min-width:0}
+.ff-k{font-family:var(--disp);font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--violet)}
+.ff-v{font-family:var(--mono);font-size:11.5px;color:var(--ink);margin-top:3px;line-height:1.3}
+.ff-link{display:inline-block;margin-top:12px;font-size:12.5px;color:var(--violet);text-decoration:none}
+.ff-link:active{color:var(--amber)}
 .daily{border:1px solid var(--amber-dim);background:linear-gradient(160deg,#1d1608,var(--panel))}
 .dailytag{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
 kbd,strong{color:var(--ink)}
@@ -301,7 +319,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.6.0';
+const APP_VERSION='1.7.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -449,6 +467,7 @@ const TRACKS = [
  {
   id:'phpbasics', name:'PHP Basics', tag:'BASICS', icon:'php', accent:'violet',
   sub:'From zero: run PHP, use the interactive CLI shell, embed it in HTML, and read the syntax.',
+  meta:{released:'1995',current:'PHP 8.4 (Nov 2024)',eol:'PHP 8.0 and earlier',note:'Created by Rasmus Lerdorf; maintained by The PHP Group. It powers WordPress, Laravel and much of the web.',link:'https://www.php.net/supported-versions.php'},
   lessons:[
    {id:'pb1', name:'What PHP is & how it runs', xp:15, cards:[
      {t:'md',html:'<p><b>PHP</b> is a server-side scripting language that powers a huge share of the web (WordPress, Laravel, and a great deal of legacy code). It is <b>interpreted</b>, not compiled: you do not build an executable — the <b>PHP interpreter</b> reads your <code class="inl">.php</code> file and runs it directly.</p><p>On a website the flow is: a browser requests a page → the web server hands the <code class="inl">.php</code> file to PHP → PHP runs it and produces <b>HTML</b> → that HTML is sent back. The visitor never sees the PHP source, only its output.</p>'},
@@ -497,6 +516,62 @@ const TRACKS = [
      {t:'quiz',q:'You can now read PHP well enough to audit it. Which basic feature becomes XSS when misused?',
       opts:['A foreach loop','Echoing untrusted input into HTML without encoding','Defining a function','Using Composer'],a:1,
       why:'Any <code class="inl">echo</code> of untrusted data into a page is the XSS sink — the exact pattern from the PHP security track. The basics and the bugs are the same code, read two ways.'}
+   ]},
+   {id:'pb8', name:'Deprecated & removed functions', xp:25, cards:[
+     {t:'md',html:'<p>Languages evolve — old functions get <b>deprecated</b> (marked for removal) and eventually <b>removed</b>. Spotting them quickly dates a codebase and flags risk: legacy functions often predate modern security features.</p><p>The biggest PHP example is the old <code class="inl">mysql_*</code> extension (note: no <code class="inl">i</code>). It was <b>deprecated in PHP 5.5 (2013)</b> and <b>removed in PHP 7.0 (2015)</b> because it encouraged string-built queries and never properly supported prepared statements — a SQL-injection factory. Its replacements are <code class="inl">mysqli</code> and <code class="inl">PDO</code>.</p>'},
+     {t:'read',lang:'php',label:'Legacy code = instant red flag',code:'// removed in PHP 7.0 — if you see this, the code is pre-2015\n$r = mysql_query("SELECT * FROM users WHERE id = " . $_GET["id"]);\n\n// other removed relics:\n//   ereg() , split()     -> removed 7.0  (use preg_* instead)\n//   create_function()    -> removed 8.0  (code-injection risk)\n//   each()               -> removed 8.0\n//   magic_quotes_gpc     -> removed 5.4',note:'<code class="inl">mysql_*</code>, <code class="inl">ereg</code>, <code class="inl">create_function</code> and <code class="inl">magic_quotes</code> are all gone. Their presence means unmaintained code running on an old PHP — worth a closer look and a version check.'},
+     {t:'quiz',q:'You see <code class="inl">mysql_query()</code> (no "i") in a codebase. What does it tell you?',
+      opts:['It is the modern, recommended API','It is a removed function (gone since PHP 7.0, 2015) — legacy, likely insecure code','It is faster than mysqli','Nothing useful'],a:1,
+      why:'The <code class="inl">mysql_*</code> extension was removed in <b>PHP 7.0 (2015)</b> for encouraging injection-prone queries. Seeing it means old, unmaintained code — check the PHP version and audit those queries. Use <code class="inl">mysqli</code>/<code class="inl">PDO</code> with prepared statements.'}
+   ]}
+  ]
+ },
+ {
+  id:'pybasics', name:'Python Basics', tag:'BASICS', icon:'py', accent:'violet',
+  sub:'From zero: run Python, use the REPL, pip & virtual environments, and read the syntax.',
+  meta:{released:'1991',current:'Python 3.13 (Oct 2024)',eol:'Python 2 (ended Jan 1, 2020)',note:'Created by Guido van Rossum. Everywhere in web, data science, automation and security tooling.',link:'https://devguide.python.org/versions/'},
+  lessons:[
+   {id:'pyb1', name:'What Python is & how it runs', xp:15, cards:[
+     {t:'md',html:'<p><b>Python</b> is a high-level, general-purpose language famous for clean, readable syntax where <b>indentation</b> defines structure. It is <b>interpreted</b> and <b>dynamically typed</b>: you run source directly with the <code class="inl">python</code> command, with no compile step and no type declarations.</p><p>It runs everywhere — web backends (Django, Flask), data science, automation, and most security tooling.</p>'},
+     {t:'read',lang:'python',label:'hello.py',code:'# hello.py — run it with:  python hello.py\nprint("Hello from Python!")\n# interpreted: the interpreter runs this directly, no build step',note:'Like PHP, Python is interpreted — hand the source to the <code class="inl">python</code> command and it runs. No separate compile step.'},
+     {t:'quiz',q:'How is Python code executed?',
+      opts:['Compiled to a native .exe first','Interpreted — the python interpreter runs the source directly','It runs only inside a browser','It must be converted to C'],a:1,
+      why:'Python is <b>interpreted</b>: <code class="inl">python file.py</code> runs the source directly. (It compiles to bytecode internally and automatically, but there is no manual build step.)'}
+   ]},
+   {id:'pyb2', name:'Running Python from the command line', xp:20, cards:[
+     {t:'md',html:'<p>The <code class="inl">python</code> command (sometimes <code class="inl">python3</code>) is the hub:</p><p>• <code class="inl">python file.py</code> — run a script<br>• <code class="inl">python</code> — the <b>interactive shell</b> (REPL), prompt <code class="inl">&gt;&gt;&gt;</code><br>• <code class="inl">python -c "code"</code> — a one-liner<br>• <code class="inl">python -m module</code> — run a module as a tool (e.g. <code class="inl">http.server</code>, <code class="inl">venv</code>, <code class="inl">pip</code>)<br>• <code class="inl">python --version</code></p>'},
+     {t:'read',lang:'python',label:'terminal',code:'$ python --version\nPython 3.13.1\n\n$ python                 # interactive shell (REPL)\n>>> 2 + 2\n4\n>>> name = "world"\n>>> print(f"hi {name}")\nhi world\n\n$ python -m http.server 8000   # serve the current folder\n$ python -m venv .venv         # create a virtual environment',note:'Bare <code class="inl">python</code> opens the REPL. <code class="inl">python -m</code> runs a module as a command — <code class="inl">http.server</code> for a quick server, <code class="inl">venv</code> for environments.'},
+     {t:'quiz',q:'How do you open Python\'s interactive shell (REPL)?',
+      opts:['python -c','Run <code class="inl">python</code> with no script argument','python --compile','python -S'],a:1,
+      why:'Running <code class="inl">python</code> with no file drops you into the REPL (prompt <code class="inl">&gt;&gt;&gt;</code>). <code class="inl">python -m</code> runs a module such as <code class="inl">http.server</code> or <code class="inl">venv</code>.'}
+   ]},
+   {id:'pyb3', name:'Variables, types & f-strings', xp:20, cards:[
+     {t:'md',html:'<p>Variables are just names — no <code class="inl">$</code>, no type keywords. Core types: <b>int</b>, <b>float</b>, <b>str</b>, <b>bool</b>, <b>list</b>, <b>dict</b>, <b>None</b>. Print with <code class="inl">print()</code>. Modern string building uses <b>f-strings</b>: <code class="inl">f"...{var}..."</code>.</p>'},
+     {t:'read',lang:'python',label:'types.py',code:'name = "Ada"         # str\nage  = 36             # int\npi   = 3.14           # float\nok   = True           # bool\nnums = [1, 2, 3]      # list\n\nprint("Name: " + name)           # concatenation\nprint(f"Hi {name}, age {age}")   # f-string (preferred)',note:'No sigils and no declared types — a variable is a name bound to a value. <b>f-strings</b> interpolate variables directly and are the readable default.'},
+     {t:'quiz',q:'What does <code class="inl">f"Hi {name}"</code> produce when <code class="inl">name = "Sam"</code>?',
+      opts:['The literal text Hi {name}','Hi Sam — the f-string inserts the variable value','An error','Hi'],a:1,
+      why:'An <b>f-string</b> (the <code class="inl">f</code> prefix) evaluates <code class="inl">{name}</code> and inserts its value, giving <code class="inl">Hi Sam</code>.'}
+   ]},
+   {id:'pyb4', name:'Data structures & control flow', xp:25, cards:[
+     {t:'md',html:'<p>Everyday containers: <b>list</b> <code class="inl">[...]</code>, <b>dict</b> <code class="inl">{key: value}</code>, plus tuples and sets. Branch with <code class="inl">if/elif/else</code>, loop with <code class="inl">for</code>/<code class="inl">while</code>, and define reusable logic with <code class="inl">def</code>. <b>Indentation</b> — not braces — marks each block.</p>'},
+     {t:'read',lang:'python',label:'basics.py',code:'user = {"name": "Ada", "role": "admin"}   # dict\n\nfor key, value in user.items():\n    print(f"{key} = {value}")\n\nif user["role"] == "admin":\n    print("Access granted")\n\ndef greet(who):\n    return "Hello " + who\n\nprint(greet(user["name"]))',note:'This is the shape you decode when auditing Python: a dict holding request data, an <code class="inl">if</code> gate on a role, a <code class="inl">def</code> that returns a value.'},
+     {t:'quiz',q:'What marks a block of code in Python (an if body, a loop body, a function body)?',
+      opts:['Curly braces {}','Indentation (leading whitespace)','Semicolons','An end keyword'],a:1,
+      why:'Python uses <b>indentation</b> to define blocks — consistent leading whitespace, not braces. Mismatched indentation is itself a syntax error.'}
+   ]},
+   {id:'pyb5', name:'pip & virtual environments', xp:20, cards:[
+     {t:'md',html:'<p><b>pip</b> is Python\'s package installer; it fetches libraries from <b>PyPI</b>. Projects list their dependencies in <code class="inl">requirements.txt</code>. A <b>virtual environment</b> (<code class="inl">venv</code>) gives each project its own isolated set of packages so they do not collide.</p>'},
+     {t:'read',lang:'python',label:'terminal',code:'$ pip install requests           # install a package from PyPI\n$ pip freeze > requirements.txt  # pin the installed versions\n$ python -m venv .venv           # create an isolated environment\n$ source .venv/bin/activate      # activate it (macOS/Linux)',note:'<code class="inl">requirements.txt</code> is the dependency surface you audit for vulnerable versions — the Python equivalent of composer.lock or package-lock.json.'},
+     {t:'quiz',q:'What is pip to a Python project?',
+      opts:['A web server','The package installer — it fetches libraries from PyPI','A code editor','The interpreter itself'],a:1,
+      why:'<b>pip</b> installs packages from <b>PyPI</b>; projects record them in <code class="inl">requirements.txt</code>, which — like composer.lock — is the dependency list you audit for known CVEs.'}
+   ]},
+   {id:'pyb6', name:'Deprecated & removed (Python 2 vs 3)', xp:25, cards:[
+     {t:'md',html:'<p><b>Python 2 reached end-of-life on January 1, 2020</b> — it receives no security fixes. Spotting Python 2 syntax instantly dates code and flags risk. Tells: <code class="inl">print</code> used as a statement (no parentheses), <code class="inl">xrange</code>, <code class="inl">raw_input</code>, and old <code class="inl">except Exception, e:</code> syntax.</p><p>Even within Python 3, modules get removed: <code class="inl">distutils</code> (removed 3.12) and <code class="inl">cgi</code>/<code class="inl">cgitb</code> (removed 3.13) are recent examples.</p>'},
+     {t:'read',lang:'python',label:'Python 2 tells (all invalid in Python 3)',code:'print "hello"          # py2 statement; py3 needs print("hello")\nexcept Exception, e:   # py2 syntax; py3 uses  except Exception as e\nxrange(10)             # py2 only; py3 uses range()\nraw_input("name? ")    # py2 only; py3 uses input()',note:'Any of these means <b>Python 2</b> — unmaintained since 2020. Flag it: the runtime itself is unpatched, on top of whatever the app code does.'},
+     {t:'quiz',q:'You see <code class="inl">print "hello"</code> (no parentheses). What does it tell you?',
+      opts:['Modern, idiomatic Python 3','It is Python 2 — end-of-life since Jan 1, 2020 and no longer patched','A performance optimization','A type annotation'],a:1,
+      why:'<code class="inl">print</code> as a statement is <b>Python 2</b>, which reached end-of-life on Jan 1, 2020. Unpatched Python 2 in production is a finding in itself.'}
    ]}
   ]
  },
@@ -858,6 +933,13 @@ const TRACKS = [
    Rendered on the last card; open in a new tab.
    ========================================================= */
 const LESSON_REFS = {
+ 'pb8':[{t:'PHP Manual: Backward-incompatible changes in 7.0',u:'https://www.php.net/manual/en/migration70.incompatible.php'},{t:'PHP Manual: mysqli (the replacement)',u:'https://www.php.net/manual/en/book.mysqli.php'}],
+ 'pyb1':[{t:'Python: About',u:'https://www.python.org/about/'},{t:'The Python Tutorial',u:'https://docs.python.org/3/tutorial/'}],
+ 'pyb2':[{t:'Python: Using the interpreter',u:'https://docs.python.org/3/tutorial/interpreter.html'},{t:'Python: http.server',u:'https://docs.python.org/3/library/http.server.html'}],
+ 'pyb3':[{t:'Python Tutorial: An informal introduction',u:'https://docs.python.org/3/tutorial/introduction.html'}],
+ 'pyb4':[{t:'Python: Data structures',u:'https://docs.python.org/3/tutorial/datastructures.html'},{t:'Python: Control flow',u:'https://docs.python.org/3/tutorial/controlflow.html'}],
+ 'pyb5':[{t:'Python Packaging: Installing packages',u:'https://packaging.python.org/en/latest/tutorials/installing-packages/'},{t:'Python: venv',u:'https://docs.python.org/3/library/venv.html'}],
+ 'pyb6':[{t:'Sunsetting Python 2',u:'https://www.python.org/doc/sunset-python-2/'},{t:'What is New in Python 3.13 (removals)',u:'https://docs.python.org/3/whatsnew/3.13.html'}],
  'p5':[{t:'PHP Manual: Comparison operators',u:'https://www.php.net/manual/en/language.operators.comparison.php'},{t:'PHP Manual: Type comparison tables',u:'https://www.php.net/manual/en/types.comparisons.php'}],
  'c4':[{t:'CWE-134: Format String',u:'https://cwe.mitre.org/data/definitions/134.html'},{t:'OWASP: Format string attack',u:'https://owasp.org/www-community/attacks/Format_string_attack'}],
  'jv1':[{t:'Java: HttpServletRequest',u:'https://docs.oracle.com/javaee/7/api/javax/servlet/http/HttpServletRequest.html'}],
@@ -1115,7 +1197,7 @@ function vHome(){
 
   const GROUP_ORDER=['Foundations','Language basics','Languages & vulnerabilities','Attack patterns & real-world','Exploitation'];
   const groupOf=(id)=> id==='recon' ? 'Foundations'
-    : id==='phpbasics' ? 'Language basics'
+    : (id==='phpbasics' || id==='pybasics') ? 'Language basics'
     : ['php','dotnet','cpp','web','python','java'].includes(id) ? 'Languages & vulnerabilities'
     : id==='exploit' ? 'Exploitation'
     : 'Attack patterns & real-world';
@@ -1123,6 +1205,20 @@ function vHome(){
     const inGroup=TRACKS.filter(t=>groupOf(t.id)===g);
     if(!inGroup.length) continue;
     h+='<div class="sect">'+g+'</div>';
+    if(g==='Language basics'){
+      h+='<div class="basicsgrid">';
+      for(const t of inGroup){
+        const p=trackProgress(t);
+        h+='<button class="basicscard tap" data-act="track" data-id="'+t.id+'">'+
+            '<div class="bc-icon">'+t.icon+'</div>'+
+            '<div class="bc-name">'+t.name+'</div>'+
+            '<div class="bc-count">'+p.done+'/'+p.total+' lessons</div>'+
+            '<div class="bc-bar"><i style="width:'+p.pct+'%"></i></div>'+
+           '</button>';
+      }
+      h+='</div>';
+      continue;
+    }
     for(const t of inGroup){
       const p=trackProgress(t);
       h+='<button class="card tap trackcard" data-act="track" data-id="'+t.id+'">'+
@@ -1146,6 +1242,18 @@ function vTrack(tid){
   const nextI=nextLessonIndex(t);
   let h='<button class="back" data-act="home">‹ Tracks</button>'+
         '<h1 class="pg">'+t.name+'</h1><p class="sub">'+t.sub+'</p>';
+  if(t.meta){
+    const m=t.meta;
+    h+='<div class="factfile">';
+    if(m.note) h+='<div class="ff-note">'+m.note+'</div>';
+    h+='<div class="ff-grid">'+
+       '<div class="ff-cell"><div class="ff-k">Released</div><div class="ff-v">'+m.released+'</div></div>'+
+       '<div class="ff-cell"><div class="ff-k">Current</div><div class="ff-v">'+m.current+'</div></div>'+
+       '<div class="ff-cell"><div class="ff-k">End-of-life</div><div class="ff-v">'+m.eol+'</div></div>'+
+       '</div>';
+    if(m.link) h+='<a class="ff-link" href="'+m.link+'" target="_blank" rel="noopener noreferrer">Live version &amp; support status &#8599;</a>';
+    h+='</div>';
+  }
   t.lessons.forEach((l,i)=>{
     const done=!!S.done[l.id];
     const locked = i>0 && !S.done[t.lessons[i-1].id] && !done;
