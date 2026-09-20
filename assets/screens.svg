@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 720" width="1120" height="720" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <defs>
+    <linearGradient id="s_xp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#A18BFA"/><stop offset="1" stop-color="#F2A63B"/>
+    </linearGradient>
+    <clipPath id="scr"><rect x="10" y="10" width="300" height="640" rx="30"/></clipPath>
+  </defs>
+
+  <!-- ============ PHONE 1 · HOME ============ -->
+  <g transform="translate(20,30)">
+    <rect x="4" y="4" width="312" height="652" rx="40" fill="#05070A"/>
+    <rect x="6" y="6" width="308" height="648" rx="38" fill="#0D1015" stroke="#28313D" stroke-width="2"/>
+    <g clip-path="url(#scr)">
+      <rect x="10" y="10" width="300" height="640" fill="#0D1015"/>
+      <!-- app bar -->
+      <text x="30" y="46" font-size="19" font-weight="800"><tspan fill="#E9E6DE">code</tspan><tspan fill="#F2A63B">Learn</tspan></text>
+      <g transform="translate(232,26)"><rect width="58" height="26" rx="13" fill="#141A21" stroke="#28313D"/><text x="29" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#F2A63B">⚑ 5</text></g>
+      <text x="30" y="76" font-size="11" font-weight="700" letter-spacing="1" fill="#A18BFA">BUG HUNTER</text>
+      <rect x="128" y="68" width="132" height="6" rx="3" fill="#1B222C"/><rect x="128" y="68" width="86" height="6" rx="3" fill="url(#s_xp)"/>
+      <text x="290" y="77" text-anchor="end" font-size="11" font-family="ui-monospace,monospace" fill="#94A0AE">1180</text>
+
+      <!-- hero -->
+      <text x="30" y="118" font-size="21" font-weight="800" fill="#E9E6DE">Read code like</text>
+      <text x="30" y="144" font-size="21" font-weight="800" fill="#E9E6DE">an attacker.</text>
+
+      <!-- daily target -->
+      <rect x="30" y="164" width="260" height="86" rx="14" fill="#1a1408" stroke="#8a5f22"/>
+      <text x="46" y="190" font-size="11" font-weight="800" letter-spacing="1.5" fill="#F2A63B">◈ DAILY TARGET</text>
+      <text x="46" y="216" font-size="15" font-weight="700" fill="#E9E6DE">Ping diagnostic tool</text>
+      <text x="46" y="236" font-size="11.5" fill="#94A0AE">Find the injection flaw.</text>
+      <g transform="translate(212,214)"><rect width="62" height="26" rx="13" fill="#141A21" stroke="#8a5f22"/><text x="31" y="18" text-anchor="middle" font-size="12" font-weight="700" fill="#F2A63B">+40 XP</text></g>
+
+      <text x="30" y="282" font-size="11" font-weight="700" letter-spacing="1.5" fill="#94A0AE">LEARNING TRACKS</text>
+
+      <!-- track rows -->
+      <g transform="translate(30,296)">
+        <rect width="260" height="62" rx="13" fill="#141A21" stroke="#28313D"/>
+        <rect x="14" y="13" width="36" height="36" rx="9" fill="#1B222C" stroke="#28313D"/><text x="32" y="36" text-anchor="middle" font-size="12" font-family="ui-monospace,monospace" fill="#E9E6DE">{ }</text>
+        <text x="62" y="26" font-size="14" font-weight="700" fill="#E9E6DE">Code Recon</text>
+        <g transform="translate(150,15)"><rect width="82" height="18" rx="9" fill="#141A21" stroke="#8a5f22"/><text x="41" y="13" text-anchor="middle" font-size="9.5" font-weight="700" fill="#F2A63B">START HERE</text></g>
+        <rect x="62" y="38" width="150" height="5" rx="2.5" fill="#1B222C"/><rect x="62" y="38" width="150" height="5" rx="2.5" fill="#F2A63B"/>
+        <text x="246" y="42" text-anchor="end" font-size="11" font-family="ui-monospace,monospace" fill="#94A0AE">4/4</text>
+      </g>
+      <g transform="translate(30,366)">
+        <rect width="260" height="62" rx="13" fill="#141A21" stroke="#28313D"/>
+        <rect x="14" y="13" width="36" height="36" rx="9" fill="#1B222C" stroke="#28313D"/><text x="32" y="36" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#A18BFA">php</text>
+        <text x="62" y="26" font-size="14" font-weight="700" fill="#E9E6DE">PHP</text>
+        <g transform="translate(108,15)"><rect width="46" height="18" rx="9" fill="#141A21" stroke="#4a3f86"/><text x="23" y="13" text-anchor="middle" font-size="9.5" font-weight="700" fill="#A18BFA">WEB</text></g>
+        <rect x="62" y="38" width="150" height="5" rx="2.5" fill="#1B222C"/><rect x="62" y="38" width="75" height="5" rx="2.5" fill="#A18BFA"/>
+        <text x="246" y="42" text-anchor="end" font-size="11" font-family="ui-monospace,monospace" fill="#94A0AE">2/4</text>
+      </g>
+      <g transform="translate(30,436)">
+        <rect width="260" height="62" rx="13" fill="#141A21" stroke="#28313D"/>
+        <rect x="14" y="13" width="36" height="36" rx="9" fill="#1B222C" stroke="#28313D"/><text x="32" y="36" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" fill="#F2A63B">C++</text>
+        <text x="62" y="26" font-size="14" font-weight="700" fill="#E9E6DE">C / C++</text>
+        <g transform="translate(126,15)"><rect width="66" height="18" rx="9" fill="#141A21" stroke="#8a5f22"/><text x="33" y="13" text-anchor="middle" font-size="9.5" font-weight="700" fill="#F2A63B">NATIVE</text></g>
+        <rect x="62" y="38" width="150" height="5" rx="2.5" fill="#1B222C"/><rect x="62" y="38" width="50" height="5" rx="2.5" fill="#F2A63B"/>
+        <text x="246" y="42" text-anchor="end" font-size="11" font-family="ui-monospace,monospace" fill="#94A0AE">1/3</text>
+      </g>
+
+      <!-- bottom nav -->
+      <rect x="10" y="596" width="300" height="54" fill="#141A21"/>
+      <line x1="10" y1="596" x2="310" y2="596" stroke="#28313D"/>
+      <text x="70" y="628" text-anchor="middle" font-size="11" font-weight="700" fill="#F2A63B">LEARN</text>
+      <text x="160" y="628" text-anchor="middle" font-size="11" font-weight="700" fill="#94A0AE">HUNT</text>
+      <text x="250" y="628" text-anchor="middle" font-size="11" font-weight="700" fill="#94A0AE">RANK</text>
+    </g>
+  </g>
+
+  <!-- ============ PHONE 2 · LESSON QUIZ ============ -->
+  <g transform="translate(400,30)">
+    <rect x="4" y="4" width="312" height="652" rx="40" fill="#05070A"/>
+    <rect x="6" y="6" width="308" height="648" rx="38" fill="#0D1015" stroke="#28313D" stroke-width="2"/>
+    <g clip-path="url(#scr)">
+      <rect x="10" y="10" width="300" height="640" fill="#0D1015"/>
+      <text x="30" y="42" font-size="17" font-weight="800"><tspan fill="#E9E6DE">code</tspan><tspan fill="#F2A63B">Learn</tspan></text>
+      <text x="30" y="74" font-size="13" font-weight="700" fill="#94A0AE">‹ Code Recon</text>
+      <rect x="30" y="88" width="230" height="5" rx="2.5" fill="#1B222C"/><rect x="30" y="88" width="230" height="5" rx="2.5" fill="#F2A63B"/>
+      <text x="290" y="93" text-anchor="end" font-size="11" font-family="ui-monospace,monospace" fill="#94A0AE">3/3</text>
+      <text x="30" y="124" font-size="19" font-weight="800" fill="#E9E6DE">What code actually is</text>
+
+      <!-- question -->
+      <rect x="30" y="140" width="260" height="60" rx="12" fill="#141A21" stroke="#8a5f22"/>
+      <text x="44" y="166" font-size="13"><tspan font-weight="800" fill="#E9E6DE">Q. </tspan><tspan fill="#E9E6DE">Which part is the</tspan></text>
+      <text x="44" y="186" font-size="13"><tspan font-weight="800" fill="#E9E6DE">source</tspan><tspan fill="#E9E6DE"> of untrusted data?</tspan></text>
+
+      <!-- options -->
+      <g font-size="13" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">
+        <g transform="translate(30,212)" opacity="0.5"><rect width="260" height="44" rx="11" fill="#141A21" stroke="#28313D"/><text x="18" y="27" fill="#94A0AE">A</text><text x="40" y="27" font-family="system-ui" fill="#E9E6DE">The echo statement</text></g>
+        <g transform="translate(30,264)"><rect width="260" height="44" rx="11" fill="#12291d" stroke="#3FC98C"/><text x="18" y="27" fill="#94A0AE">B</text><text x="40" y="27" fill="#F2A63B">$_GET["name"]</text><text x="244" y="28" font-size="17" fill="#3FC98C">✓</text></g>
+        <g transform="translate(30,316)" opacity="0.5"><rect width="260" height="44" rx="11" fill="#141A21" stroke="#28313D"/><text x="18" y="27" fill="#94A0AE">C</text><text x="40" y="27" font-family="system-ui" fill="#E9E6DE">The string "Hello "</text></g>
+        <g transform="translate(30,368)" opacity="0.5"><rect width="260" height="44" rx="11" fill="#141A21" stroke="#28313D"/><text x="18" y="27" fill="#94A0AE">D</text><text x="40" y="27" fill="#EFA48B">$greeting</text></g>
+      </g>
+
+      <!-- explanation -->
+      <rect x="30" y="424" width="260" height="118" rx="12" fill="#141A21"/>
+      <rect x="30" y="424" width="4" height="118" fill="#F2A63B"/>
+      <text x="46" y="452" font-size="13"><tspan font-weight="800" fill="#F2A63B">Correct. </tspan><tspan fill="#E9E6DE">$_GET reads</tspan></text>
+      <text x="46" y="472" font-size="13" fill="#E9E6DE">values straight from the URL</text>
+      <text x="46" y="492" font-size="13" fill="#E9E6DE">query string. Anything a user</text>
+      <text x="46" y="512" font-size="13" fill="#E9E6DE">controls is a source — and the</text>
+      <text x="46" y="532" font-size="13" fill="#E9E6DE">URL is attacker-controlled.</text>
+
+      <rect x="30" y="556" width="260" height="40" rx="11" fill="#F2A63B"/>
+      <text x="160" y="581" text-anchor="middle" font-size="14" font-weight="800" fill="#171208">Continue</text>
+
+      <rect x="10" y="608" width="300" height="42" fill="#141A21"/><line x1="10" y1="608" x2="310" y2="608" stroke="#28313D"/>
+      <text x="70" y="634" text-anchor="middle" font-size="11" font-weight="700" fill="#F2A63B">LEARN</text>
+      <text x="160" y="634" text-anchor="middle" font-size="11" font-weight="700" fill="#94A0AE">HUNT</text>
+      <text x="250" y="634" text-anchor="middle" font-size="11" font-weight="700" fill="#94A0AE">RANK</text>
+    </g>
+  </g>
+
+  <!-- ============ PHONE 3 · HUNT DEBRIEF ============ -->
+  <g transform="translate(780,30)">
+    <rect x="4" y="4" width="312" height="652" rx="40" fill="#05070A"/>
+    <rect x="6" y="6" width="308" height="648" rx="38" fill="#0D1015" stroke="#28313D" stroke-width="2"/>
+    <g clip-path="url(#scr)">
+      <rect x="10" y="10" width="300" height="640" fill="#0D1015"/>
+      <text x="30" y="42" font-size="17" font-weight="800"><tspan fill="#E9E6DE">code</tspan><tspan fill="#F2A63B">Learn</tspan></text>
+      <text x="30" y="74" font-size="13" font-weight="700" fill="#94A0AE">‹ Hunts</text>
+      <text x="30" y="104" font-size="19" font-weight="800" fill="#E9E6DE">Ping diagnostic tool</text>
+      <g font-size="10.5" font-weight="700">
+        <g transform="translate(30,116)"><rect width="52" height="22" rx="11" fill="#1B222C" stroke="#8a5f22"/><text x="26" y="15" text-anchor="middle" fill="#F2A63B">Easy</text></g>
+        <g transform="translate(90,116)"><rect width="48" height="22" rx="11" fill="#1B222C" stroke="#28313D"/><text x="24" y="15" text-anchor="middle" fill="#94A0AE">PHP</text></g>
+        <g transform="translate(146,116)"><rect width="60" height="22" rx="11" fill="#1B222C" stroke="#4a3f86"/><text x="30" y="15" text-anchor="middle" fill="#A18BFA">+40 XP</text></g>
+      </g>
+
+      <!-- code with a green-flagged line -->
+      <rect x="30" y="150" width="260" height="150" rx="10" fill="#0A0D12" stroke="#28313D"/>
+      <text x="44" y="172" font-size="9.5" font-family="ui-monospace,monospace" letter-spacing="1" fill="#5B6B7B">PHP — TAP DANGEROUS LINES</text>
+      <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="12.5">
+        <text x="44" y="196" fill="#3d4856">1</text><text x="66" y="196"><tspan fill="#EFA48B">$target</tspan><tspan fill="#94A0AE"> = $_POST[</tspan><tspan fill="#95CE84">"t"</tspan><tspan fill="#94A0AE">];</tspan></text>
+        <text x="44" y="220" fill="#3d4856">2</text><text x="66" y="220"><tspan fill="#7FB2F0">if</tspan><tspan fill="#94A0AE"> (empty($target)) …</tspan></text>
+        <!-- flagged correct line -->
+        <rect x="34" y="230" width="252" height="26" rx="4" fill="#15301f"/><rect x="34" y="230" width="4" height="26" fill="#3FC98C"/>
+        <text x="44" y="248" fill="#3d4856">3</text><text x="66" y="248"><tspan fill="#E8CE7A">shell_exec</tspan><tspan fill="#94A0AE">(</tspan><tspan fill="#95CE84">"ping "</tspan><tspan fill="#94A0AE">.$target)</tspan></text>
+        <text x="44" y="278" fill="#3d4856">4</text><text x="66" y="278"><tspan fill="#7FB2F0">echo</tspan><tspan fill="#94A0AE"> htmlspecialchars(…)</tspan></text>
+      </g>
+
+      <!-- debrief -->
+      <rect x="30" y="316" width="260" height="188" rx="12" fill="#141A21"/>
+      <rect x="30" y="316" width="4" height="188" fill="#3FC98C"/>
+      <text x="46" y="344" font-size="13.5"><tspan font-weight="800" fill="#F2A63B">Flawless audit. </tspan></text>
+      <text x="46" y="364" font-size="12.5" fill="#E9E6DE">You flagged 1 of 1 vulnerable</text>
+      <text x="46" y="382" font-size="12.5" fill="#E9E6DE">line, no false positives.</text>
+      <text x="46" y="412" font-size="12.5"><tspan font-weight="700" fill="#F2A63B">Line 3</tspan><tspan fill="#E9E6DE"> passes user input to</tspan></text>
+      <text x="46" y="430" font-size="12.5" font-family="ui-monospace,monospace" fill="#F2A63B">shell_exec</text>
+      <text x="46" y="448" font-size="12.5" fill="#E9E6DE">— input like 8.8.8.8;id runs</text>
+      <text x="46" y="466" font-size="12.5" fill="#E9E6DE">both commands. That is</text>
+      <text x="46" y="484" font-size="12.5"><tspan font-weight="700" fill="#F2A63B">command injection → RCE.</tspan></text>
+
+      <!-- badge -->
+      <g transform="translate(84,516)"><rect width="152" height="34" rx="17" fill="#1a1408" stroke="#8a5f22"/><text x="76" y="22" text-anchor="middle" font-size="13" font-weight="700" fill="#E9E6DE">🎯 Eagle Eye</text></g>
+
+      <rect x="10" y="608" width="300" height="42" fill="#141A21"/><line x1="10" y1="608" x2="310" y2="608" stroke="#28313D"/>
+      <text x="70" y="634" text-anchor="middle" font-size="11" font-weight="700" fill="#94A0AE">LEARN</text>
+      <text x="160" y="634" text-anchor="middle" font-size="11" font-weight="700" fill="#F2A63B">HUNT</text>
+      <text x="250" y="634" text-anchor="middle" font-size="11" font-weight="700" fill="#94A0AE">RANK</text>
+    </g>
+  </g>
+</svg>

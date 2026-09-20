@@ -1,0 +1,1084 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1">
+<title>codeLearn</title>
+<meta name="theme-color" content="#0D1015">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="codeLearn">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style id="base-reset">
+html{color-scheme:dark}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<style>
+:root{
+  --bg:#0D1015; --panel:#141A21; --panel2:#1B222C; --line:#28313D;
+  --ink:#E9E6DE; --mut:#94A0AE; --amber:#F2A63B; --amber-dim:#8a5f22;
+  --violet:#A18BFA; --good:#3FC98C; --bad:#E2594F;
+  --kw:#7FB2F0; --str:#95CE84; --com:#5B6B7B; --num:#D89AF0; --vr:#EFA48B; --fn:#E8CE7A;
+  --disp:'Chakra Petch',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  -webkit-tap-highlight-color:transparent; overscroll-behavior-y:contain;
+}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px 104px}
+/* ---------- app bar ---------- */
+.appbar{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:20;
+  background:linear-gradient(180deg,var(--bg) 82%,rgba(13,16,21,0));
+  padding:10px 0 12px;
+}
+.appbar .row{display:flex;align-items:center;gap:10px}
+.logo{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.02em}
+.logo em{font-style:normal;color:var(--amber)}
+.logo .cursor{display:inline-block;width:9px;height:17px;background:var(--amber);margin-left:3px;vertical-align:-2px;animation:blink 1.2s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.logo .cursor{animation:none}}
+.spacer{flex:1}
+.streak{display:flex;align-items:center;gap:5px;font-family:var(--disp);font-weight:600;font-size:14px;color:var(--amber);background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.streak.cold{color:var(--mut)}
+.xpline{display:flex;align-items:center;gap:10px;margin-top:9px}
+.rank{font-family:var(--disp);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--violet);white-space:nowrap}
+.xpbar{flex:1;height:6px;border-radius:3px;background:var(--panel2);overflow:hidden}
+.xpbar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--violet),var(--amber));transition:width .5s ease}
+.xpnum{font-family:var(--mono);font-size:11px;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
+/* ---------- bottom nav ---------- */
+.tabbar{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:rgba(20,26,33,.96);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  padding:8px 8px calc(8px + env(safe-area-inset-bottom,0px));
+}
+.tabbar .inner{max-width:560px;margin:0 auto;display:flex}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--mut);font-family:var(--disp);font-size:11px;font-weight:600;letter-spacing:.05em;padding:4px 0;border-radius:10px}
+.tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tab.on{color:var(--amber)}
+/* ---------- generic ---------- */
+h1.pg{font-family:var(--disp);font-size:24px;font-weight:700;margin:14px 0 4px;text-wrap:balance}
+.sub{color:var(--mut);margin:0 0 18px;max-width:46ch}
+.sect{font-family:var(--disp);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin:26px 0 10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.tap{display:block;width:100%;text-align:left;transition:transform .08s ease}
+.tap:active{transform:scale(.985)}
+.chip{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--mut);background:var(--panel2)}
+.chip.amber{color:var(--amber);border-color:var(--amber-dim)}
+.chip.violet{color:var(--violet);border-color:#4a3f86}
+.chip.good{color:var(--good);border-color:#1e5f44}
+.chip.bad{color:var(--bad);border-color:#6e2b26}
+.btn{
+  display:block;width:100%;text-align:center;font-family:var(--disp);font-weight:700;font-size:15px;
+  letter-spacing:.03em;background:var(--amber);color:#171208;border-radius:12px;padding:14px 18px;margin-top:14px;
+}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:none;border:1px solid #6e2b26;color:var(--bad)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--mut);font-family:var(--disp);font-weight:600;font-size:13px;margin-top:12px}
+.pbar{height:5px;border-radius:3px;background:var(--panel2);overflow:hidden}
+.pbar i{display:block;height:100%;background:var(--amber);border-radius:3px;transition:width .4s}
+.pbar.v i{background:var(--violet)}
+/* ---------- track / lesson lists ---------- */
+.trackcard{display:flex;align-items:center;gap:14px}
+.tricon{
+  width:44px;height:44px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-weight:600;font-size:13px;border:1px solid var(--line);background:var(--panel2);
+}
+.trmeta{flex:1;min-width:0}
+.trname{font-family:var(--disp);font-weight:700;font-size:16px}
+.trsub{font-size:12.5px;color:var(--mut);margin:1px 0 7px}
+.count{font-family:var(--mono);font-size:11px;color:var(--mut);white-space:nowrap;font-variant-numeric:tabular-nums}
+.lrow{display:flex;align-items:center;gap:12px}
+.lstate{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--panel2);font-family:var(--mono);font-size:12px;color:var(--mut)}
+.lstate.done{background:#153526;border-color:#1e5f44;color:var(--good)}
+.lstate.next{background:#33270f;border-color:var(--amber-dim);color:var(--amber)}
+.lrow.locked{opacity:.45}
+.lname{font-weight:600;font-size:14.5px}
+.lxp{font-family:var(--mono);font-size:11px;color:var(--mut)}
+/* ---------- code ---------- */
+.codebox{
+  background:#0A0D12;border:1px solid var(--line);border-radius:10px;
+  margin:12px 0 4px;overflow-x:auto;
+}
+.codebox pre{margin:0;padding:12px 14px;font:12.5px/1.65 var(--mono);white-space:pre;min-width:min-content}
+.codebox .lang{display:block;font:10px/1 var(--mono);color:var(--com);padding:8px 14px 0;letter-spacing:.1em;text-transform:uppercase}
+.tk-kw{color:var(--kw)} .tk-str{color:var(--str)} .tk-com{color:var(--com)}
+.tk-num{color:var(--num)} .tk-var{color:var(--vr)} .tk-fn{color:var(--fn)}
+code.inl{font:12.5px var(--mono);background:var(--panel2);border:1px solid var(--line);border-radius:5px;padding:1px 5px;color:var(--amber)}
+/* hunt code lines */
+.hline{display:flex;width:100%;text-align:left;font:12.5px/1.7 var(--mono);white-space:pre;border-left:3px solid transparent}
+.hline .no{flex:none;width:34px;padding-left:10px;color:#3d4856;user-select:none;font-variant-numeric:tabular-nums}
+.hline .src{padding-right:14px}
+.hline:active{background:#161d26}
+.hline.hit{background:#15301f;border-left-color:var(--good)}
+.hline.miss{background:#331a17;border-left-color:var(--bad)}
+/* ---------- quiz ---------- */
+.opt{
+  display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);
+  border-radius:12px;padding:13px 14px;margin-bottom:10px;font-size:14px;
+}
+.opt .key{font-family:var(--mono);font-size:11px;color:var(--mut);margin-right:8px}
+.opt.right{border-color:var(--good);background:#12291d}
+.opt.wrong{border-color:var(--bad);background:#2c1714}
+.opt.dim{opacity:.5}
+.explain{border-left:3px solid var(--amber);background:var(--panel);border-radius:0 12px 12px 0;padding:12px 14px;font-size:13.5px;color:var(--ink);margin-top:4px}
+.explain b{color:var(--amber)}
+.qmeta{display:flex;align-items:center;gap:10px;margin:16px 0 10px}
+.qmeta .pbar{flex:1}
+.hearts{font-family:var(--mono);font-size:13px;color:var(--bad);letter-spacing:2px}
+/* ---------- results / profile ---------- */
+.bignum{font-family:var(--disp);font-weight:700;font-size:44px;color:var(--amber);line-height:1.1}
+.center{text-align:center}
+.resultcard{padding:28px 16px}
+.badgegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.badge{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px}
+.badge.off{opacity:.38}
+.badge .bi{font-size:20px}
+.badge .bn{font-family:var(--disp);font-weight:600;font-size:13px;margin:6px 0 2px}
+.badge .bd{font-size:11.5px;color:var(--mut)}
+.statrow{display:flex;gap:10px}
+.stat{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stat .v{font-family:var(--disp);font-weight:700;font-size:22px;color:var(--amber)}
+.stat .k{font-size:11px;color:var(--mut);letter-spacing:.05em;text-transform:uppercase}
+/* toast */
+#toast{
+  position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);
+  background:var(--panel2);border:1px solid var(--amber-dim);color:var(--ink);
+  font-family:var(--disp);font-weight:600;font-size:14px;border-radius:999px;padding:10px 20px;
+  opacity:0;pointer-events:none;transition:all .3s ease;z-index:50;white-space:nowrap;max-width:92vw;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#updatebar{
+  position:fixed;left:0;right:0;top:0;z-index:60;transform:translateY(-120%);transition:transform .35s ease;
+  background:var(--amber);color:#171208;font-family:var(--disp);font-weight:700;font-size:13.5px;letter-spacing:.02em;
+  text-align:center;padding:calc(11px + env(safe-area-inset-top,0px)) 16px 11px;cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,.4);
+}
+#updatebar.show{transform:translateY(0)}
+.daily{border:1px solid var(--amber-dim);background:linear-gradient(160deg,#1d1608,var(--panel))}
+.dailytag{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
+kbd,strong{color:var(--ink)}
+p{margin:.5em 0}
+</style>
+</head>
+<body>
+
+
+<header class="appbar"><div class="wrap" style="padding-bottom:0">
+  <div class="row">
+    <div class="logo">code<em>Learn</em><span class="cursor"></span></div>
+    <div class="spacer"></div>
+    <div class="streak" id="streakpill">⚑ 0</div>
+  </div>
+  <div class="xpline">
+    <span class="rank" id="rankname">Script Kiddie</span>
+    <div class="xpbar"><i id="xpfill" style="width:0%"></i></div>
+    <span class="xpnum" id="xpnum">0 XP</span>
+  </div>
+</div></header>
+
+<main class="wrap" id="view"></main>
+
+<nav class="tabbar"><div class="inner">
+  <button class="tab" data-tab="learn" aria-label="Learn">
+    <svg viewBox="0 0 24 24"><path d="M4 19V6a2 2 0 0 1 2-2h13v13H6a2 2 0 0 0-2 2zm0 0a2 2 0 0 0 2 2h13"/><path d="M9 8h6M9 11h4"/></svg>
+    LEARN</button>
+  <button class="tab" data-tab="hunt" aria-label="Hunt">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/><circle cx="12" cy="12" r="1.2" fill="currentColor"/></svg>
+    HUNT</button>
+  <button class="tab" data-tab="profile" aria-label="Rank">
+    <svg viewBox="0 0 24 24"><path d="M12 3l2.1 4.6 5 .6-3.7 3.4 1 4.9L12 14l-4.4 2.5 1-4.9L4.9 8.2l5-.6z"/></svg>
+    RANK</button>
+</div></nav>
+
+<div id="updatebar" onclick="applyUpdate()">↻ New version available — tap to update</div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* =========================================================
+   codeLearn — teach a pentester to read code & spot vulns
+   ========================================================= */
+
+/* ---------- tiny syntax highlighter ---------- */
+const KW = {
+  php:'php echo print include include_once require require_once if else elseif foreach as function return while for new class public private protected true false null die exit isset empty use namespace extends static global try catch switch case break',
+  csharp:'using namespace class public private protected static void string int var bool return if else for foreach in new null true false async await try catch throw get set readonly interface override',
+  cpp:'include define int char void return if else for while new delete sizeof struct class public private const unsigned long double float bool true false nullptr using namespace std size_t uint16_t uint32_t',
+  js:'const let var function return if else for while new class this document window true false null undefined async await try catch import from export typeof require module',
+  python:'def return if elif else for in while import from as class with try except raise True False None print lambda pass not and or is global del yield',
+  sql:'select from where and or order by limit insert into values update set delete join inner left on union all as group having create table drop like'
+};
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(src,lang){
+  lang = lang||'js';
+  const kws = (KW[lang]||KW.js).split(' ');
+  const kwRe = kws.join('|');
+  const flags = lang==='sql' ? 'gi' : 'g';
+  const re = new RegExp(
+    '(\\/\\*[\\s\\S]*?\\*\\/|\\/\\/[^\\n]*|#[^\\n]*|--[^\\n]*)'+   // 1 comment
+    '|("(?:[^"\\\\\\n]|\\\\.)*"|\'(?:[^\'\\\\\\n]|\\\\.)*\')'+     // 2 string
+    '|(\\$\\w+|@\\w+)'+                                            // 3 var/attr
+    '|\\b(\\d[\\d._]*)\\b'+                                        // 4 number
+    '|\\b('+kwRe+')\\b'+                                           // 5 keyword
+    '|\\b(\\w+)(?=\\()'                                            // 6 fn call
+  ,flags);
+  return esc(src).replace(re,(m,com,str,vr,num,kw,fn)=>{
+    if(com!==undefined){
+      // '#include' in C++ is not a comment; '#' comments only for php/python
+      if(com[0]==='#' && lang!=='php' && lang!=='python') return m;
+      if(com.slice(0,2)==='--' && lang!=='sql') return m;
+      if(com[0]==='#' && (lang==='php'||lang==='python')) return '<span class="tk-com">'+com+'</span>';
+      if(com.slice(0,2)==='--' && lang==='sql') return '<span class="tk-com">'+com+'</span>';
+      return '<span class="tk-com">'+com+'</span>';
+    }
+    if(str!==undefined) return '<span class="tk-str">'+str+'</span>';
+    if(vr !==undefined) return '<span class="tk-var">'+vr+'</span>';
+    if(num!==undefined) return '<span class="tk-num">'+num+'</span>';
+    if(kw !==undefined) return '<span class="tk-kw">'+kw+'</span>';
+    if(fn !==undefined) return '<span class="tk-fn">'+fn+'</span>';
+    return m;
+  });
+}
+function codebox(src,lang,label){
+  return '<div class="codebox"><span class="lang">'+(label||lang)+'</span><pre>'+hl(src,lang)+'</pre></div>';
+}
+
+/* ---------- ranks & badges ---------- */
+const RANKS = [
+  [0,'Script Kiddie'],[120,'Recruit'],[300,'Code Reader'],[600,'Analyst'],
+  [1000,'Bug Hunter'],[1500,'Exploit Dev'],[2200,'Red Teamer'],[3000,'APT Operator']
+];
+const BADGES = [
+  {id:'first',  ic:'🩸', n:'First Blood',   d:'Complete your first lesson'},
+  {id:'recon',  ic:'🔭', n:'Recon Done',    d:'Finish the Code Recon track'},  {id:'polyglot',ic:'🌐', n:'Polyglot',     d:'Finish a lesson in 3 languages'},
+  {id:'eagle',  ic:'🎯', n:'Eagle Eye',    d:'Ace a code review with no misses'},
+  {id:'five',   ic:'🔎', n:'Reviewer',     d:'Clear 5 review challenges'},
+  {id:'allhunt',ic:'🏆', n:'Lead Auditor', d:'Clear every review challenge'},
+  {id:'week',   ic:'⚑',  n:'Week Warrior', d:'Keep a 7-day streak'},
+  {id:'grind',  ic:'⚡', n:'Grinder',      d:'Earn 1,000 XP'},
+  {id:'scholar',ic:'🎓', n:'Scholar',      d:'Complete every lesson'},
+  {id:'daily',  ic:'📅', n:'On Target',    d:'Clear a Daily Target challenge'}
+];
+
+/* ---------- version ---------- */
+const APP_VERSION='1.0.0';
+
+/* ---------- persistent state ---------- */
+const KEY='codelearn.v1';
+let S = {xp:0, done:{}, hunts:{}, streak:{last:'',n:0}, badges:{}, daily:''};
+try{ const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw)); }catch(e){}
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} }
+
+function today(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function yesterday(){ const d=new Date(Date.now()-864e5); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+
+function rankInfo(xp){
+  let cur=RANKS[0], next=null;
+  for(const r of RANKS){ if(xp>=r[0]) cur=r; else { next=r; break; } }
+  return {name:cur[1], base:cur[0], next};
+}
+function addXP(n){
+  const before=rankInfo(S.xp).name;
+  S.xp+=n;
+  const t=today();
+  if(S.streak.last!==t){
+    S.streak.n = (S.streak.last===yesterday()) ? S.streak.n+1 : 1;
+    S.streak.last=t;
+  }
+  const after=rankInfo(S.xp).name;
+  save(); renderHeader();
+  if(after!==before) toast('▲ Rank up: '+after);
+  checkBadges();
+}
+function grant(id){
+  if(S.badges[id]) return;
+  S.badges[id]=Date.now(); save();
+  const b=BADGES.find(x=>x.id===id);
+  if(b) setTimeout(()=>toast(b.ic+' Badge: '+b.n),700);
+}
+function checkBadges(){
+  const doneIds=Object.keys(S.done);
+  if(doneIds.length>0) grant('first');
+  const langsDone=new Set();
+  for(const t of TRACKS){
+    const fin=t.lessons.filter(l=>S.done[l.id]).length;
+    if(fin>0 && t.id!=='recon') langsDone.add(t.id);
+    if(fin===t.lessons.length && t.id==='recon') grant('recon');
+  }
+  if(langsDone.size>=3) grant('polyglot');
+  const solved=Object.values(S.hunts).filter(h=>h.solved);
+  if(solved.length>=5) grant('five');
+  if(solved.length===HUNTS.length) grant('allhunt');
+  if(solved.some(h=>h.perfect)) grant('eagle');
+  if(S.streak.n>=7) grant('week');
+  if(S.xp>=1000) grant('grind');
+  if(TRACKS.every(t=>t.lessons.every(l=>S.done[l.id]))) grant('scholar');
+}
+
+/* ---------- toast ---------- */
+let toastT=null;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+/* ---------- header ---------- */
+function renderHeader(){
+  const r=rankInfo(S.xp);
+  document.getElementById('rankname').textContent=r.name;
+  document.getElementById('xpnum').textContent=S.xp+' XP';
+  const span=r.next? (r.next[0]-r.base) : 1;
+  const pct=r.next? Math.min(100,Math.round((S.xp-r.base)/span*100)) : 100;
+  document.getElementById('xpfill').style.width=pct+'%';
+  const sp=document.getElementById('streakpill');
+  const active=(S.streak.last===today());
+  sp.textContent='⚑ '+S.streak.n;
+  sp.classList.toggle('cold',!active);
+}
+
+/* ---------- router ---------- */
+let view={name:'learn'};
+function go(v){ view=v; render(); window.scrollTo(0,0); }
+function setTab(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.tab===name));
+}
+document.querySelectorAll('.tab').forEach(b=>{
+  b.addEventListener('click',()=>go({name:b.dataset.tab}));
+});
+
+function render(){
+  const root=document.getElementById('view');
+  if(view.name==='learn'){ setTab('learn'); root.innerHTML=vHome(); }
+  else if(view.name==='track'){ setTab('learn'); root.innerHTML=vTrack(view.trackId); }
+  else if(view.name==='lesson'){ setTab('learn'); root.innerHTML=vLesson(); }
+  else if(view.name==='hunt'){ setTab('hunt'); root.innerHTML=vHuntList(); }
+  else if(view.name==='huntplay'){ setTab('hunt'); root.innerHTML=vHuntPlay(); }
+  else if(view.name==='profile'){ setTab('profile'); root.innerHTML=vProfile(); }
+  bindView(root);
+}
+/* delegate clicks via data-act attributes */
+function bindView(root){
+  root.querySelectorAll('[data-act]').forEach(el=>{
+    el.addEventListener('click',()=>handleAct(el));
+  });
+}
+
+/* =========================================================
+   CURRICULUM
+   Each lesson: id, name, xp, cards[]  (a card = teach step)
+   card types:  {t:'read', lang, code, note}      -> annotated code
+                {t:'md', html}                     -> explanation
+                {t:'quiz', q, opts[], a, why}      -> single MCQ
+   ========================================================= */
+const TRACKS = [
+ {
+  id:'recon', name:'Code Recon', tag:'START HERE', icon:'{ }', accent:'amber',
+  sub:'Read any code even if you have never programmed.',
+  lessons:[
+   {id:'r1', name:'What code actually is', xp:20, cards:[
+     {t:'md',html:'<p>Code is a <b>list of instructions</b> a computer runs top to bottom. As a pentester you rarely need to <i>write</i> it — you need to answer three questions:</p><p>1. Where does <b>input</b> come from?<br>2. What does the code <b>do</b> with it?<br>3. Where does it <b>end up</b> (a database, a file, the page, a shell)?</p><p>That path — <b>source → processing → sink</b> — is the whole game. A vulnerability is almost always <b>untrusted input reaching a dangerous sink without being cleaned.</b></p>'},
+     {t:'read',lang:'php',label:'PHP — read it like a sentence',code:'$name = $_GET["name"];        // SOURCE: from the URL\n$greeting = "Hello " . $name;  // processing: glue strings\necho $greeting;                // SINK: printed to the page',note:'<code class="inl">$_GET["name"]</code> is user input from the URL. It is glued into a string, then <code class="inl">echo</code> writes it to the page. Input flows straight to output untouched — remember that shape.'},
+     {t:'quiz',q:'In the code above, which part is the <b>source</b> of untrusted data?',
+      opts:['The <code class="inl">echo</code> statement','<code class="inl">$_GET["name"]</code>','The string "Hello "','The variable <code class="inl">$greeting</code>'],a:1,
+      why:'<b>$_GET</b> reads values straight from the URL query string. Anything a user can control is a source — and the URL is fully attacker-controlled.'}
+   ]},
+   {id:'r2', name:'Variables, strings & concatenation', xp:20, cards:[
+     {t:'md',html:'<p>A <b>variable</b> is a labeled box holding a value. Different languages mark them differently — spotting them is step one to reading unfamiliar code:</p><p>• PHP: <code class="inl">$user</code> (dollar sign)<br>• C# / C++: <code class="inl">string user</code> (type then name)<br>• Python / JS: <code class="inl">user = ...</code> (just a name)</p><p><b>Concatenation</b> means joining strings. Watch for it around commands and queries — that is often where attacker input gets welded into something dangerous.</p>'},
+     {t:'read',lang:'csharp',label:'C# — same idea, different syntax',code:'string user = Request.Query["u"];   // source\nstring msg  = "Welcome, " + user;   // + joins strings\nResponse.Write(msg);                // sink'},
+     {t:'quiz',q:'Across PHP, C#, and Python, what is the common tell that a value is a <b>variable</b> holding data rather than a fixed keyword?',
+      opts:['It is always UPPERCASE','It gets assigned a value and is reused by name','It is inside quotes','It ends in a semicolon'],a:1,
+      why:'A variable is <b>named and assigned</b>, then referred to later by that name. The exact syntax varies, but the "store a value, reuse it by name" pattern is universal.'}
+   ]},
+   {id:'r3', name:'Functions & what they return', xp:25, cards:[
+     {t:'md',html:'<p>A <b>function</b> is a named block of reusable code. You <i>call</i> it by name with <code class="inl">( )</code>, optionally passing <b>arguments</b> inside. It may <b>return</b> a value back.</p><p>For a pentester, functions are the vocabulary. You do not memorize a language — you learn which function <b>names</b> are dangerous. <code class="inl">system()</code>, <code class="inl">eval()</code>, <code class="inl">query()</code>: the name tells you what sink you are looking at.</p>'},
+     {t:'read',lang:'python',label:'Python — defining and calling',code:'def make_query(uid):           # define, uid is the argument\n    return "SELECT * WHERE id=" + uid\n\nsql = make_query(user_input)   # call it; sql holds the result\ndb.execute(sql)                # dangerous sink: runs the SQL'},
+     {t:'quiz',q:'You see <code class="inl">run_command(user_data)</code> in unfamiliar code. Before reading anything else, what should raise your eyebrow?',
+      opts:['Nothing, function names are arbitrary','A function whose name implies running commands is being fed user data','It uses parentheses','The variable is named user_data'],a:1,
+      why:'Function <b>names</b> describe intent. A name like <code class="inl">run_command</code>, <code class="inl">exec</code>, or <code class="inl">query</code> receiving user-controlled data is a classic source→sink red flag worth tracing.'}
+   ]},
+   {id:'r4', name:'Control flow: if, loops & branches', xp:25, cards:[
+     {t:'md',html:'<p><b>Control flow</b> decides which lines run. <code class="inl">if</code> runs a block only when a condition is true; loops (<code class="inl">for</code>, <code class="inl">while</code>, <code class="inl">foreach</code>) repeat a block.</p><p>Pentest angle: security checks are <b>if statements</b>. Find the <code class="inl">if</code> that guards a sensitive action, then ask: <i>can I make that condition go the way I want?</i> A missing or weak check is an access-control bug.</p>'},
+     {t:'read',lang:'php',label:'PHP — an auth check',code:'if ($user["role"] == "admin") {   // the gate\n    deleteAllUsers();              // sensitive action\n} else {\n    echo "Access denied";\n}'},
+     {t:'quiz',q:'The gate is <code class="inl">if ($user["role"] == "admin")</code>. As an attacker, what is your first question?',
+      opts:['How is $user["role"] set, and can I influence it?','What color is the button?','How fast does the loop run?','Is the code indented correctly?'],a:0,
+      why:'Access control lives in conditions. If <b>role</b> comes from a cookie, hidden form field, or unsigned token you can tamper with, the gate is bypassable. Always trace where the checked value originates.'}
+   ]}
+  ]
+ },
+ {
+  id:'php', name:'PHP', tag:'WEB', icon:'php', accent:'violet',
+  sub:'The classic web-app language. Powers huge legacy attack surface.',
+  lessons:[
+   {id:'p1', name:'Reading PHP superglobals', xp:25, cards:[
+     {t:'md',html:'<p>PHP hands attacker input through <b>superglobals</b> — arrays available everywhere. Memorize these; each is a source:</p><p>• <code class="inl">$_GET</code> — URL query params<br>• <code class="inl">$_POST</code> — form body<br>• <code class="inl">$_REQUEST</code> — GET + POST + cookies (sloppy, dangerous)<br>• <code class="inl">$_COOKIE</code>, <code class="inl">$_SERVER</code> — headers, cookies<br>• <code class="inl">$_FILES</code> — uploads</p><p>Any data touching these is <b>untrusted</b> until proven otherwise.</p>'},
+     {t:'read',lang:'php',code:'$page = $_GET["page"];\ninclude($page . ".php");   // whatever is in ?page= gets included'},
+     {t:'quiz',q:'Why is <code class="inl">$_REQUEST</code> considered more dangerous to trust than <code class="inl">$_POST</code>?',
+      opts:['It is slower','It merges GET, POST and cookies, so input can arrive from unexpected places','It is encrypted','It only works on admin pages'],a:1,
+      why:'<b>$_REQUEST</b> blurs the source. A value you assumed came from a POST form could be supplied via the URL, defeating assumptions and some weak defenses.'}
+   ]},
+   {id:'p2', name:'SQL injection in PHP', xp:35, cards:[
+     {t:'md',html:'<p><b>SQL injection</b>: user input is glued into a database query, so an attacker can change the query\'s meaning. The tell is <b>string concatenation into a query</b> with no parameters.</p>'},
+     {t:'read',lang:'php',label:'Vulnerable',code:'$id = $_GET["id"];\n$sql = "SELECT * FROM users WHERE id = " . $id;\n$result = mysqli_query($conn, $sql);',note:'Input <code class="inl">$id</code> is concatenated directly into SQL. Sending <code class="inl">?id=1 OR 1=1</code> returns every row; <code class="inl">?id=1; DROP TABLE users</code> can be catastrophic.'},
+     {t:'read',lang:'php',label:'Safe — parameterized',code:'$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");\n$stmt->bind_param("i", $_GET["id"]);   // input stays DATA, never code\n$stmt->execute();',note:'The <code class="inl">?</code> placeholder keeps input as a value, so it can never change the query structure. This is the fix you are looking for.'},
+     {t:'quiz',q:'Which single detail most reliably signals possible SQL injection?',
+      opts:['The word SELECT appears','User input is concatenated into the query string instead of bound as a parameter','The query touches a users table','mysqli is used at all'],a:1,
+      why:'Parameterized queries (prepared statements) separate code from data. <b>Concatenating input into the SQL text</b> is the root cause — the function or table name is secondary.'}
+   ]},
+   {id:'p3', name:'Command injection & RCE', xp:35, cards:[
+     {t:'md',html:'<p>Some functions hand a string to the operating system shell. If user input reaches them, an attacker can run OS commands (Remote Code Execution). PHP\'s dangerous shell sinks:</p><p><code class="inl">system()</code>, <code class="inl">exec()</code>, <code class="inl">shell_exec()</code>, <code class="inl">passthru()</code>, <code class="inl">popen()</code>, and backticks <code class="inl">`...`</code>.</p>'},
+     {t:'read',lang:'php',label:'Vulnerable',code:'$host = $_GET["host"];\nsystem("ping -c 1 " . $host);   // ?host=8.8.8.8;id runs `id` too',note:'Shell metacharacters like <code class="inl">;</code> <code class="inl">|</code> <code class="inl">&amp;&amp;</code> <code class="inl">$( )</code> let the attacker chain their own commands after the intended one.'},
+     {t:'quiz',q:'Input reaches <code class="inl">shell_exec($cmd)</code>. Which payload character is the classic way to append an extra command?',
+      opts:['A space','A semicolon ; (or | and &amp;&amp;)','A period .','A capital letter'],a:1,
+      why:'Shell metacharacters — <b>; | &amp;&amp; $( )</b> — terminate or chain commands. If input containing them reaches a shell sink unescaped, that is command injection.'}
+   ]},
+   {id:'p4', name:'XSS & dangerous output', xp:30, cards:[
+     {t:'md',html:'<p><b>Cross-site scripting (XSS)</b>: user input is written into an HTML page without encoding, so the browser runs it as script. The sink is any <code class="inl">echo</code>/<code class="inl">print</code> of untrusted data into HTML.</p>'},
+     {t:'read',lang:'php',label:'Vulnerable',code:'$q = $_GET["q"];\necho "You searched for: " . $q;   // ?q=<\script>steal()<\/script>',note:'The fix is contextual output encoding — <code class="inl">htmlspecialchars($q)</code> turns <code class="inl">&lt;</code> into <code class="inl">&amp;lt;</code> so the browser shows it instead of running it.'},
+     {t:'quiz',q:'What makes reflected XSS possible in the code above?',
+      opts:['Using $_GET at all','Echoing untrusted input into HTML without encoding it','The word "searched"','Using double quotes'],a:1,
+      why:'XSS is an <b>output-encoding</b> failure. Input is only dangerous when it reaches an HTML sink un-encoded; <code class="inl">htmlspecialchars()</code> neutralizes it.'}
+   ]}
+  ]
+ },
+ {
+  id:'dotnet', name:'ASP.NET / C#', tag:'WEB', icon:'C#', accent:'violet',
+  sub:'Enterprise web stack. Strong typing, but plenty of footguns.',
+  lessons:[
+   {id:'d1', name:'Reading C# & request input', xp:25, cards:[
+     {t:'md',html:'<p>C# is <b>statically typed</b>: variables declare a type (<code class="inl">string</code>, <code class="inl">int</code>, <code class="inl">var</code>). In ASP.NET, attacker input arrives through:</p><p>• <code class="inl">Request.Query["x"]</code> / <code class="inl">Request.Form["x"]</code><br>• Controller action <b>parameters</b> (model binding)<br>• <code class="inl">Request.Cookies</code>, <code class="inl">Request.Headers</code></p><p>Model binding is sneaky: a method argument can be silently populated from the request.</p>'},
+     {t:'read',lang:'csharp',code:'public IActionResult Search(string term) {   // term is bound from the request\n    var results = _db.Find(term);\n    return View(results);\n}'},
+     {t:'quiz',q:'In an ASP.NET controller, where does the value of a method parameter like <code class="inl">string term</code> typically come from?',
+      opts:['It is always empty','Model binding fills it automatically from the query string, form, or route','Only from a database','From another C# file'],a:1,
+      why:'ASP.NET <b>model binding</b> auto-populates action parameters from request data. That makes plain-looking arguments an untrusted source you must trace.'}
+   ]},
+   {id:'d2', name:'SQL injection in ADO.NET', xp:35, cards:[
+     {t:'md',html:'<p>Same root cause as PHP: string-built SQL. In C# watch for <code class="inl">SqlCommand</code> built with <code class="inl">+</code> or string interpolation (<code class="inl">$"...{x}..."</code>).</p>'},
+     {t:'read',lang:'csharp',label:'Vulnerable',code:'var sql = "SELECT * FROM Users WHERE Name = \'" + name + "\'";\nvar cmd = new SqlCommand(sql, conn);',note:'String interpolation <code class="inl">$"...WHERE Name=\'{name}\'"</code> is the same bug in disguise — the input still becomes part of the SQL text.'},
+     {t:'read',lang:'csharp',label:'Safe — parameters',code:'var cmd = new SqlCommand("SELECT * FROM Users WHERE Name = @n", conn);\ncmd.Parameters.AddWithValue("@n", name);   // input bound as data'},
+     {t:'quiz',q:'You see <code class="inl">$"SELECT * FROM T WHERE x = {input}"</code> passed to SqlCommand. Verdict?',
+      opts:['Safe, because C# is type-checked','Vulnerable — interpolation builds the query from raw input, same as concatenation','Safe, because it uses SqlCommand','Only vulnerable if input is a string'],a:1,
+      why:'String interpolation and concatenation both weld input into the query. Only <b>parameters</b> (<code class="inl">@n</code> + <code class="inl">AddWithValue</code>) or an ORM with parameterization keep input as data.'}
+   ]},
+   {id:'d3', name:'Insecure deserialization', xp:35, cards:[
+     {t:'md',html:'<p>Deserialization rebuilds objects from bytes/text. If the data is attacker-controlled, some deserializers can be tricked into constructing dangerous objects → RCE. In .NET the historically dangerous names are <code class="inl">BinaryFormatter</code>, <code class="inl">LosFormatter</code>, <code class="inl">SoapFormatter</code>, and <code class="inl">TypeNameHandling.All</code> in Json.NET.</p>'},
+     {t:'read',lang:'csharp',label:'Dangerous',code:'var fmt = new BinaryFormatter();\nvar obj = fmt.Deserialize(userStream);   // untrusted bytes -> objects',note:'<code class="inl">BinaryFormatter</code> is deprecated by Microsoft precisely because it is unsafe on untrusted input. Its mere presence on attacker data is a finding.'},
+     {t:'quiz',q:'Which is the strongest single red flag for an insecure deserialization bug in .NET?',
+      opts:['Any use of JSON','BinaryFormatter.Deserialize (or TypeNameHandling.All) applied to attacker-controlled data','A class with many fields','Using async/await'],a:1,
+      why:'<b>BinaryFormatter</b> and <code class="inl">TypeNameHandling.All</code> allow type information in the payload to control object creation. On untrusted input that is a well-known RCE path.'}
+   ]}
+  ]
+ },
+ {
+  id:'cpp', name:'C / C++', tag:'NATIVE', icon:'C++', accent:'amber',
+  sub:'Memory is manual here. Whole vuln classes that web devs never see.',
+  lessons:[
+   {id:'c1', name:'Pointers & memory, gently', xp:25, cards:[
+     {t:'md',html:'<p>C/C++ let you touch memory directly. A <b>pointer</b> holds an address; a <b>buffer</b> is a fixed-size block (often <code class="inl">char buf[64]</code>). The language will <b>not</b> stop you writing past the end of a buffer — that is the source of memory-corruption bugs.</p><p>You do not need to write C to audit it. You need to spot <b>fixed-size buffers</b> meeting <b>unbounded copies</b>.</p>'},
+     {t:'read',lang:'cpp',code:'char buf[64];              // room for 64 bytes\nstrcpy(buf, user_input);   // copies until a null byte — no size limit!',note:'If <code class="inl">user_input</code> is longer than 64 bytes, <code class="inl">strcpy</code> writes past <code class="inl">buf</code> — a <b>buffer overflow</b>, corrupting adjacent memory.'},
+     {t:'quiz',q:'What is the fundamental danger of <code class="inl">char buf[64]</code> combined with an unbounded copy?',
+      opts:['It uses too much memory','Writing more than 64 bytes overflows into adjacent memory','64 is an odd size','Pointers are slow'],a:1,
+      why:'A fixed buffer + a copy with no length limit means input longer than the buffer <b>corrupts neighbouring memory</b>, which can crash the program or hijack execution.'}
+   ]},
+   {id:'c2', name:'Dangerous C functions', xp:35, cards:[
+     {t:'md',html:'<p>Some C functions are dangerous because they do not take a size limit. Memorize this hit-list — seeing them on untrusted data is an instant finding:</p><p><code class="inl">strcpy</code>, <code class="inl">strcat</code>, <code class="inl">sprintf</code>, <code class="inl">gets</code>, <code class="inl">scanf("%s")</code>.</p><p>Their bounded cousins are safer: <code class="inl">strncpy</code>, <code class="inl">snprintf</code>, <code class="inl">fgets</code> — but even these need the length used correctly.</p>'},
+     {t:'read',lang:'cpp',label:'Vulnerable',code:'char name[32];\nprintf("Enter name: ");\ngets(name);   // gets() has NO bound — removed from the C standard',note:'<code class="inl">gets()</code> is so unsafe it was removed from C11. If you ever see it, it is a finding, full stop.'},
+     {t:'quiz',q:'Why are <code class="inl">strcpy</code> and <code class="inl">gets</code> flagged while <code class="inl">snprintf</code> is preferred?',
+      opts:['They are older','They perform no bounds checking, so oversized input overflows the buffer','They only work on Linux','They are slower'],a:1,
+      why:'The unsafe functions copy until a terminator with <b>no maximum length</b>. <code class="inl">snprintf</code>/<code class="inl">strncpy</code> take a size argument, capping the write to the buffer.'}
+   ]},
+   {id:'c3', name:'Integer overflow & use-after-free', xp:35, cards:[
+     {t:'md',html:'<p>Two more native-code classics:</p><p><b>Integer overflow</b> — a number wraps past its max (e.g. a <code class="inl">uint16_t</code> over 65535 rolls to 0). If it feeds a size calculation, you can allocate too little and overflow.</p><p><b>Use-after-free</b> — memory is <code class="inl">free()</code>d, then used again. The freed block may be reused by an attacker to control what that pointer now sees.</p>'},
+     {t:'read',lang:'cpp',label:'Use-after-free',code:'char* p = (char*)malloc(64);\nfree(p);            // memory released\nstrcpy(p, data);    // BUG: p is dangling, used after free'},
+     {t:'quiz',q:'A size is computed as <code class="inl">len * count</code> in an <code class="inl">int</code>, then used for <code class="inl">malloc</code>. What class of bug should you check for?',
+      opts:['XSS','Integer overflow — the multiplication can wrap to a tiny value, under-allocating','SQL injection','CSRF'],a:1,
+      why:'If <code class="inl">len * count</code> overflows the integer type, <code class="inl">malloc</code> gets a small number while the code then writes the full amount — a heap overflow via <b>integer overflow</b>.'}
+   ]}
+  ]
+ },
+ {
+  id:'web', name:'JS & Web Logic', tag:'WEB', icon:'JS', accent:'violet',
+  sub:'Client and server JavaScript, plus the logic flaws scanners miss.',
+  lessons:[
+   {id:'j1', name:'DOM XSS & dangerous sinks', xp:30, cards:[
+     {t:'md',html:'<p>In browser JS, some properties/functions treat strings as HTML or code. Feed them untrusted data and you get DOM-based XSS. Dangerous sinks:</p><p><code class="inl">innerHTML</code>, <code class="inl">outerHTML</code>, <code class="inl">document.write</code>, <code class="inl">eval</code>, <code class="inl">setTimeout("string")</code>, <code class="inl">location</code>. Common sources: <code class="inl">location.hash</code>, <code class="inl">location.search</code>, <code class="inl">document.referrer</code>.</p>'},
+     {t:'read',lang:'js',code:'const q = location.hash.slice(1);       // source: URL fragment\ndocument.getElementById("out").innerHTML = q;  // sink: parsed as HTML',note:'<code class="inl">textContent</code> would render it as plain text safely. <code class="inl">innerHTML</code> parses tags and event handlers — that is the bug.'},
+     {t:'quiz',q:'Which assignment is the XSS sink here?',
+      opts:['location.hash.slice(1)','.innerHTML = q','getElementById("out")','const q'],a:1,
+      why:'<b>innerHTML</b> parses its string as HTML. Assigning untrusted data to it lets injected markup and scripts run. <code class="inl">textContent</code> is the safe sibling.'}
+   ]},
+   {id:'j2', name:'eval, prototype & Node sinks', xp:35, cards:[
+     {t:'md',html:'<p>Server-side (Node.js) JavaScript adds OS-level sinks: <code class="inl">child_process.exec()</code>, <code class="inl">eval()</code>, <code class="inl">Function()</code>, and unsafe <code class="inl">fs</code> paths. And <code class="inl">exec</code> (unlike <code class="inl">execFile</code>) runs a full shell.</p>'},
+     {t:'read',lang:'js',label:'Vulnerable',code:'const { exec } = require("child_process");\napp.get("/dns", (req,res) => {\n  exec("nslookup " + req.query.domain);   // shell injection\n});',note:'<code class="inl">exec</code> spawns <code class="inl">/bin/sh -c</code>, so shell metacharacters in <code class="inl">req.query.domain</code> run commands. <code class="inl">execFile("nslookup",[domain])</code> avoids the shell.'},
+     {t:'quiz',q:'Why is <code class="inl">child_process.exec(userInput)</code> riskier than <code class="inl">execFile("cmd",[userInput])</code>?',
+      opts:['exec is deprecated','exec runs input through a shell, so metacharacters chain commands; execFile passes args directly','execFile is faster','No difference'],a:1,
+      why:'<b>exec</b> interprets the string in a shell, exposing <code class="inl">; | &amp;&amp; $()</code>. <b>execFile</b>/<b>spawn</b> pass arguments as a list to the binary, with no shell to abuse.'}
+   ]}
+  ]
+ },
+ {
+  id:'audit', name:'Auditor\'s Eye', tag:'META', icon:'👁', accent:'amber',
+  sub:'The cross-language instincts that turn reading into finding.',
+  lessons:[
+   {id:'a1', name:'The source-to-sink method', xp:30, cards:[
+     {t:'md',html:'<p>Every audit is the same loop, in any language:</p><p><b>1. Find sources</b> — where untrusted input enters (params, headers, files, network).<br><b>2. Find sinks</b> — dangerous operations (SQL, shell, HTML, file paths, deserialization).<br><b>3. Trace the path</b> between them.<br><b>4. Check for sanitization</b> on that path. None or weak? Likely a bug.</p><p>You grep for sinks first, then walk <i>backwards</i> to see if input reaches them.</p>'},
+     {t:'quiz',q:'Best strategy for auditing a large unfamiliar codebase for injection bugs?',
+      opts:['Read every file start to finish','Grep for dangerous sinks, then trace backwards to see if untrusted input reaches them','Only read the comments','Run it and see if it crashes'],a:1,
+      why:'Sinks are a short, known list. <b>Grep the sinks, trace backwards to a source</b> — far faster than reading everything, and it centers the actual danger.'}
+   ]},
+   {id:'a2', name:'Spotting outdated & vulnerable libraries', xp:30, cards:[
+     {t:'md',html:'<p>Much real-world risk is not custom code — it is <b>dependencies</b>. Learn to read the manifests:</p><p>• PHP: <code class="inl">composer.json</code> / <code class="inl">composer.lock</code><br>• .NET: <code class="inl">packages.config</code> / <code class="inl">.csproj</code><br>• JS: <code class="inl">package.json</code> / <code class="inl">package-lock.json</code><br>• Python: <code class="inl">requirements.txt</code></p><p>A <b>pinned old version</b> is your lead. Cross-reference it against known CVEs (e.g. the CVE database or GitHub Advisories). Tools like <code class="inl">npm audit</code> and OWASP Dependency-Check automate this.</p>'},
+     {t:'read',lang:'js',label:'package.json — a lead',code:'"dependencies": {\n  "lodash": "4.17.4",        // known prototype-pollution CVEs < 4.17.12\n  "express": "4.16.0"\n}',note:'A specific old version is a gift: look it up in an advisory database. Version <code class="inl">4.17.4</code> of lodash predates fixes for several CVEs.'},
+     {t:'quiz',q:'You find <code class="inl">"lodash":"4.17.4"</code> pinned in package.json. Best next step?',
+      opts:['Assume it is fine','Check that exact version against a CVE / advisory database for known vulnerabilities','Delete package.json','Upgrade blindly without testing'],a:1,
+      why:'A pinned version maps directly to published <b>CVEs/advisories</b>. Confirm whether that version is affected and whether the vulnerable code path is actually reachable.'}
+   ]},
+   {id:'a3', name:'Weak crypto & hardcoded secrets', xp:30, cards:[
+     {t:'md',html:'<p>Two findings you can spot by <b>reading</b>, no exploit needed:</p><p><b>Weak crypto</b> — <code class="inl">MD5</code>/<code class="inl">SHA1</code> for passwords, <code class="inl">DES</code>, <code class="inl">ECB</code> mode, <code class="inl">Math.random()</code> for tokens.<br><b>Hardcoded secrets</b> — API keys, passwords, or private keys written straight into source.</p>'},
+     {t:'read',lang:'python',label:'Two findings in three lines',code:'API_KEY = "sk_live_51H8xQ2eZ..."      # hardcoded secret\nhashed = hashlib.md5(password).hexdigest()  # MD5 for passwords',note:'Secrets in source leak through repos and backups. MD5 is fast and broken for password hashing — bcrypt/argon2 are the expected choices.'},
+     {t:'quiz',q:'Which is a legitimate reading-only finding, no runtime test required?',
+      opts:['A hardcoded API key in source combined with MD5 password hashing','A well-named variable','A function with comments','Use of prepared statements'],a:0,
+      why:'Both <b>hardcoded secrets</b> and <b>MD5 for passwords</b> are visible statically. They are reliable, high-signal findings you report straight from the code.'}
+   ]}
+  ]
+ }
+];
+
+/* =========================================================
+   HUNT — find-the-vulnerable-line challenges
+   each: id, title, lang, xp, difficulty, lines[], vuln[](0-indexed),
+         brief, debrief (why those lines)
+   ========================================================= */
+const HUNTS = [
+ {id:'h1', title:'User lookup endpoint', lang:'php', xp:40, diff:'Easy',
+  brief:'A PHP endpoint that looks up a user. Tap every line you think is dangerous, then submit.',
+  lines:[
+   '$id = $_GET["id"];',
+   '$conn = new mysqli("localhost","app","pw","shop");',
+   '$sql = "SELECT name,email FROM users WHERE id=" . $id;',
+   '$res = $conn->query($sql);',
+   '$row = $res->fetch_assoc();',
+   'echo "<h1>" . $row["name"] . "</h1>";'
+  ],
+  vuln:[2,5],
+  debrief:'<p><b>Line 3</b> concatenates <code class="inl">$id</code> straight into SQL — classic <b>SQL injection</b>. Fix with a prepared statement.</p><p><b>Line 6</b> echoes <code class="inl">$row["name"]</code> into HTML with no encoding — <b>stored XSS</b> if the name field is attacker-controlled. Wrap it in <code class="inl">htmlspecialchars()</code>.</p><p>Line 1 is only a <i>source</i> — untrusted, but not itself the bug.</p>'},
+
+ {id:'h2', title:'Ping diagnostic tool', lang:'php', xp:40, diff:'Easy',
+  brief:'An admin "ping" utility. Which line lets an attacker run OS commands?',
+  lines:[
+   '$target = $_POST["target"];',
+   'if (empty($target)) { die("no target"); }',
+   '$output = shell_exec("ping -c 4 " . $target);',
+   'echo "<pre>" . htmlspecialchars($output) . "</pre>";'
+  ],
+  vuln:[2],
+  debrief:'<p><b>Line 3</b> passes user input to <code class="inl">shell_exec</code>. Input <code class="inl">8.8.8.8; cat /etc/passwd</code> runs both commands — <b>command injection → RCE</b>.</p><p>Note line 4 <i>does</i> encode output correctly, so it is not the bug. The <code class="inl">empty()</code> check on line 2 validates presence, not content — it stops nothing dangerous.</p>'},
+
+ {id:'h3', title:'Legacy string handler (C)', lang:'cpp', xp:50, diff:'Medium',
+  brief:'A C function copying a request field into a fixed buffer. Find the memory-safety bugs.',
+  lines:[
+   'void handle(char *input) {',
+   '    char buffer[128];',
+   '    int len = strlen(input);',
+   '    strcpy(buffer, input);',
+   '    char *log = (char*)malloc(len);',
+   '    sprintf(log, "got: %s", input);',
+   '    free(log);',
+   '}'
+  ],
+  vuln:[3,5],
+  debrief:'<p><b>Line 4</b> — <code class="inl">strcpy</code> into a 128-byte buffer with no length check: input over 128 bytes causes a <b>stack buffer overflow</b>.</p><p><b>Line 6</b> — <code class="inl">sprintf</code> also has no bound, and <code class="inl">log</code> was sized only <code class="inl">len</code> bytes (line 5) while the format adds <code class="inl">"got: "</code> — a <b>heap overflow</b>. Use <code class="inl">snprintf</code> with the real allocation size.</p>'},
+
+ {id:'h4', title:'C# report generator', lang:'csharp', xp:50, diff:'Medium',
+  brief:'An ASP.NET action building a report. Spot the injection.',
+  lines:[
+   'public IActionResult Report(string dept) {',
+   '    var conn = new SqlConnection(_cs);',
+   '    var q = $"SELECT * FROM Sales WHERE Dept=\'{dept}\'";',
+   '    var cmd = new SqlCommand(q, conn);',
+   '    conn.Open();',
+   '    var r = cmd.ExecuteReader();',
+   '    return View(r);',
+   '}'
+  ],
+  vuln:[2],
+  debrief:'<p><b>Line 3</b> uses string <b>interpolation</b> to build SQL from <code class="inl">dept</code>. That is SQL injection just like concatenation — the C# type system does not save you here.</p><p>Fix: <code class="inl">SqlCommand("...Dept=@d",conn)</code> then <code class="inl">cmd.Parameters.AddWithValue("@d",dept)</code>.</p>'},
+
+ {id:'h5', title:'Node file server', lang:'js', xp:55, diff:'Medium',
+  brief:'An Express route serving files. Two separate bug classes hide here.',
+  lines:[
+   'app.get("/file", (req, res) => {',
+   '  const name = req.query.name;',
+   '  const path = "./uploads/" + name;',
+   '  const data = fs.readFileSync(path);',
+   '  const { exec } = require("child_process");',
+   '  exec("file " + path, (e,o) => res.send(o + data));',
+   '});'
+  ],
+  vuln:[2,5],
+  debrief:'<p><b>Line 3</b> builds a path from raw input — <code class="inl">?name=../../etc/passwd</code> is a <b>path traversal</b>. Normalize and confine to the uploads dir.</p><p><b>Line 6</b> passes that path to <code class="inl">exec</code> (a shell) — <b>command injection</b>. Use <code class="inl">execFile</code> with an argument array and validate the filename.</p>'},
+
+ {id:'h6', title:'Auth token check', lang:'python', xp:55, diff:'Hard',
+  brief:'A Python login flow. The bug is subtle — think about logic and crypto, not just sinks.',
+  lines:[
+   'def login(user, pw, token):',
+   '    row = db.execute("SELECT hash,secret FROM u WHERE name=?", [user]).one()',
+   '    if hashlib.md5(pw.encode()).hexdigest() == row.hash:',
+   '        expected = hmac.new(row.secret, user.encode()).hexdigest()',
+   '        if token == expected:',
+   '            return make_session(user)',
+   '    return None'
+  ],
+  vuln:[2,4],
+  debrief:'<p><b>Line 3</b> — passwords hashed with <b>MD5</b>: fast, broken, trivially cracked from a dump. Use bcrypt/argon2.</p><p><b>Line 5</b> — <code class="inl">token == expected</code> is a non-constant-time compare, exposing a <b>timing side-channel</b>. Use <code class="inl">hmac.compare_digest()</code>.</p><p>Good news: line 2 <i>is</i> parameterized (<code class="inl">?</code> + list), so it is safe — a reminder to reward correct code, not flag every query.</p>'},
+
+ {id:'h7', title:'Template render (PHP)', lang:'php', xp:45, diff:'Medium',
+  brief:'A small templating helper. Where does untrusted input reach a dangerous sink?',
+  lines:[
+   '$tpl = $_GET["tpl"] ?? "home";',
+   '$vars = json_decode($_COOKIE["v"] ?? "{}", true);',
+   'extract($vars);',
+   'include("templates/" . $tpl . ".php");',
+   'eval("?>" . file_get_contents("cache.php"));'
+  ],
+  vuln:[2,3,4],
+  debrief:'<p><b>Line 3</b> — <code class="inl">extract()</code> on attacker JSON lets an attacker set arbitrary local variables (<b>variable injection</b>).</p><p><b>Line 4</b> — <code class="inl">include</code> with user-controlled <code class="inl">$tpl</code> is <b>Local/Remote File Inclusion</b> (<code class="inl">?tpl=../../etc/passwd%00</code> style).</p><p><b>Line 5</b> — <code class="inl">eval()</code> executing file contents is a code-execution sink; dangerous the moment that file or its inputs are influenced.</p>'},
+
+ {id:'h8', title:'Deserialize & dispatch (C#)', lang:'csharp', xp:60, diff:'Hard',
+  brief:'A message handler. One line is a well-known RCE primitive.',
+  lines:[
+   'byte[] body = ReadRequestBody(ctx);',
+   'var fmt = new BinaryFormatter();',
+   'var msg = (Message)fmt.Deserialize(new MemoryStream(body));',
+   'var handler = _map[msg.Type];',
+   'handler.Invoke(msg.Payload);'
+  ],
+  vuln:[1,2],
+  debrief:'<p><b>Lines 2–3</b> — <code class="inl">BinaryFormatter.Deserialize</code> on attacker-supplied bytes is a textbook <b>insecure deserialization → RCE</b>. Microsoft deprecated it for exactly this. Use a safe, type-constrained serializer (System.Text.Json) and never deserialize untrusted data into arbitrary types.</p>'}
+];
+
+/* =========================================================
+   DAILY TARGET — one rotating hunt per day
+   ========================================================= */
+function dailyHunt(){
+  const d=today();
+  // deterministic pick from date
+  let h=0; for(const c of d) h=(h*31+c.charCodeAt(0))>>>0;
+  return HUNTS[h % HUNTS.length];
+}
+
+/* =========================================================
+   VIEWS
+   ========================================================= */
+function trackProgress(t){
+  const done=t.lessons.filter(l=>S.done[l.id]).length;
+  return {done,total:t.lessons.length,pct:Math.round(done/t.lessons.length*100)};
+}
+function nextLessonIndex(t){
+  for(let i=0;i<t.lessons.length;i++) if(!S.done[t.lessons[i].id]) return i;
+  return -1; // all done
+}
+
+function vHome(){
+  const dh=dailyHunt();
+  const dDone = S.hunts[dh.id] && S.hunts[dh.id].solved && S.daily===today();
+  let h='<h1 class="pg">Learn to read code like an attacker.</h1>'+
+    '<p class="sub">Short lessons and vulnerability hunts that teach you to understand code and spot the bugs in it — no programming background needed.</p>';
+
+  // daily card
+  h+='<div class="card daily tap" data-act="daily">'+
+     '<div class="dailytag">◈ Daily Target</div>'+
+     '<div style="display:flex;align-items:center;gap:12px">'+
+       '<div style="flex:1"><div class="trname">'+dh.title+'</div>'+
+       '<div class="trsub" style="margin:2px 0 0">'+(dDone?'Cleared today — nice.':'Find the bugs in this '+langName(dh.lang)+' snippet.')+'</div></div>'+
+       '<span class="chip '+(dDone?'good':'amber')+'">'+(dDone?'✓ DONE':'+'+dh.xp+' XP')+'</span>'+
+     '</div></div>';
+
+  h+='<div class="sect">Learning tracks</div>';
+  for(const t of TRACKS){
+    const p=trackProgress(t);
+    h+='<button class="card tap trackcard" data-act="track" data-id="'+t.id+'">'+
+        '<div class="tricon">'+t.icon+'</div>'+
+        '<div class="trmeta">'+
+          '<div class="trname">'+t.name+' <span class="chip '+(t.accent)+'" style="vertical-align:2px">'+t.tag+'</span></div>'+
+          '<div class="trsub">'+t.sub+'</div>'+
+          '<div class="pbar'+(t.accent==='violet'?' v':'')+'"><i style="width:'+p.pct+'%"></i></div>'+
+        '</div>'+
+        '<div class="count">'+p.done+'/'+p.total+'</div>'+
+       '</button>';
+  }
+  return h;
+}
+
+function langName(l){return {php:'PHP',csharp:'C#',cpp:'C/C++',js:'JavaScript',python:'Python',sql:'SQL'}[l]||l;}
+
+function vTrack(tid){
+  const t=TRACKS.find(x=>x.id===tid);
+  const nextI=nextLessonIndex(t);
+  let h='<button class="back" data-act="home">‹ Tracks</button>'+
+        '<h1 class="pg">'+t.name+'</h1><p class="sub">'+t.sub+'</p>';
+  t.lessons.forEach((l,i)=>{
+    const done=!!S.done[l.id];
+    const locked = i>0 && !S.done[t.lessons[i-1].id] && !done;
+    const isNext = i===nextI;
+    const stateCls = done?'done':(isNext?'next':'');
+    const mark = done?'✓':(locked?'🔒':(i+1));
+    h+='<button class="card tap lrow'+(locked?' locked':'')+'" '+(locked?'disabled':'data-act="lesson" data-track="'+t.id+'" data-i="'+i+'"')+'>'+
+        '<div class="lstate '+stateCls+'">'+mark+'</div>'+
+        '<div style="flex:1"><div class="lname">'+l.name+'</div>'+
+        '<div class="lxp">'+(done?'Completed':(l.cards.length+' steps'))+'</div></div>'+
+        '<span class="chip'+(done?' good':'')+'">'+(done?'+'+l.xp:'+'+l.xp)+' XP</span>'+
+       '</button>';
+  });
+  return h;
+}
+
+/* ---- lesson runner (card stepper) ---- */
+let LS=null; // {track,i,card,answered}
+function vLesson(){
+  const t=TRACKS.find(x=>x.id===view.trackId);
+  const l=t.lessons[view.i];
+  if(!LS || LS.lid!==l.id){ LS={lid:l.id, card:0, answered:false, correct:0, quizzes:0}; }
+  const card=l.cards[LS.card];
+  const total=l.cards.length;
+  let h='<button class="back" data-act="track" data-id="'+t.id+'">‹ '+t.name+'</button>';
+  h+='<div class="qmeta"><div class="pbar"><i style="width:'+Math.round((LS.card)/total*100)+'%"></i></div>'+
+     '<span class="count">'+(LS.card+1)+'/'+total+'</span></div>';
+  h+='<h1 class="pg" style="font-size:20px;margin-top:6px">'+l.name+'</h1>';
+
+  if(card.t==='md'){
+    h+='<div class="card">'+card.html+'</div>';
+    h+='<button class="btn" data-act="next">Continue</button>';
+  }
+  else if(card.t==='read'){
+    h+=codebox(card.code,card.lang,card.label||langName(card.lang));
+    if(card.note) h+='<div class="explain" style="border-color:var(--violet)">'+card.note+'</div>';
+    h+='<button class="btn" data-act="next">Got it</button>';
+  }
+  else if(card.t==='quiz'){
+    h+='<div class="card" style="border-color:var(--amber-dim)"><b>Q.</b> '+card.q+'</div>';
+    const keys=['A','B','C','D','E'];
+    card.opts.forEach((o,oi)=>{
+      let cls='opt';
+      if(LS.answered){
+        if(oi===card.a) cls+=' right';
+        else if(oi===LS.pick) cls+=' wrong';
+        else cls+=' dim';
+      }
+      h+='<button class="'+cls+'" '+(LS.answered?'disabled':'data-act="answer" data-oi="'+oi+'"')+'>'+
+         '<span class="key">'+keys[oi]+'</span>'+o+'</button>';
+    });
+    if(LS.answered){
+      const ok=LS.pick===card.a;
+      h+='<div class="explain"><b>'+(ok?'Correct.':'Not quite.')+'</b> '+card.why+'</div>';
+      h+='<button class="btn" data-act="next">Continue</button>';
+    }
+  }
+  return h;
+}
+
+/* ---- hunt list ---- */
+function vHuntList(){
+  const solved=Object.values(S.hunts).filter(h=>h.solved).length;
+  let h='<h1 class="pg">Vulnerability Hunt</h1>'+
+    '<p class="sub">Real-shaped code snippets. Tap the lines you believe are dangerous, submit, and learn exactly why. Cleared: '+solved+'/'+HUNTS.length+'.</p>';
+  HUNTS.forEach(hu=>{
+    const st=S.hunts[hu.id]||{};
+    const dc = st.solved?'good':(st.attempts?'amber':'');
+    h+='<button class="card tap lrow" data-act="hunt" data-id="'+hu.id+'">'+
+       '<div class="tricon" style="font-size:11px">'+({php:'php',csharp:'C#',cpp:'C++',js:'JS',python:'py'}[hu.lang]||hu.lang)+'</div>'+
+       '<div style="flex:1"><div class="lname">'+hu.title+'</div>'+
+       '<div class="lxp">'+hu.diff+' · '+langName(hu.lang)+(st.perfect?' · ✦ perfect':'')+'</div></div>'+
+       '<span class="chip '+dc+'">'+(st.solved?'✓':('+'+hu.xp))+'</span>'+
+       '</button>';
+  });
+  return h;
+}
+
+/* ---- hunt play ---- */
+let HS=null; // {id, picks:Set, checked}
+function vHuntPlay(){
+  const hu=HUNTS.find(x=>x.id===view.huntId);
+  if(!HS || HS.id!==hu.id){ HS={id:hu.id, picks:new Set(), checked:false}; }
+  let h='<button class="back" data-act="hunt-back">‹ Hunts</button>'+
+        '<h1 class="pg" style="font-size:20px">'+hu.title+'</h1>'+
+        '<p class="sub" style="margin-bottom:10px">'+hu.brief+'</p>'+
+        '<div style="display:flex;gap:8px;margin-bottom:6px"><span class="chip amber">'+hu.diff+'</span><span class="chip">'+langName(hu.lang)+'</span><span class="chip violet">+'+hu.xp+' XP</span></div>';
+  // code with tappable lines
+  h+='<div class="codebox"><span class="lang">'+langName(hu.lang)+' — tap dangerous lines</span><pre style="padding:6px 0">';
+  hu.lines.forEach((ln,i)=>{
+    let cls='hline';
+    if(HS.checked){
+      const isVuln=hu.vuln.includes(i), picked=HS.picks.has(i);
+      if(isVuln) cls+=' hit';
+      else if(picked) cls+=' miss';
+    } else if(HS.picks.has(i)) cls+=' hit';
+    h+='<button class="'+cls+'" '+(HS.checked?'disabled':'data-act="hline" data-i="'+i+'"')+'>'+
+       '<span class="no">'+(i+1)+'</span><span class="src">'+hl(ln,hu.lang)+'</span></button>';
+  });
+  h+='</pre></div>';
+
+  if(!HS.checked){
+    const n=HS.picks.size;
+    h+='<button class="btn" '+(n===0?'disabled':'')+' data-act="hunt-check">Submit '+(n?'('+n+' line'+(n>1?'s':'')+')':'')+'</button>';
+    h+='<p class="lxp center" style="margin-top:10px">Green = you flagged it. Submit to reveal the real answers.</p>';
+  } else {
+    const hits=hu.vuln.filter(v=>HS.picks.has(v)).length;
+    const misses=[...HS.picks].filter(p=>!hu.vuln.includes(p)).length;
+    const missed=hu.vuln.filter(v=>!HS.picks.has(v)).length;
+    const perfect = missed===0 && misses===0;
+    h+='<div class="explain" style="border-color:'+(perfect?'var(--good)':'var(--amber)')+'">'+
+       '<b>'+(perfect?'Flawless audit.':'Here is the breakdown.')+'</b> '+
+       'You correctly flagged '+hits+' of '+hu.vuln.length+' vulnerable line'+(hu.vuln.length>1?'s':'')+
+       (misses?', with '+misses+' false positive'+(misses>1?'s':'')+'':'')+'.<br><br>'+hu.debrief+'</div>';
+    h+='<button class="btn ghost" data-act="hunt-back">Back to hunts</button>';
+  }
+  return h;
+}
+
+/* ---- profile / rank ---- */
+function vProfile(){
+  const r=rankInfo(S.xp);
+  const lessonsDone=TRACKS.reduce((a,t)=>a+t.lessons.filter(l=>S.done[l.id]).length,0);
+  const lessonsTotal=TRACKS.reduce((a,t)=>a+t.lessons.length,0);
+  const huntsDone=Object.values(S.hunts).filter(h=>h.solved).length;
+  const gotBadges=BADGES.filter(b=>S.badges[b.id]).length;
+  let h='<h1 class="pg">'+r.name+'</h1>'+
+    '<p class="sub">'+(r.next?('Earn '+(r.next[0]-S.xp)+' more XP to reach '+r.next[1]+'.'):'Top rank reached. You read code like an operator now.')+'</p>';
+  h+='<div class="statrow">'+
+     '<div class="stat"><div class="v">'+S.xp+'</div><div class="k">Total XP</div></div>'+
+     '<div class="stat"><div class="v">'+S.streak.n+'</div><div class="k">Day streak</div></div>'+
+     '<div class="stat"><div class="v">'+gotBadges+'</div><div class="k">Badges</div></div>'+
+     '</div>';
+  h+='<div class="statrow" style="margin-top:10px">'+
+     '<div class="stat"><div class="v">'+lessonsDone+'/'+lessonsTotal+'</div><div class="k">Lessons</div></div>'+
+     '<div class="stat"><div class="v">'+huntsDone+'/'+HUNTS.length+'</div><div class="k">Hunts cleared</div></div>'+
+     '</div>';
+  h+='<div class="sect">Badges</div><div class="badgegrid">';
+  for(const b of BADGES){
+    const on=!!S.badges[b.id];
+    h+='<div class="badge'+(on?'':' off')+'"><div class="bi">'+b.ic+'</div><div class="bn">'+b.n+'</div><div class="bd">'+b.d+'</div></div>';
+  }
+  h+='</div>';
+  h+='<div class="sect">Rank ladder</div><div class="card">';
+  RANKS.forEach((rk,i)=>{
+    const reached=S.xp>=rk[0];
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:5px 0;'+(i<RANKS.length-1?'border-bottom:1px solid var(--line)':'')+'">'+
+       '<span style="width:16px">'+(reached?'✓':'·')+'</span>'+
+       '<span style="flex:1;font-family:var(--disp);font-weight:600;color:'+(reached?'var(--ink)':'var(--mut)')+'">'+rk[1]+'</span>'+
+       '<span class="lxp">'+rk[0]+' XP</span></div>';
+  });
+  h+='</div>';
+  h+='<div class="sect">App & updates</div>';
+  h+='<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px">'+
+     '<div><div class="lname">codeLearn</div><div class="lxp">Version '+APP_VERSION+'</div></div>'+
+     '<button class="btn ghost" style="width:auto;margin:0;padding:11px 16px;font-size:13px" data-act="checkupdate">Check for updates</button>'+
+     '</div><div class="lxp" id="upstatus" style="margin-top:10px"></div></div>';
+  h+='<button class="btn danger" data-act="reset">Reset all progress</button>';
+  return h;
+}
+
+/* =========================================================
+   ACTION HANDLER — every data-act runs through here
+   ========================================================= */
+function handleAct(el){
+  const a=el.dataset.act;
+  switch(a){
+    case 'home': go({name:'learn'}); break;
+    case 'track': go({name:'track', trackId:el.dataset.id}); break;
+
+    case 'lesson':
+      LS=null;
+      go({name:'lesson', trackId:el.dataset.track, i:+el.dataset.i});
+      break;
+
+    case 'answer': {
+      const oi=+el.dataset.oi;
+      const t=TRACKS.find(x=>x.id===view.trackId), l=t.lessons[view.i], card=l.cards[LS.card];
+      LS.pick=oi; LS.answered=true; LS.quizzes++;
+      if(oi===card.a){ LS.correct++; }
+      render();
+      break;
+    }
+
+    case 'next': {
+      const t=TRACKS.find(x=>x.id===view.trackId), l=t.lessons[view.i];
+      if(LS.card < l.cards.length-1){
+        LS.card++; LS.answered=false; LS.pick=undefined;
+        render();
+      } else {
+        // finish lesson
+        const first=!S.done[l.id];
+        S.done[l.id]=true; save();
+        if(first){ addXP(l.xp); }
+        finishLesson(t,l,first);
+      }
+      break;
+    }
+
+    case 'daily': {
+      const dh=dailyHunt();
+      HS=null;
+      go({name:'huntplay', huntId:dh.id, fromDaily:true});
+      break;
+    }
+    case 'hunt': HS=null; go({name:'huntplay', huntId:el.dataset.id}); break;
+    case 'hunt-back': go({name:'hunt'}); break;
+
+    case 'hline': {
+      const i=+el.dataset.i;
+      if(HS.picks.has(i)) HS.picks.delete(i); else HS.picks.add(i);
+      render();
+      break;
+    }
+
+    case 'hunt-check': {
+      const hu=HUNTS.find(x=>x.id===HS.id);
+      HS.checked=true;
+      const missed=hu.vuln.filter(v=>!HS.picks.has(v)).length;
+      const fp=[...HS.picks].filter(p=>!hu.vuln.includes(p)).length;
+      const perfect = missed===0 && fp===0;
+      const solved = missed===0;               // found all vulns = solved
+      const prev=S.hunts[hu.id]||{attempts:0};
+      const firstSolve = solved && !prev.solved;
+      S.hunts[hu.id]={
+        solved: solved||prev.solved,
+        perfect: perfect||prev.perfect,
+        attempts:(prev.attempts||0)+1
+      };
+      save();
+      if(firstSolve){
+        let gain=hu.xp;
+        if(perfect) gain+=15;
+        addXP(gain);
+        if(view.fromDaily){ S.daily=today(); save(); grant('daily'); }
+        setTimeout(()=>toast((perfect?'✦ Perfect! +':'✓ Solved! +')+ (perfect?hu.xp+15:hu.xp)+' XP'),300);
+      } else if(solved && view.fromDaily && S.daily!==today()){
+        S.daily=today(); save(); grant('daily');
+      }
+      render();
+      break;
+    }
+
+    case 'checkupdate': checkForUpdates(); break;
+
+    case 'reset':
+      if(confirm('Reset all XP, badges, streak and progress? This cannot be undone.')){
+        S={xp:0,done:{},hunts:{},streak:{last:'',n:0},badges:{},daily:''};
+        save(); renderHeader(); go({name:'learn'});
+        toast('Progress reset');
+      }
+      break;
+  }
+}
+
+/* lesson completion screen */
+function finishLesson(t,l,first){
+  const acc = LS.quizzes? Math.round(LS.correct/LS.quizzes*100) : 100;
+  const nextI=nextLessonIndex(t);
+  const root=document.getElementById('view');
+  let h='<div class="card resultcard center">'+
+    '<div style="font-size:34px">'+(first?'✓':'↻')+'</div>'+
+    '<div class="bignum">+'+(first?l.xp:0)+' XP</div>'+
+    '<div class="trname" style="margin:4px 0">'+l.name+' complete</div>';
+  if(LS.quizzes) h+='<div class="lxp">Quiz accuracy: '+acc+'%</div>';
+  if(!first) h+='<div class="lxp">(replay — no new XP)</div>';
+  h+='</div>';
+  if(nextI>=0){
+    h+='<button class="btn" data-act="lesson" data-track="'+t.id+'" data-i="'+nextI+'">Next lesson ›</button>';
+  } else {
+    h+='<div class="card center"><b>Track complete.</b> You have finished every lesson in '+t.name+'.</div>';
+  }
+  h+='<button class="btn ghost" data-act="track" data-id="'+t.id+'">Back to '+t.name+'</button>';
+  root.innerHTML=h;
+  bindView(root);
+  window.scrollTo(0,0);
+  if(nextI<0) checkBadges();
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+// roll streak on load (breaks if a day was skipped)
+(function(){
+  if(S.streak.last && S.streak.last!==today() && S.streak.last!==yesterday()){
+    S.streak.n=0; save();
+  }
+})();
+renderHeader();
+render();
+checkBadges();
+
+/* =========================================================
+   PWA UPDATES — detect a new service worker, prompt to apply
+   ========================================================= */
+let swReg=null;
+function showUpdateBanner(){
+  const b=document.getElementById('updatebar');
+  if(b) b.classList.add('show');
+}
+function applyUpdate(){
+  if(swReg && swReg.waiting){
+    swReg.waiting.postMessage({type:'SKIP_WAITING'}); // activates -> controllerchange -> reload
+  } else {
+    location.reload();
+  }
+}
+function checkForUpdates(){
+  const s=document.getElementById('upstatus');
+  if(!('serviceWorker' in navigator) || !swReg){
+    if(s) s.textContent='Updates apply once the app is installed to your home screen and reopened.';
+    return;
+  }
+  if(s) s.textContent='Checking for updates…';
+  swReg.update().then(()=>{
+    setTimeout(()=>{
+      if(swReg.waiting){
+        if(s) s.innerHTML='<b style="color:var(--amber)">Update ready — tap the bar at the top to install.</b>';
+        showUpdateBanner();
+      } else if(s){
+        s.textContent='You’re on the latest version ('+APP_VERSION+').';
+      }
+    },900);
+  }).catch(()=>{ if(s) s.textContent='Couldn’t check right now (offline?).'; });
+}
+
+if('serviceWorker' in navigator){
+  let refreshing=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(refreshing) return; refreshing=true; location.reload();
+  });
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      swReg=reg;
+      if(reg.waiting && navigator.serviceWorker.controller) showUpdateBanner();
+      reg.addEventListener('updatefound',()=>{
+        const nw=reg.installing;
+        if(!nw) return;
+        nw.addEventListener('statechange',()=>{
+          if(nw.state==='installed' && navigator.serviceWorker.controller) showUpdateBanner();
+        });
+      });
+      // While the app stays open, look for a new release once an hour.
+      setInterval(()=>{ reg.update().catch(()=>{}); }, 60*60*1000);
+    }).catch(()=>{});
+  });
+}
+</script>
+
+</body>
+</html>

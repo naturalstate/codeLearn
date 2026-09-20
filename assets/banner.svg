@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 440" width="1280" height="440" font-family="system-ui,-apple-system,Segoe UI,Roboto,sans-serif">
+  <defs>
+    <radialGradient id="glow" cx="26%" cy="40%" r="55%">
+      <stop offset="0" stop-color="#F2A63B" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#F2A63B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="xp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#A18BFA"/>
+      <stop offset="1" stop-color="#F2A63B"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="2" y="2" width="1276" height="436" rx="26" fill="#0D1015"/>
+  <rect x="2" y="2" width="1276" height="436" rx="26" fill="url(#glow)"/>
+  <rect x="2.5" y="2.5" width="1275" height="435" rx="25.5" fill="none" stroke="#28313D" stroke-width="2"/>
+
+  <!-- brand -->
+  <text x="64" y="150" font-size="86" font-weight="800" letter-spacing="-1">
+    <tspan fill="#E9E6DE">code</tspan><tspan fill="#F2A63B">Learn</tspan>
+  </text>
+  <rect x="576" y="98" width="16" height="60" fill="#F2A63B"/>
+
+  <!-- taglines -->
+  <text x="66" y="212" font-size="31" font-weight="600" fill="#C9D1DA">Learn to read code like an attacker.</text>
+  <text x="66" y="252" font-size="20" fill="#8A94A2">A gamified PWA that teaches pentesters to understand code and spot the vulnerabilities.</text>
+
+  <!-- language pills -->
+  <g font-family="ui-monospace,SFMono-Regular,Menlo,monospace" font-size="18">
+    <g transform="translate(66,296)">
+      <rect width="78" height="38" rx="19" fill="#1B222C" stroke="#28313D"/>
+      <text x="39" y="25" text-anchor="middle" fill="#A18BFA">PHP</text>
+    </g>
+    <g transform="translate(156,296)">
+      <rect width="72" height="38" rx="19" fill="#1B222C" stroke="#28313D"/>
+      <text x="36" y="25" text-anchor="middle" fill="#A18BFA">C#</text>
+    </g>
+    <g transform="translate(240,296)">
+      <rect width="98" height="38" rx="19" fill="#1B222C" stroke="#28313D"/>
+      <text x="49" y="25" text-anchor="middle" fill="#F2A63B">C/C++</text>
+    </g>
+    <g transform="translate(350,296)">
+      <rect width="128" height="38" rx="19" fill="#1B222C" stroke="#28313D"/>
+      <text x="64" y="25" text-anchor="middle" fill="#A18BFA">JavaScript</text>
+    </g>
+    <g transform="translate(490,296)">
+      <rect width="98" height="38" rx="19" fill="#1B222C" stroke="#28313D"/>
+      <text x="49" y="25" text-anchor="middle" fill="#F2A63B">Python</text>
+    </g>
+  </g>
+
+  <!-- rank / xp strip -->
+  <g transform="translate(66,362)">
+    <text x="0" y="14" font-size="15" font-weight="700" letter-spacing="1.5" fill="#A18BFA">BUG HUNTER</text>
+    <rect x="170" y="2" width="360" height="10" rx="5" fill="#1B222C"/>
+    <rect x="170" y="2" width="232" height="10" rx="5" fill="url(#xp)"/>
+    <text x="548" y="14" font-size="15" font-family="ui-monospace,monospace" fill="#8A94A2">1,180 XP</text>
+  </g>
+
+  <!-- faux code card -->
+  <g transform="translate(724,64)" font-family="ui-monospace,SFMono-Regular,Menlo,monospace">
+    <rect width="492" height="312" rx="16" fill="#0A0D12" stroke="#28313D" stroke-width="1.5"/>
+    <circle cx="26" cy="30" r="6" fill="#E2594F"/><circle cx="46" cy="30" r="6" fill="#F2A63B"/><circle cx="66" cy="30" r="6" fill="#3FC98C"/>
+    <text x="430" y="35" text-anchor="end" font-size="14" fill="#5B6B7B">lookup.php</text>
+    <line x1="0" y1="52" x2="492" y2="52" stroke="#28313D"/>
+
+    <g font-size="18.5">
+      <text x="28" y="92"><tspan fill="#EFA48B">$id</tspan><tspan fill="#94A0AE"> = </tspan><tspan fill="#EFA48B">$_GET</tspan><tspan fill="#94A0AE">[</tspan><tspan fill="#95CE84">"id"</tspan><tspan fill="#94A0AE">];</tspan></text>
+
+      <!-- highlighted vulnerable line -->
+      <rect x="8" y="112" width="476" height="34" rx="6" fill="#331A17"/>
+      <rect x="8" y="112" width="4" height="34" fill="#E2594F"/>
+      <text x="28" y="135"><tspan fill="#EFA48B">$sql</tspan><tspan fill="#94A0AE"> = </tspan><tspan fill="#95CE84">"SELECT * FROM users "</tspan></text>
+      <text x="28" y="170"><tspan fill="#94A0AE">      </tspan><tspan fill="#95CE84">. "WHERE id = "</tspan><tspan fill="#94A0AE"> . </tspan><tspan fill="#EFA48B">$id</tspan><tspan fill="#94A0AE">;</tspan></text>
+
+      <text x="28" y="205"><tspan fill="#EFA48B">$res</tspan><tspan fill="#94A0AE"> = </tspan><tspan fill="#E8CE7A">mysqli_query</tspan><tspan fill="#94A0AE">($conn, $sql);</tspan></text>
+    </g>
+
+    <!-- finding tag -->
+    <g transform="translate(28,236)">
+      <rect width="196" height="30" rx="15" fill="#2c1714" stroke="#6e2b26"/>
+      <circle cx="20" cy="15" r="4" fill="#E2594F"/>
+      <text x="34" y="20" font-size="13.5" font-weight="700" letter-spacing="0.5" fill="#E2594F">SQL INJECTION — line 2</text>
+    </g>
+    <text x="28" y="292" font-size="13" font-family="system-ui,sans-serif" fill="#8A94A2">Input concatenated straight into the query.</text>
+  </g>
+</svg>
