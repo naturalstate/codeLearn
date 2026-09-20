@@ -168,6 +168,12 @@ code.inl{font:12.5px var(--mono);background:var(--panel2);border:1px solid var(-
   box-shadow:0 6px 20px rgba(0,0,0,.4);
 }
 #updatebar.show{transform:translateY(0)}
+#backupModal{position:fixed;inset:0;z-index:70;background:rgba(5,7,10,.72);display:flex;align-items:flex-end;justify-content:center}
+#backupModal .sheet{width:100%;max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:18px 18px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom,0px));max-height:88vh;overflow-y:auto}
+.sheettitle{font-family:var(--disp);font-weight:700;font-size:18px;margin-bottom:6px}
+.backupta{width:100%;min-height:118px;background:#0A0D12;border:1px solid var(--line);border-radius:10px;color:var(--ink);font:12px/1.5 var(--mono);padding:10px;resize:vertical;-webkit-user-select:text;user-select:text}
+.sheetbtns{display:flex;flex-wrap:wrap;gap:8px}
+.sheetbtns .btn{flex:1;min-width:130px}
 .daily{border:1px solid var(--amber-dim);background:linear-gradient(160deg,#1d1608,var(--panel))}
 .dailytag{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
 kbd,strong{color:var(--ink)}
@@ -206,6 +212,22 @@ p{margin:.5em 0}
 
 <div id="updatebar" onclick="applyUpdate()">↻ New version available — tap to update</div>
 <div id="toast"></div>
+<div id="backupModal" hidden onclick="if(event.target===this)closeBackup()">
+  <div class="sheet">
+    <div class="sheettitle" id="backupTitle">Backup</div>
+    <div class="lxp" id="backupDesc" style="margin-bottom:10px"></div>
+    <textarea id="backupText" class="backupta" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+    <div class="lxp" id="backupStatus" style="min-height:16px;margin:8px 0"></div>
+    <input type="file" id="backupFile" accept="application/json,.json,.txt" hidden onchange="handleBackupFile(this)">
+    <div class="sheetbtns">
+      <button class="btn ghost" id="backupCopy" onclick="copyBackup()" style="margin:0">Copy code</button>
+      <button class="btn ghost" id="backupDownload" onclick="downloadBackup()" style="margin:0">Download file</button>
+      <button class="btn ghost" id="backupFileBtn" onclick="document.getElementById('backupFile').click()" style="margin:0">Load file</button>
+      <button class="btn" id="backupRestore" onclick="restoreBackup()" style="margin:0">Restore</button>
+    </div>
+    <button class="btn ghost" onclick="closeBackup()" style="margin-top:10px">Close</button>
+  </div>
+</div>
 
 <script>
 'use strict';
@@ -276,7 +298,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.1.0';
+const APP_VERSION='1.2.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -1028,6 +1050,10 @@ function vProfile(){
      '<div><div class="lname">codeLearn</div><div class="lxp">Version '+APP_VERSION+'</div></div>'+
      '<button class="btn ghost" style="width:auto;margin:0;padding:11px 16px;font-size:13px" data-act="checkupdate">Check for updates</button>'+
      '</div><div class="lxp" id="upstatus" style="margin-top:10px"></div></div>';
+  h+='<div class="sect">Backup & restore</div>';
+  h+='<div class="card"><div class="lxp" style="margin-bottom:12px">Save a backup of your XP, badges, streak, and lesson progress — then restore it on another device, or if this device loses its saved data.</div>'+
+     '<button class="btn ghost" style="margin-top:0" data-act="export">Export / save backup</button>'+
+     '<button class="btn ghost" data-act="import">Import / restore backup</button></div>';
   h+='<button class="btn danger" data-act="reset">Reset all progress</button>';
   return h;
 }
@@ -1115,6 +1141,8 @@ function handleAct(el){
     }
 
     case 'checkupdate': checkForUpdates(); break;
+    case 'export': openBackup('export'); break;
+    case 'import': openBackup('import'); break;
 
     case 'reset':
       if(confirm('Reset all XP, badges, streak and progress? This cannot be undone.')){
@@ -1195,6 +1223,86 @@ function checkForUpdates(){
       }
     },900);
   }).catch(()=>{ if(s) s.textContent='Couldn’t check right now (offline?).'; });
+}
+
+/* =========================================================
+   BACKUP & RESTORE — export/import all progress as a code or file
+   ========================================================= */
+function openBackup(mode){
+  const ta=document.getElementById('backupText');
+  const st=document.getElementById('backupStatus');
+  st.textContent='';
+  if(mode==='export'){
+    const payload={app:'codeLearn', v:1, exportedAt:new Date().toISOString(), data:S};
+    ta.value=JSON.stringify(payload);
+    ta.readOnly=true;
+    document.getElementById('backupTitle').textContent='Export backup';
+    document.getElementById('backupDesc').textContent='Copy this code (or download it as a file) and keep it somewhere safe. On another device, open Import and paste it in to restore everything.';
+    document.getElementById('backupRestore').hidden=true;
+    document.getElementById('backupCopy').hidden=false;
+    document.getElementById('backupDownload').hidden=false;
+    document.getElementById('backupFileBtn').hidden=true;
+  } else {
+    ta.value=''; ta.readOnly=false;
+    ta.placeholder='Paste your backup code here…';
+    document.getElementById('backupTitle').textContent='Import / restore';
+    document.getElementById('backupDesc').textContent='Paste a backup code below, or load a backup file, then tap Restore. This replaces the progress currently on this device.';
+    document.getElementById('backupRestore').hidden=false;
+    document.getElementById('backupCopy').hidden=true;
+    document.getElementById('backupDownload').hidden=true;
+    document.getElementById('backupFileBtn').hidden=false;
+  }
+  document.getElementById('backupModal').hidden=false;
+}
+function closeBackup(){ document.getElementById('backupModal').hidden=true; }
+function copyBackup(){
+  const ta=document.getElementById('backupText');
+  const st=document.getElementById('backupStatus');
+  const ok=()=>{ st.textContent='Copied to clipboard.'; };
+  const manual=()=>{ st.textContent='Could not auto-copy — select the text and copy it.'; };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(ta.value).then(ok).catch(()=>{ ta.select(); try{document.execCommand('copy');ok();}catch(e){manual();} });
+  } else {
+    ta.select(); try{document.execCommand('copy');ok();}catch(e){manual();}
+  }
+}
+function downloadBackup(){
+  const ta=document.getElementById('backupText');
+  const st=document.getElementById('backupStatus');
+  try{
+    const blob=new Blob([ta.value],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='codelearn-backup-'+today()+'.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); },1000);
+    st.textContent='If nothing downloaded, use “Copy code” instead and save the text.';
+  }catch(e){ st.textContent='Download is not available here — use “Copy code” instead.'; }
+}
+function handleBackupFile(input){
+  const f=input.files && input.files[0];
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{ document.getElementById('backupText').value=String(r.result||''); document.getElementById('backupStatus').textContent='File loaded — tap Restore.'; };
+  r.onerror=()=>{ document.getElementById('backupStatus').textContent='Could not read that file.'; };
+  r.readAsText(f);
+  input.value=''; // allow re-selecting the same file later
+}
+function restoreBackup(){
+  const ta=document.getElementById('backupText');
+  const st=document.getElementById('backupStatus');
+  let payload;
+  try{ payload=JSON.parse((ta.value||'').trim()); }
+  catch(e){ st.textContent='That is not a valid backup — check you pasted the whole code.'; return; }
+  const data = (payload && payload.app==='codeLearn' && payload.data) ? payload.data
+             : (payload && typeof payload.xp==='number' && payload.done) ? payload
+             : null;
+  if(!data){ st.textContent='This does not look like a codeLearn backup.'; return; }
+  if(!confirm('Restore this backup? It replaces the progress currently on this device.')) return;
+  S=Object.assign({xp:0,done:{},hunts:{},streak:{last:'',n:0},badges:{},daily:''}, data);
+  save(); renderHeader(); checkBadges();
+  closeBackup(); go({name:'profile'});
+  toast('✓ Progress restored');
 }
 
 if('serviceWorker' in navigator){

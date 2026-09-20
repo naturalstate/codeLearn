@@ -216,6 +216,17 @@ Then redeploy. Open clients pick up the new service worker, finish caching in th
 
 ---
 
+## Back up & move your progress
+
+Because everything is stored locally with no account, **Rank → Backup & restore** lets you carry your progress between devices or recover it if a device clears its data.
+
+- **Export** produces a small backup — copy it as a code or download it as a `.json` file.
+- **Import** on any device: paste the code (or load the file) and tap **Restore** to bring back your XP, badges, streak, and every completed lesson and hunt.
+
+The copy/paste code path is there because installed iOS home-screen apps handle file downloads inconsistently — pasting a code always works. A restore replaces the progress currently on that device.
+
+---
+
 ## Run it locally
 
 No build step and no dependencies — it is plain HTML, CSS, and JavaScript. Any static file server works; a service worker just needs `http://localhost` or HTTPS (not `file://`).
@@ -242,7 +253,7 @@ python3 -m http.server 8000
 | **Frontend** | A single self-contained `index.html` — vanilla JavaScript, no framework |
 | **Styling** | Handwritten CSS with light/dark theme tokens; Google Fonts (Chakra Petch, IBM Plex Mono) |
 | **PWA** | Web App Manifest + service worker for offline use and updates |
-| **Storage** | `localStorage` for progress, XP, streak, and badges — entirely on-device |
+| **Storage** | `localStorage` for progress, XP, streak, and badges — entirely on-device, with JSON export/import for backup and device transfer |
 | **Highlighting** | A tiny purpose-built syntax highlighter (~40 lines) covering all six languages |
 | **Dependencies** | None. No npm, no build, no tracking |
 
