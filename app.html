@@ -11,7 +11,7 @@
 :root{
   --bg:#0D1015; --panel:#141A21; --panel2:#1B222C; --line:#28313D;
   --ink:#E9E6DE; --mut:#94A0AE; --amber:#F2A63B; --amber-dim:#8a5f22;
-  --violet:#A18BFA; --good:#3FC98C; --bad:#E2594F;
+  --violet:#A18BFA; --good:#3FC98C; --bad:#E2594F; --teal:#2DD4BF;
   --kw:#7FB2F0; --str:#95CE84; --com:#5B6B7B; --num:#D89AF0; --vr:#EFA48B; --fn:#E8CE7A;
   --disp:'Chakra Petch',system-ui,sans-serif;
   --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -177,23 +177,23 @@ code.inl{font:12.5px var(--mono);background:var(--panel2);border:1px solid var(-
 .treflist li::before{content:"↗";position:absolute;left:2px;top:7px;color:var(--mut);font-size:11px}
 .treflist a{color:var(--violet);text-decoration:none}
 .treflist a:active{color:var(--amber)}
-/* language-basics grid tiles */
+/* language-basics grid tiles (teal theme, distinct from the security tracks) */
 .basicsgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
-.basicscard{display:block;text-align:left;border-radius:14px;padding:14px;border:1px solid #4a3f86;background:linear-gradient(150deg,#241d3f,#181428);color:var(--ink);transition:transform .08s ease}
+.basicscard{display:block;text-align:left;border-radius:14px;padding:14px;border:1px solid #1f5f63;background:linear-gradient(150deg,#0e3033,#0b2124);color:var(--ink);transition:transform .08s ease}
 .basicscard:active{transform:scale(.98)}
-.bc-icon{font-family:var(--mono);font-weight:600;font-size:13px;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(161,139,250,.16);border:1px solid #4a3f86;color:var(--violet);margin-bottom:10px}
+.bc-icon{font-family:var(--mono);font-weight:600;font-size:13px;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(45,212,191,.16);border:1px solid #1f5f63;color:var(--teal);margin-bottom:10px}
 .bc-name{font-family:var(--disp);font-weight:700;font-size:15px;line-height:1.15}
 .bc-count{font-family:var(--mono);font-size:11px;color:var(--mut);margin:3px 0 9px;font-variant-numeric:tabular-nums}
 .bc-bar{height:5px;border-radius:3px;background:rgba(0,0,0,.32);overflow:hidden}
-.bc-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--violet),var(--amber))}
+.bc-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--teal),#7fe3c0)}
 /* language fact file */
-.factfile{border:1px solid #4a3f86;background:linear-gradient(150deg,#201a38,var(--panel));border-radius:14px;padding:14px 16px;margin:2px 0 20px}
+.factfile{border:1px solid #1f5f63;background:linear-gradient(150deg,#0e2e31,var(--panel));border-radius:14px;padding:14px 16px;margin:2px 0 20px}
 .ff-note{font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:12px}
 .ff-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .ff-cell{background:rgba(0,0,0,.22);border-radius:9px;padding:8px 10px;min-width:0}
-.ff-k{font-family:var(--disp);font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--violet)}
+.ff-k{font-family:var(--disp);font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--teal)}
 .ff-v{font-family:var(--mono);font-size:11.5px;color:var(--ink);margin-top:3px;line-height:1.3}
-.ff-link{display:inline-block;margin-top:12px;font-size:12.5px;color:var(--violet);text-decoration:none}
+.ff-link{display:inline-block;margin-top:12px;font-size:12.5px;color:var(--teal);text-decoration:none}
 .ff-link:active{color:var(--amber)}
 .daily{border:1px solid var(--amber-dim);background:linear-gradient(160deg,#1d1608,var(--panel))}
 .dailytag{font-family:var(--disp);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);margin-bottom:6px}
@@ -319,7 +319,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.7.0';
+const APP_VERSION='1.8.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -642,6 +642,13 @@ const TRACKS = [
      {t:'quiz',q:'Which is the strongest single red flag for an insecure deserialization bug in .NET?',
       opts:['Any use of JSON','BinaryFormatter.Deserialize (or TypeNameHandling.All) applied to attacker-controlled data','A class with many fields','Using async/await'],a:1,
       why:'<b>BinaryFormatter</b> and <code class="inl">TypeNameHandling.All</code> allow type information in the payload to control object creation. On untrusted input that is a well-known RCE path.'}
+   ]},
+   {id:'d4', name:'XML external entities (XXE)', xp:35, cards:[
+     {t:'md',html:'<p>XML parsers can be told to resolve <b>external entities</b> — references that pull in other files or URLs. If an app parses attacker-supplied XML with entity resolution enabled, the attacker can read local files (<code class="inl">file:///etc/passwd</code>) or make the server fetch internal URLs (SSRF). This is <b>XXE</b>.</p><p>In .NET the danger is an <code class="inl">XmlDocument</code>/<code class="inl">XmlReader</code> with a non-null <code class="inl">XmlResolver</code> or <code class="inl">DtdProcessing.Parse</code> on untrusted XML.</p>'},
+     {t:'read',lang:'csharp',label:'Vulnerable vs safe',code:'// vulnerable: external entities are resolved\nvar doc = new XmlDocument();\ndoc.XmlResolver = new XmlUrlResolver();   // resolves external entities\ndoc.LoadXml(userXml);\n\n// safe: refuse DTDs and disable the resolver\nvar settings = new XmlReaderSettings {\n    DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null };',note:'Modern .NET defaults are safer, but legacy code that sets an <code class="inl">XmlResolver</code> or <code class="inl">DtdProcessing.Parse</code> on untrusted XML is vulnerable. Disable DTDs and set <code class="inl">XmlResolver = null</code>.'},
+     {t:'quiz',q:'What does an XXE attack abuse?',
+      opts:['A SQL query','An XML parser that resolves external entities, letting an attacker read files or trigger SSRF','A CSS import','A missing password'],a:1,
+      why:'<b>XXE</b> abuses XML external-entity resolution to read local files or reach internal systems. Disable DTD processing and null the resolver when parsing untrusted XML.'}
    ]}
   ]
  },
@@ -696,6 +703,13 @@ const TRACKS = [
      {t:'quiz',q:'Why is <code class="inl">child_process.exec(userInput)</code> riskier than <code class="inl">execFile("cmd",[userInput])</code>?',
       opts:['exec is deprecated','exec runs input through a shell, so metacharacters chain commands; execFile passes args directly','execFile is faster','No difference'],a:1,
       why:'<b>exec</b> interprets the string in a shell, exposing <code class="inl">; | &amp;&amp; $()</code>. <b>execFile</b>/<b>spawn</b> pass arguments as a list to the binary, with no shell to abuse.'}
+   ]},
+   {id:'j3', name:'Prototype pollution', xp:35, cards:[
+     {t:'md',html:'<p>In JavaScript every object inherits from <code class="inl">Object.prototype</code>. If code copies attacker-controlled keys into an object — a deep <b>merge</b> of JSON, or <code class="inl">obj[key] = value</code> with <code class="inl">key</code> from input — an attacker can set <code class="inl">__proto__</code> (or <code class="inl">constructor.prototype</code>) and change properties on <b>every</b> object at once. Impact ranges from logic bypass and denial of service to, in some stacks, RCE.</p>'},
+     {t:'read',lang:'js',label:'Vulnerable deep merge',code:'function merge(target, src) {\n  for (const k in src) {\n    if (typeof src[k] === "object") merge(target[k] = target[k] || {}, src[k]);\n    else target[k] = src[k];        // no guard when k === "__proto__"\n  }\n}\nmerge({}, JSON.parse(req.body));     // {"__proto__":{"isAdmin":true}} pollutes all objects',note:'The merge never rejects <code class="inl">__proto__</code>, so attacker JSON writes onto the shared prototype. Guard the keys (skip <code class="inl">__proto__</code>, <code class="inl">constructor</code>, <code class="inl">prototype</code>) or use a null-prototype object / Map.'},
+     {t:'quiz',q:'What makes a recursive object <code class="inl">merge()</code> vulnerable to prototype pollution?',
+      opts:['It is recursive','It copies a key like <code class="inl">__proto__</code> from attacker input onto objects, changing the shared prototype','It uses JSON','It runs on Node'],a:1,
+      why:'Copying attacker-controlled keys such as <code class="inl">__proto__</code> writes onto <code class="inl">Object.prototype</code>, affecting all objects. Reject those keys or use a Map / null-prototype object.'}
    ]}
   ]
  },
@@ -809,6 +823,20 @@ const TRACKS = [
      {t:'quiz',q:'What is wrong with using <code class="inl">jwt.decode(token)</code> for auth instead of <code class="inl">jwt.verify</code>?',
       opts:['Nothing','<code class="inl">decode</code> does not check the signature, so a forged token is trusted','decode is slower','decode needs a database'],a:1,
       why:'<b>decode</b> just parses the token; only <b>verify</b> checks the signature against your secret. Trusting decoded claims lets anyone forge an admin token.'}
+   ]},
+   {id:'w5', name:'Cross-Site Request Forgery (CSRF)', xp:30, cards:[
+     {t:'md',html:'<p><b>CSRF</b> abuses the fact that browsers automatically attach a site\'s cookies to every request to it. If a state-changing action (change email, transfer funds) is authorized by the session cookie <i>alone</i>, an attacker page can submit that request on the victim\'s behalf — no credential theft needed.</p><p>The tell: a POST that changes state with <b>no anti-CSRF token</b> and no <code class="inl">SameSite</code> cookie protection.</p>'},
+     {t:'read',lang:'js',label:'Vulnerable vs defended',code:'// vulnerable: the state change trusts the session cookie only\napp.post("/account/email", (req, res) => {\n  updateEmail(req.session.user, req.body.email);\n});\n\n// defended: require an unpredictable CSRF token (+ SameSite cookies)\napp.post("/account/email", csrfProtection, handler);',note:'Defences: a per-session <b>CSRF token</b> the attacker cannot know, <code class="inl">SameSite=Lax/Strict</code> cookies, and checking the origin/referer for sensitive actions.'},
+     {t:'quiz',q:'Why can an attacker page trigger a state-changing request as the victim in a CSRF bug?',
+      opts:['It steals the password','The browser auto-sends the victim\'s session cookie, and the action requires nothing else','It reads the database','It disables HTTPS'],a:1,
+      why:'Browsers attach the site\'s cookies to requests automatically. If a sensitive action is authorized by the cookie alone, a cross-site request rides it. Require an anti-CSRF token and SameSite cookies.'}
+   ]},
+   {id:'w6', name:'Open redirect', xp:25, cards:[
+     {t:'md',html:'<p>An <b>open redirect</b> is a redirect whose destination comes from user input with no validation. Because the link starts on the trusted domain, it is convincing in phishing: the victim clicks a link to <code class="inl">trusted.com</code> and lands on the attacker\'s site.</p><p>The tell: <code class="inl">redirect(userInput)</code> where the target is a full, attacker-controlled URL.</p>'},
+     {t:'read',lang:'js',label:'Vulnerable vs safe',code:'// vulnerable: ?next=https://evil.example bounces the user off-site\nres.redirect(req.query.next);\n\n// safe: accept only known, relative paths\nconst next = req.query.next || "/";\nif (!next.startsWith("/") || next.startsWith("//")) return res.redirect("/");\nres.redirect(next);',note:'Allowlist redirect targets or accept only relative paths (and reject <code class="inl">//host</code>, which browsers treat as protocol-relative). Never redirect to a raw user-supplied URL.'},
+     {t:'quiz',q:'Why is <code class="inl">res.redirect(req.query.next)</code> dangerous?',
+      opts:['Redirects are always unsafe','An attacker controls the destination, so a link on the trusted site can send victims to a phishing page','It is slow','It breaks cookies'],a:1,
+      why:'An unvalidated redirect target lets an attacker craft a trusted-looking link that bounces victims to a malicious site. Allowlist targets or accept only relative paths.'}
    ]}
   ]
  },
@@ -869,6 +897,13 @@ const TRACKS = [
      {t:'quiz',q:'Which is a legitimate reading-only finding, no runtime test required?',
       opts:['A hardcoded API key in source combined with MD5 password hashing','A well-named variable','A function with comments','Use of prepared statements'],a:0,
       why:'Both <b>hardcoded secrets</b> and <b>MD5 for passwords</b> are visible statically. They are reliable, high-signal findings you report straight from the code.'}
+   ]},
+   {id:'a4', name:'Race conditions (TOCTOU)', xp:30, cards:[
+     {t:'md',html:'<p>A <b>race condition</b> happens when the result depends on the timing of concurrent operations. The classic form is <b>TOCTOU</b> — time-of-check to time-of-use: code checks a condition, then acts on it, but the state can change in between.</p><p>Example: two requests both read a balance of $100, both pass the "enough funds?" check, and both withdraw — spending $200. The tell is <b>check-then-act</b> on shared state (a balance, a coupon, a file) with no lock or atomic operation.</p>'},
+     {t:'read',lang:'python',label:'Check-then-act vs atomic',code:'# vulnerable: a gap between the check and the update\nif account.balance >= amount:      # TIME OF CHECK\n    account.balance -= amount       # TIME OF USE (another request slips in here)\n\n# safer: one atomic, conditional update in the database\n#   UPDATE accounts SET balance = balance - :amt\n#    WHERE id = :id AND balance >= :amt',note:'Concurrent requests can both pass the check before either updates. Fix with atomic DB operations, row locks (<code class="inl">SELECT ... FOR UPDATE</code>), or unique constraints — not a check followed by a separate write.'},
+     {t:'quiz',q:'What is the flaw in "check the balance, then subtract it" as two separate steps?',
+      opts:['It is too slow','Between the check and the update a concurrent request can also pass the check — a TOCTOU race','Subtraction is imprecise','It uses too much memory'],a:1,
+      why:'<b>TOCTOU</b>: the state can change between the check and the use, so two concurrent requests both pass the check and both act. Use an atomic conditional update or a lock.'}
    ]}
   ]
  },
@@ -933,6 +968,11 @@ const TRACKS = [
    Rendered on the last card; open in a new tab.
    ========================================================= */
 const LESSON_REFS = {
+ 'd4':[{t:'OWASP: XXE Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html'},{t:'Microsoft: XmlReaderSettings.DtdProcessing',u:'https://learn.microsoft.com/en-us/dotnet/api/system.xml.xmlreadersettings.dtdprocessing'},{t:'PortSwigger: XXE injection',u:'https://portswigger.net/web-security/xxe'}],
+ 'j3':[{t:'PortSwigger: Prototype pollution',u:'https://portswigger.net/web-security/prototype-pollution'}],
+ 'w5':[{t:'OWASP: CSRF Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html'},{t:'PortSwigger: CSRF',u:'https://portswigger.net/web-security/csrf'}],
+ 'w6':[{t:'OWASP: Unvalidated Redirects & Forwards',u:'https://cheatsheetseries.owasp.org/cheatsheets/Unvalidated_Redirects_and_Forwards_Cheat_Sheet.html'},{t:'CWE-601: Open Redirect',u:'https://cwe.mitre.org/data/definitions/601.html'}],
+ 'a4':[{t:'CWE-367: TOCTOU Race Condition',u:'https://cwe.mitre.org/data/definitions/367.html'},{t:'PortSwigger: Race conditions',u:'https://portswigger.net/web-security/race-conditions'}],
  'pb8':[{t:'PHP Manual: Backward-incompatible changes in 7.0',u:'https://www.php.net/manual/en/migration70.incompatible.php'},{t:'PHP Manual: mysqli (the replacement)',u:'https://www.php.net/manual/en/book.mysqli.php'}],
  'pyb1':[{t:'Python: About',u:'https://www.python.org/about/'},{t:'The Python Tutorial',u:'https://docs.python.org/3/tutorial/'}],
  'pyb2':[{t:'Python: Using the interpreter',u:'https://docs.python.org/3/tutorial/interpreter.html'},{t:'Python: http.server',u:'https://docs.python.org/3/library/http.server.html'}],
@@ -1155,7 +1195,31 @@ const HUNTS = [
    '}'
   ],
   vuln:[3],
-  debrief:'<p><b>Line 4</b> logs attacker-controlled input (<code class="inl">user</code> and the <code class="inl">User-Agent</code>). On a vulnerable <b>Log4j</b> version (Log4Shell, CVE-2021-44228) that single log call is remote code execution via a <code class="inl">${jndi:...}</code> payload — no login required. The bug lives in the <b>dependency</b>, so the fix is upgrading Log4j, not rewriting the log line. This is why logging untrusted input is a sink worth flagging.</p>'}
+  debrief:'<p><b>Line 4</b> logs attacker-controlled input (<code class="inl">user</code> and the <code class="inl">User-Agent</code>). On a vulnerable <b>Log4j</b> version (Log4Shell, CVE-2021-44228) that single log call is remote code execution via a <code class="inl">${jndi:...}</code> payload — no login required. The bug lives in the <b>dependency</b>, so the fix is upgrading Log4j, not rewriting the log line. This is why logging untrusted input is a sink worth flagging.</p>'},
+ {id:'h12', title:'XML profile importer (C#)', lang:'csharp', xp:55, diff:'Hard',
+  brief:'A .NET endpoint that imports a user-supplied XML profile. Find the XXE.',
+  lines:[
+   'public IActionResult Import(string xml) {',
+   '    var doc = new XmlDocument();',
+   '    doc.XmlResolver = new XmlUrlResolver();',
+   '    doc.LoadXml(xml);',
+   '    return Ok(doc.InnerText);',
+   '}'
+  ],
+  vuln:[2,3],
+  debrief:'<p><b>Line 3</b> sets an <code class="inl">XmlUrlResolver</code> and <b>line 4</b> loads attacker XML — together that is <b>XXE</b>. A payload with an external entity (<code class="inl">file:///etc/passwd</code> or an internal URL) is read or fetched by the server. Fix: <code class="inl">doc.XmlResolver = null</code> and prohibit DTD processing.</p>'},
+ {id:'h13', title:'Post-login redirect (Node)', lang:'js', xp:45, diff:'Medium',
+  brief:'An Express login handler that returns the user to where they came from. Spot the open redirect.',
+  lines:[
+   'app.post("/login", (req, res) => {',
+   '  if (!auth(req.body.user, req.body.pass))',
+   '    return res.status(401).end();',
+   '  const next = req.query.next;',
+   '  res.redirect(next);',
+   '});'
+  ],
+  vuln:[4],
+  debrief:'<p><b>Line 5</b> redirects to a user-controlled URL — an <b>open redirect</b>. <code class="inl">?next=https://evil.example</code> turns a link on your trusted domain into a phishing bounce. Accept only relative paths (reject <code class="inl">//host</code>) or allowlist destinations. Line 4 is only the source.</p>'}
 ];
 
 /* =========================================================
