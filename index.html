@@ -182,6 +182,10 @@ code.inl{font:12.5px var(--mono);background:var(--panel2);border:1px solid var(-
 .reflink:first-of-type{border-top:none}
 .reflink .arw{color:var(--mut);font-size:14px;flex:none}
 .reflink:active{color:var(--amber)}
+.flink{display:inline-flex;align-items:center;gap:6px;color:var(--violet);font-size:13px;font-weight:600;text-decoration:none;padding:4px 2px;margin:2px 0 12px;cursor:pointer;border-bottom:1px dashed rgba(161,139,250,.45)}
+.flink:active{color:var(--amber);border-bottom-color:rgba(242,166,59,.5)}
+.codebox.corr{border-color:#1e5f44}
+.codebox.corr .lang{color:var(--good)}
 .trackrefs{margin:30px 2px 4px;padding-top:18px;border-top:1px solid var(--line)}
 .trackrefs-h{font-family:var(--disp);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-bottom:12px}
 .treflist{list-style:none;margin:0;padding:0}
@@ -317,6 +321,13 @@ function hl(src,lang){
 function codebox(src,lang,label){
   return '<div class="codebox"><span class="lang">'+(label||lang)+'</span><pre>'+hl(src,lang)+'</pre></div>';
 }
+/* like codebox but with line numbers down the left (static, non-interactive) */
+function codeboxNumbered(src,lang,label,extra){
+  const rows=src.split('\n').map((ln,i)=>
+    '<div class="hline"><span class="no">'+(i+1)+'</span><span class="src">'+hl(ln,lang)+'</span></div>').join('');
+  return '<div class="codebox'+(extra?' '+extra:'')+'"><span class="lang">'+(label||langName(lang))+'</span>'+
+    '<pre style="padding:6px 0 10px">'+rows+'</pre></div>';
+}
 
 /* ---------- ranks & badges ---------- */
 const RANKS = [
@@ -352,7 +363,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.12.0';
+const APP_VERSION='1.12.1';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -1910,14 +1921,15 @@ function vHuntPlay(){
     const misses=[...HS.picks].filter(p=>!hu.vuln.includes(p)).length;
     const missed=hu.vuln.filter(v=>!HS.picks.has(v)).length;
     const perfect = missed===0 && misses===0;
+    // corrected-code toggle (text link) sits right under the code, before the breakdown
+    if(HUNT_FIX[hu.id]){
+      h+='<a class="flink" data-act="togglefix">'+(HS.showFix?'&#9662; Hide the corrected code':'&#9656; Show the corrected code')+'</a>';
+      if(HS.showFix) h+=codeboxNumbered(HUNT_FIX[hu.id], hu.lang, 'Corrected code ✓', 'corr');
+    }
     h+='<div class="explain" style="border-color:'+(perfect?'var(--good)':'var(--amber)')+'">'+
        '<b>'+(perfect?'Flawless audit.':'Here is the breakdown.')+'</b> '+
        'You correctly flagged '+hits+' of '+hu.vuln.length+' vulnerable line'+(hu.vuln.length>1?'s':'')+
        (misses?', with '+misses+' false positive'+(misses>1?'s':'')+'':'')+'.<br><br>'+hu.debrief+'</div>';
-    if(HUNT_FIX[hu.id]){
-      h+='<button class="btn ghost" data-act="togglefix">'+(HS.showFix?'Hide the corrected code':'Show the corrected code')+'</button>';
-      if(HS.showFix) h+=codebox(HUNT_FIX[hu.id], hu.lang, 'Corrected code ✓');
-    }
     h+=refsListHTML(HUNT_REFS[hu.id], 'Learn more about this vulnerability');
     h+='<button class="btn ghost" data-act="hunt-back">Back to hunts</button>';
   }
