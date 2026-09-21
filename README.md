@@ -84,15 +84,16 @@ strcpy(buf, user_input);   // no length check — overflow if input > 64 bytes
 
 ## Languages & lessons
 
-Fourteen tracks, sixty-three lessons in the current release, organized into **Foundations**, a **Language Basics** series, **Languages & vulnerabilities**, **Attack patterns & real-world**, and an **Exploitation** phase. Each Language Basics track opens with a language **fact file** (released / current version / end-of-life) and includes a lesson on **deprecated & removed** functions.
+Fifteen tracks, seventy-two lessons in the current release, organized into **Foundations**, a **Language Basics** series, **Languages & vulnerabilities**, **Attack patterns & real-world**, and an **Exploitation** phase. Each Language Basics track opens with a language **fact file** (released / current version / end-of-life) and includes a lesson on **deprecated & removed** functions.
 
 | Track | Focus | Lessons |
 |-------|-------|:-------:|
 | **Code Recon** | Read any program with no coding background: input → logic → output, variables, functions, control flow | 4 |
 | **PHP Basics** | Learn the language from zero: run PHP, the interactive CLI shell, the built-in server, embedding in HTML, syntax, Composer, and deprecated functions | 8 |
 | **Python Basics** | Learn the language from zero: run Python, the REPL, pip & virtual environments, syntax, and Python 2 → 3 deprecations | 6 |
+| **JavaScript Basics** | Learn the language from zero: browser vs Node, the REPL, npm, syntax, and deprecated/legacy JS | 6 |
 | **PHP** | Superglobals, SQL injection, command injection / RCE, XSS, type juggling & loose comparisons | 5 |
-| **ASP.NET / C#** | Request binding, ADO.NET SQL injection, insecure deserialization, XML external entities (XXE) | 4 |
+| **ASP.NET / C#** | Request binding, ADO.NET SQL injection, insecure deserialization, XXE, mass assignment | 5 |
 | **C / C++** | Pointers & buffers, dangerous C functions, integer overflow & use-after-free, format strings | 4 |
 | **JS & Web Logic** | DOM XSS sinks, `eval`/Node `child_process` sinks, prototype pollution | 3 |
 | **Python** | Where input enters, SQL & command injection, server-side template injection, insecure deserialization | 5 |
@@ -101,7 +102,7 @@ Fourteen tracks, sixty-three lessons in the current release, organized into **Fo
 | **Crypto Failures** | Weak password hashing, predictable randomness, broken cipher usage (ECB/IV), timing-safe comparison | 4 |
 | **Auditor's Eye** | The source-to-sink method, spotting vulnerable/outdated libraries, weak crypto & hardcoded secrets, race conditions (TOCTOU) | 4 |
 | **Breach Files** | Real incidents, decoded: Log4Shell, Heartbleed, and the Capital One SSRF breach | 3 |
-| **Exploitation Lab** | Turning a bug into proof of impact — SQLi data extraction, command injection to shell, XSS session theft (authorized testing only) | 3 |
+| **Exploitation Lab** | Turning a bug into proof of impact — SQLi extraction, blind SQLi, command injection to shell, XSS session theft, deserialization gadget chains (authorized testing only) | 5 |
 
 <details>
 <summary><b>Full lesson list</b></summary>
@@ -132,6 +133,14 @@ Fourteen tracks, sixty-three lessons in the current release, organized into **Fo
 - pip & virtual environments
 - Deprecated & removed (Python 2 vs 3)
 
+**JavaScript Basics** — learn the language
+- What JavaScript is & how it runs
+- Running JavaScript from the command line (`node`, REPL, `npx`)
+- Variables, types & template literals
+- Objects, arrays & functions
+- npm & package.json
+- Deprecated & legacy JavaScript
+
 **PHP**
 - Reading PHP superglobals
 - SQL injection in PHP
@@ -144,6 +153,7 @@ Fourteen tracks, sixty-three lessons in the current release, organized into **Fo
 - SQL injection in ADO.NET
 - Insecure deserialization
 - XML external entities (XXE)
+- Mass assignment / overposting
 
 **C / C++**
 - Pointers & memory, gently
@@ -198,12 +208,14 @@ Fourteen tracks, sixty-three lessons in the current release, organized into **Fo
 - SQL injection: extracting data (UNION / blind)
 - Command injection: getting a shell
 - XSS: stealing the session
+- Blind SQL injection
+- Deserialization gadget chains
 
 </details>
 
 ### Vulnerability Hunt challenges
 
-Thirteen tap-to-find challenges across the languages above, covering **SQL injection, command injection / RCE, reflected & stored XSS, server-side template injection (SSTI), SSRF, XML external entities (XXE), open redirect, path traversal, stack & heap buffer overflows, use-after-free, insecure deserialization, weak password hashing, timing side-channels, file inclusion (LFI/RFI), variable injection,** and a **Log4Shell-style logging sink**.
+Fourteen tap-to-find challenges across the languages above, covering **SQL injection, command injection / RCE, reflected & stored XSS, server-side template injection (SSTI), SSRF, XML external entities (XXE), open redirect, mass assignment, path traversal, stack & heap buffer overflows, use-after-free, insecure deserialization, weak password hashing, timing side-channels, file inclusion (LFI/RFI), variable injection,** and a **Log4Shell-style logging sink**.
 
 ---
 

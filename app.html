@@ -319,7 +319,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.8.0';
+const APP_VERSION='1.9.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -576,6 +576,55 @@ const TRACKS = [
   ]
  },
  {
+  id:'jsbasics', name:'JavaScript Basics', tag:'BASICS', icon:'js', accent:'violet',
+  sub:'From zero: run JS in the browser and Node, the REPL, npm, and read the syntax.',
+  meta:{released:'1995',current:'Node.js 22 LTS / ES2024',eol:'Node.js 18 and earlier',note:'Created by Brendan Eich at Netscape. Runs in every browser and, through Node.js, on servers and tooling.',link:'https://nodejs.org/en/about/previous-releases'},
+  lessons:[
+   {id:'jsb1', name:'What JavaScript is & how it runs', xp:15, cards:[
+     {t:'md',html:'<p><b>JavaScript</b> is the language of the web. It is <b>interpreted</b> (JIT-compiled internally) and <b>dynamically typed</b>. It runs in two main places:</p><p>• <b>The browser</b> — driving the page and the DOM (engines like V8 in Chrome).<br>• <b>Node.js</b> — the same language on the server, with access to files, networks and processes.</p><p>Same syntax, different powers: browser JS can touch the page; Node JS can touch the machine.</p>'},
+     {t:'read',lang:'js',label:'hello.js',code:'// browser: this runs in the page\nconsole.log("Hello from JavaScript!");\n\n// Node.js: the same file, run with  node hello.js\n// interpreted — no separate build step',note:'The <code class="inl">console.log</code> line runs the same in a browser console or under Node. Node adds server capabilities (files, network) the browser sandbox does not have.'},
+     {t:'quiz',q:'What is the difference between browser JavaScript and Node.js?',
+      opts:['They are different languages','Same language, different environment — the browser drives the page; Node runs on the server with file/network access','Node is compiled, browser is not','Only Node can use functions'],a:1,
+      why:'It is one language (JavaScript / ECMAScript) in two runtimes. The browser exposes the DOM; <b>Node.js</b> exposes the OS — files, sockets, processes.'}
+   ]},
+   {id:'jsb2', name:'Running JavaScript from the command line', xp:20, cards:[
+     {t:'md',html:'<p>With <b>Node.js</b> installed, the <code class="inl">node</code> command runs JS outside the browser:</p><p>• <code class="inl">node file.js</code> — run a script<br>• <code class="inl">node</code> — the <b>interactive REPL</b><br>• <code class="inl">node -e "code"</code> — a one-liner<br>• <code class="inl">npx pkg</code> — run a package without installing it globally<br>• <code class="inl">node --version</code></p><p>In the browser, the <b>DevTools console</b> is your REPL.</p>'},
+     {t:'read',lang:'js',label:'terminal',code:'$ node --version\nv22.9.0\n\n$ node                 // interactive REPL\n> 2 + 2\n4\n> const name = "world"\n> `hi ${name}`\n\'hi world\'\n\n$ node app.js          // run a script\n$ npx cowsay hello     // run a package without installing it',note:'Bare <code class="inl">node</code> opens the REPL. <code class="inl">npx</code> runs a package on demand. In a browser, open DevTools and use the Console tab the same way.'},
+     {t:'quiz',q:'How do you open the Node.js interactive shell (REPL)?',
+      opts:['node --repl','Run <code class="inl">node</code> with no script argument','node -c','npm start'],a:1,
+      why:'Running <code class="inl">node</code> with no file starts the REPL. <code class="inl">node file.js</code> runs a script; <code class="inl">npx</code> runs a package without a global install.'}
+   ]},
+   {id:'jsb3', name:'Variables, types & template literals', xp:20, cards:[
+     {t:'md',html:'<p>Declare variables with <code class="inl">const</code> (cannot be reassigned) or <code class="inl">let</code> (can). The old <code class="inl">var</code> is legacy. Types are dynamic: <b>string</b>, <b>number</b>, <b>boolean</b>, <b>object</b>, <b>array</b>, <code class="inl">null</code>, <code class="inl">undefined</code>.</p><p>Build strings with <b>template literals</b> — backticks with <code class="inl">${...}</code> — instead of clunky <code class="inl">+</code> concatenation.</p>'},
+     {t:'read',lang:'js',label:'types.js',code:'const name = "Ada";        // string\nlet   age  = 36;            // number\nconst ok   = true;          // boolean\nconst nums = [1, 2, 3];     // array\n\nconsole.log("Hi " + name);         // concatenation\nconsole.log(`Hi ${name}, age ${age}`);  // template literal (preferred)',note:'Prefer <code class="inl">const</code> by default, <code class="inl">let</code> when you must reassign, and avoid <code class="inl">var</code>. Template literals read better than <code class="inl">+</code> and are the modern default.'},
+     {t:'quiz',q:'What does <code class="inl">`Hi ${name}`</code> do when <code class="inl">name = "Sam"</code>?',
+      opts:['Prints the literal Hi ${name}','Produces "Hi Sam" — a template literal inserts the value','Throws an error','Defines a function'],a:1,
+      why:'A <b>template literal</b> (backticks) evaluates <code class="inl">${name}</code> and inserts its value, giving <code class="inl">Hi Sam</code>.'}
+   ]},
+   {id:'jsb4', name:'Objects, arrays & functions', xp:25, cards:[
+     {t:'md',html:'<p><b>Objects</b> hold key/value data <code class="inl">{ }</code>; <b>arrays</b> hold ordered lists <code class="inl">[ ]</code>. Branch with <code class="inl">if/else</code>, loop with <code class="inl">for...of</code>, and define logic with functions — classic <code class="inl">function</code> or short <b>arrow functions</b> <code class="inl">=&gt;</code>.</p>'},
+     {t:'read',lang:'js',label:'basics.js',code:'const user = { name: "Ada", role: "admin" };   // object\n\nfor (const [key, value] of Object.entries(user)) {\n  console.log(`${key} = ${value}`);\n}\n\nif (user.role === "admin") {\n  console.log("Access granted");\n}\n\nconst greet = (who) => "Hello " + who;   // arrow function\nconsole.log(greet(user.name));',note:'This is the shape you audit in Node code: an object holding request data, an <code class="inl">if</code> gate on a role, an arrow function returning a value. Use <code class="inl">===</code> (strict), not <code class="inl">==</code>.'},
+     {t:'quiz',q:'What is an arrow function <code class="inl">(x) =&gt; x + 1</code>?',
+      opts:['A comparison operator','A shorter syntax for defining a function','An array','A loop'],a:1,
+      why:'Arrow functions (<code class="inl">=&gt;</code>) are a compact way to write functions. Here it takes <code class="inl">x</code> and returns <code class="inl">x + 1</code>.'}
+   ]},
+   {id:'jsb5', name:'npm & package.json', xp:20, cards:[
+     {t:'md',html:'<p><b>npm</b> is Node\'s package manager. A project\'s <code class="inl">package.json</code> lists its dependencies; <code class="inl">npm install</code> downloads them into <code class="inl">node_modules/</code> and pins exact versions in <code class="inl">package-lock.json</code>.</p><p>Security tie: <code class="inl">package-lock.json</code> is the dependency surface to audit, and <code class="inl">npm audit</code> flags known-vulnerable versions automatically.</p>'},
+     {t:'read',lang:'js',label:'package.json',code:'{\n  "dependencies": {\n    "express": "^4.19.2",\n    "lodash": "^4.17.21"\n  }\n}',note:'Run <code class="inl">npm install</code> to fetch these, <code class="inl">npm install pkg</code> to add one, and <code class="inl">npm audit</code> to check every dependency against the advisory database.'},
+     {t:'quiz',q:'What is npm to a Node project?',
+      opts:['A web browser','The package manager — it installs the libraries listed in package.json','The JS engine','A linter'],a:1,
+      why:'<b>npm</b> installs packages from the npm registry into <code class="inl">node_modules/</code>, recording exact versions in <code class="inl">package-lock.json</code> — the file you audit with <code class="inl">npm audit</code>.'}
+   ]},
+   {id:'jsb6', name:'Deprecated & legacy JavaScript', xp:25, cards:[
+     {t:'md',html:'<p>Old JS patterns are tells of aging, sometimes risky code:</p><p>• <code class="inl">var</code> instead of <code class="inl">let</code>/<code class="inl">const</code> (function-scoped, hoisting surprises).<br>• Loose <code class="inl">==</code> instead of strict <code class="inl">===</code>.<br>• In <b>Node.js</b>, the old <code class="inl">new Buffer()</code> constructor is <b>deprecated</b> — it could return <b>uninitialized memory</b> (an information leak). Use <code class="inl">Buffer.alloc()</code> / <code class="inl">Buffer.from()</code>.</p>'},
+     {t:'read',lang:'js',label:'Legacy tells',code:'var x = 1;               // legacy: prefer let/const\nif (a == b) { ... }      // loose equality: prefer ===\n\nnew Buffer(10);          // DEPRECATED (Node): may leak uninitialized memory\nBuffer.alloc(10);        // safe: zero-filled\nBuffer.from(userInput);  // safe: explicit',note:'<code class="inl">new Buffer()</code> was deprecated for security — it could hand back whatever was previously in memory. Seeing it (or lots of <code class="inl">var</code> and <code class="inl">==</code>) marks old, unmodernised code.'},
+     {t:'quiz',q:'Why was Node\'s <code class="inl">new Buffer()</code> constructor deprecated?',
+      opts:['It was slow','It could return uninitialized memory, leaking data — replaced by Buffer.alloc()/from()','It only worked in browsers','It used too much disk'],a:1,
+      why:'<code class="inl">new Buffer(size)</code> returned memory that was not zeroed, so it could expose leftover data. The safe replacements are <code class="inl">Buffer.alloc()</code> (zero-filled) and <code class="inl">Buffer.from()</code>.'}
+   ]}
+  ]
+ },
+ {
   id:'php', name:'PHP', tag:'WEB', icon:'php', accent:'violet',
   sub:'The classic web-app language. Powers huge legacy attack surface.',
   lessons:[
@@ -649,6 +698,13 @@ const TRACKS = [
      {t:'quiz',q:'What does an XXE attack abuse?',
       opts:['A SQL query','An XML parser that resolves external entities, letting an attacker read files or trigger SSRF','A CSS import','A missing password'],a:1,
       why:'<b>XXE</b> abuses XML external-entity resolution to read local files or reach internal systems. Disable DTD processing and null the resolver when parsing untrusted XML.'}
+   ]},
+   {id:'d5', name:'Mass assignment / overposting', xp:35, cards:[
+     {t:'md',html:'<p>ASP.NET model binding auto-fills an object\'s properties from request fields. If a controller binds a request straight onto a <b>domain model</b>, an attacker can set properties you never exposed — like <code class="inl">IsAdmin</code> — just by adding them to the request. This is <b>mass assignment</b> (a.k.a. overposting).</p>'},
+     {t:'read',lang:'csharp',label:'Vulnerable vs safe',code:'// vulnerable: binds the whole User entity, including IsAdmin\npublic IActionResult Update(User user) {\n    _db.Update(user);   // attacker posts IsAdmin=true\n    return Ok();\n}\n\n// safe: bind a DTO exposing only the fields you allow\npublic IActionResult Update(UpdateProfileDto dto) { /* map dto -> user */ }',note:'Bind to a view model / DTO containing only editable fields, or use an explicit <code class="inl">[Bind(nameof(...))]</code> allowlist. Never bind untrusted input onto an entity with sensitive properties.'},
+     {t:'quiz',q:'How does a mass-assignment (overposting) bug let a user become admin?',
+      opts:['By guessing the password','Model binding sets a sensitive property (e.g. IsAdmin) from an extra request field the developer never intended','By SQL injection','By XSS'],a:1,
+      why:'Binding a request directly onto a model lets the attacker supply extra fields. Bind to a DTO with only allowed properties, or use a <code class="inl">[Bind]</code> allowlist.'}
    ]}
   ]
  },
@@ -958,6 +1014,20 @@ const TRACKS = [
      {t:'quiz',q:'How does the <code class="inl">HttpOnly</code> cookie flag limit XSS impact?',
       opts:['It blocks all XSS','It stops script reading the cookie via document.cookie (but not session-riding requests)','It encrypts the page','It disables JavaScript'],a:1,
       why:'<b>HttpOnly</b> hides the cookie from JavaScript, stopping direct theft — but injected script can still send authenticated requests as the victim. Fix the XSS itself with output encoding and CSP.'}
+   ]},
+   {id:'ex4', name:'Blind SQL injection', xp:45, cards:[
+     {t:'md',html:'<p><b>Authorized testing only.</b> Sometimes an injectable query returns no visible data and no error — but you can still extract information by <b>inference</b>.</p><p>• <b>Boolean-based</b> — inject a condition and watch whether the response changes between <i>true</i> and <i>false</i>.<br>• <b>Time-based</b> — make the database pause when a condition is true, and measure the response time.</p><p>Ask one yes/no question per request and you can reconstruct data character by character.</p>'},
+     {t:'read',lang:'sql',label:'Boolean & time-based probes',code:'-- boolean: does the admin password start with \'a\' ?\n\' AND substring(password,1,1) = \'a\' -- \n-- if the page renders the "true" state, the guess is right; else try \'b\'\n\n-- time-based: delay 5s only when the condition holds\n\' AND IF(substring(password,1,1) = \'a\', SLEEP(5), 0) -- ',note:'Automated tools (sqlmap) do this quickly, but the idea is pure inference — each request answers one true/false question. The upstream fix is always parameterized queries.'},
+     {t:'quiz',q:'How does <b>time-based</b> blind SQL injection extract data with nothing shown on the page?',
+      opts:['It reads the HTML source','It makes the database delay (SLEEP) when a guessed condition is true, inferring data from response time','It brute-forces the login form','It reads cookies'],a:1,
+      why:'With no data echoed, the attacker infers it: a conditional <code class="inl">SLEEP</code> makes the server slow only when a guess is correct, revealing the value one character at a time.'}
+   ]},
+   {id:'ex5', name:'Deserialization gadget chains', xp:45, cards:[
+     {t:'md',html:'<p><b>Authorized testing only.</b> Finding insecure deserialization is step one; <b>exploiting</b> it uses a <b>gadget chain</b> — a sequence of methods in libraries <i>already present</i> in the app that, when a crafted object is deserialized, chain together into something dangerous like running a command.</p><p>You rarely write the chain by hand — public tools generate payloads for known libraries: <b>ysoserial</b> (Java), <b>ysoserial.net</b> (.NET), <b>PHPGGC</b> (PHP).</p>'},
+     {t:'read',lang:'java',label:'The concept',code:'// 1. app calls readObject() on attacker bytes   (the vulnerability)\n// 2. those bytes describe an object graph built from library classes\n// 3. as it is rebuilt, method calls chain together, e.g.\n//      Map -> Comparator -> Template -> Runtime.exec("...")   = RCE\n//\n// generate a payload:  java -jar ysoserial.jar CommonsCollections1 "id"',note:'The chain relies on classes on the app\'s classpath, so the fix is upstream: do not deserialize untrusted data, and use type allowlists. Removing the vulnerable library removes the gadgets.'},
+     {t:'quiz',q:'What is a "gadget chain" in deserialization exploitation?',
+      opts:['A hardware device','A sequence of methods in existing app/library classes that a crafted object triggers on deserialization to reach code execution','A kind of firewall','A password wordlist'],a:1,
+      why:'A <b>gadget chain</b> strings together methods in classes already on the classpath so deserializing a crafted object reaches a dangerous call. Tools like <b>ysoserial</b> build these payloads; the defence is to never deserialize untrusted data.'}
    ]}
   ]
  }
@@ -968,6 +1038,15 @@ const TRACKS = [
    Rendered on the last card; open in a new tab.
    ========================================================= */
 const LESSON_REFS = {
+ 'jsb1':[{t:'MDN: JavaScript Guide — Introduction',u:'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Introduction'},{t:'Node.js: About',u:'https://nodejs.org/en/about'}],
+ 'jsb2':[{t:'Node.js: Command-line options',u:'https://nodejs.org/api/cli.html'},{t:'Node.js: REPL',u:'https://nodejs.org/api/repl.html'}],
+ 'jsb3':[{t:'MDN: Grammar and types',u:'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types'}],
+ 'jsb4':[{t:'MDN: Working with objects',u:'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Working_with_objects'},{t:'MDN: Control flow',u:'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Control_flow_and_error_handling'}],
+ 'jsb5':[{t:'npm: package.json',u:'https://docs.npmjs.com/cli/v10/configuring-npm/package-json'},{t:'npm: npm audit',u:'https://docs.npmjs.com/cli/v10/commands/npm-audit'}],
+ 'jsb6':[{t:'Node.js: Buffer',u:'https://nodejs.org/api/buffer.html'},{t:'Node.js: Deprecated APIs',u:'https://nodejs.org/api/deprecations.html'}],
+ 'd5':[{t:'OWASP: Mass Assignment Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html'},{t:'Microsoft: Model binding in ASP.NET Core',u:'https://learn.microsoft.com/en-us/aspnet/core/mvc/models/model-binding'}],
+ 'ex4':[{t:'PortSwigger: Blind SQL injection',u:'https://portswigger.net/web-security/sql-injection/blind'}],
+ 'ex5':[{t:'PortSwigger: Insecure deserialization',u:'https://portswigger.net/web-security/deserialization'},{t:'ysoserial (Java gadget payloads)',u:'https://github.com/frohoff/ysoserial'}],
  'd4':[{t:'OWASP: XXE Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html'},{t:'Microsoft: XmlReaderSettings.DtdProcessing',u:'https://learn.microsoft.com/en-us/dotnet/api/system.xml.xmlreadersettings.dtdprocessing'},{t:'PortSwigger: XXE injection',u:'https://portswigger.net/web-security/xxe'}],
  'j3':[{t:'PortSwigger: Prototype pollution',u:'https://portswigger.net/web-security/prototype-pollution'}],
  'w5':[{t:'OWASP: CSRF Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html'},{t:'PortSwigger: CSRF',u:'https://portswigger.net/web-security/csrf'}],
@@ -1219,7 +1298,19 @@ const HUNTS = [
    '});'
   ],
   vuln:[4],
-  debrief:'<p><b>Line 5</b> redirects to a user-controlled URL — an <b>open redirect</b>. <code class="inl">?next=https://evil.example</code> turns a link on your trusted domain into a phishing bounce. Accept only relative paths (reject <code class="inl">//host</code>) or allowlist destinations. Line 4 is only the source.</p>'}
+  debrief:'<p><b>Line 5</b> redirects to a user-controlled URL — an <b>open redirect</b>. <code class="inl">?next=https://evil.example</code> turns a link on your trusted domain into a phishing bounce. Accept only relative paths (reject <code class="inl">//host</code>) or allowlist destinations. Line 4 is only the source.</p>'},
+ {id:'h14', title:'Profile update (Node)', lang:'js', xp:50, diff:'Medium',
+  brief:'An Express handler that saves profile changes. Spot the mass-assignment bug.',
+  lines:[
+   'app.post("/profile", (req, res) => {',
+   '  const user = getUser(req.session.id);',
+   '  Object.assign(user, req.body);',
+   '  user.save();',
+   '  res.json(user);',
+   '});'
+  ],
+  vuln:[2],
+  debrief:'<p><b>Line 3</b> merges the entire request body onto the user object with <code class="inl">Object.assign</code> — <b>mass assignment</b>. An attacker adds <code class="inl">"role":"admin"</code> (or <code class="inl">isAdmin:true</code>) to the body and escalates privileges. Copy only the allowed fields explicitly (name, email), never the whole body.</p>'}
 ];
 
 /* =========================================================
@@ -1261,7 +1352,7 @@ function vHome(){
 
   const GROUP_ORDER=['Foundations','Language basics','Languages & vulnerabilities','Attack patterns & real-world','Exploitation'];
   const groupOf=(id)=> id==='recon' ? 'Foundations'
-    : (id==='phpbasics' || id==='pybasics') ? 'Language basics'
+    : (id==='phpbasics' || id==='pybasics' || id==='jsbasics') ? 'Language basics'
     : ['php','dotnet','cpp','web','python','java'].includes(id) ? 'Languages & vulnerabilities'
     : id==='exploit' ? 'Exploitation'
     : 'Attack patterns & real-world';
