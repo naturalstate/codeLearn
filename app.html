@@ -182,6 +182,7 @@ code.inl{font:12.5px var(--mono);background:var(--panel2);border:1px solid var(-
 .basicscard{display:block;text-align:left;border-radius:14px;padding:14px;border:1px solid #1f5f63;background:linear-gradient(150deg,#0e3033,#0b2124);color:var(--ink);transition:transform .08s ease}
 .basicscard:active{transform:scale(.98)}
 .bc-icon{font-family:var(--mono);font-weight:600;font-size:13px;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(45,212,191,.16);border:1px solid #1f5f63;color:var(--teal);margin-bottom:10px}
+.bc-icon .bc-img{width:24px;height:24px;object-fit:contain;display:block}
 .bc-name{font-family:var(--disp);font-weight:700;font-size:15px;line-height:1.15}
 .bc-count{font-family:var(--mono);font-size:11px;color:var(--mut);margin:3px 0 9px;font-variant-numeric:tabular-nums}
 .bc-bar{height:5px;border-radius:3px;background:rgba(0,0,0,.32);overflow:hidden}
@@ -309,6 +310,13 @@ const RANKS = [
   [0,'Script Kiddie'],[120,'Recruit'],[300,'Code Reader'],[600,'Analyst'],
   [1000,'Bug Hunter'],[1500,'Exploit Dev'],[2200,'Red Teamer'],[3000,'APT Operator']
 ];
+const BASICS_ICONS = {
+  phpbasics:'icons/language_icons/php-32px.png',
+  pybasics:'icons/language_icons/python-32px.png',
+  jsbasics:'icons/language_icons/javascript-32px.png',
+  nodebasics:'icons/language_icons/nodedotjs-32px.png',
+  cbasics:'icons/language_icons/c-32px.png'
+};
 const BADGES = [
   {id:'first',  ic:'🩸', n:'First Blood',   d:'Complete your first lesson'},
   {id:'recon',  ic:'🔭', n:'Recon Done',    d:'Finish the Code Recon track'},  {id:'polyglot',ic:'🌐', n:'Polyglot',     d:'Finish a lesson in 3 languages'},
@@ -322,7 +330,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.11.0';
+const APP_VERSION='1.11.1';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -1580,7 +1588,7 @@ function vHome(){
       for(const t of inGroup){
         const p=trackProgress(t);
         h+='<button class="basicscard tap" data-act="track" data-id="'+t.id+'">'+
-            '<div class="bc-icon">'+t.icon+'</div>'+
+            '<div class="bc-icon">'+(BASICS_ICONS[t.id]?'<img class="bc-img" src="'+BASICS_ICONS[t.id]+'" alt="">':t.icon)+'</div>'+
             '<div class="bc-name">'+t.name+'</div>'+
             '<div class="bc-count">'+p.done+'/'+p.total+' lessons</div>'+
             '<div class="bc-bar"><i style="width:'+p.pct+'%"></i></div>'+

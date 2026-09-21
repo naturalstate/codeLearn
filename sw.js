@@ -1,8 +1,11 @@
 /* codeLearn service worker — offline-first with a controlled update flow.
    Bump CACHE (and APP_VERSION in the page) on every release so clients
    are offered the update. The new worker waits until the user accepts. */
-const CACHE = 'codelearn-v1.11.0';
-const CORE = ['./', './index.html', './manifest.json', './icons/icon.svg'];
+const CACHE = 'codelearn-v1.11.1';
+const CORE = ['./', './index.html', './manifest.json', './icons/icon.svg',
+  './icons/language_icons/php-32px.png', './icons/language_icons/python-32px.png',
+  './icons/language_icons/javascript-32px.png', './icons/language_icons/nodedotjs-32px.png',
+  './icons/language_icons/c-32px.png'];
 
 self.addEventListener('install', (e) => {
   // Do NOT skipWaiting here: let the new worker wait so the page can
