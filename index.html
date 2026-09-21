@@ -352,7 +352,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.11.3';
+const APP_VERSION='1.12.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -1332,13 +1332,13 @@ const LESSON_REFS = {
  'b2':[{t:'Heartbleed.com',u:'https://heartbleed.com/'},{t:'NVD: CVE-2014-0160',u:'https://nvd.nist.gov/vuln/detail/CVE-2014-0160'}],
  'b3':[{t:'Krebs on Security: Capital One breach',u:'https://krebsonsecurity.com/2019/07/capital-one-data-theft-impacts-106m-people/'},{t:'OWASP: Server-Side Request Forgery',u:'https://owasp.org/www-community/attacks/Server_Side_Request_Forgery'}]
 };
-function refsHTML(lessonId){
-  const r=LESSON_REFS[lessonId];
+function refsListHTML(r, label){
   if(!r || !r.length) return '';
-  return '<div class="refs"><div class="refslabel">Learn more</div>'+
+  return '<div class="refs"><div class="refslabel">'+(label||'Learn more')+'</div>'+
     r.map(x=>'<a class="reflink" href="'+x.u+'" target="_blank" rel="noopener noreferrer">'+
       '<span>'+x.t+'</span><span class="arw">&#8599;</span></a>').join('')+'</div>';
 }
+function refsHTML(lessonId){ return refsListHTML(LESSON_REFS[lessonId]); }
 /* aggregated, de-duplicated reference list for a whole track (shown at the
    bottom of the track page as plain reading material, not a lesson) */
 function trackRefsHTML(track){
@@ -1358,6 +1358,147 @@ function trackRefsHTML(track){
    each: id, title, lang, xp, difficulty, lines[], vuln[](0-indexed),
          brief, debrief (why those lines)
    ========================================================= */
+/* Corrected code + reference links per Hunt (shown on the debrief page) */
+const HUNT_FIX = {
+ h1:[
+  '$stmt = $conn->prepare("SELECT name,email FROM users WHERE id = ?");',
+  '$stmt->bind_param("i", $_GET["id"]);   // bound as data, no injection',
+  '$stmt->execute();',
+  '$row = $stmt->get_result()->fetch_assoc();',
+  'echo "<h1>" . htmlspecialchars($row["name"]) . "</h1>";  // encoded output'
+ ].join('\n'),
+ h2:[
+  '$target = $_POST["target"];',
+  'if (empty($target)) { die("no target"); }',
+  '// escape the argument so shell metacharacters cannot chain commands:',
+  '$output = shell_exec("ping -c 4 " . escapeshellarg($target));',
+  'echo "<pre>" . htmlspecialchars($output) . "</pre>";'
+ ].join('\n'),
+ h3:[
+  'void handle(char *input) {',
+  '    char buffer[128];',
+  '    snprintf(buffer, sizeof buffer, "%s", input);   // bounded copy',
+  '    size_t need = strlen("got: ") + strlen(input) + 1;',
+  '    char *log = (char*)malloc(need);                 // sized to the data',
+  '    snprintf(log, need, "got: %s", input);',
+  '    free(log);',
+  '}'
+ ].join('\n'),
+ h4:[
+  'var cmd = new SqlCommand(',
+  '    "SELECT * FROM Sales WHERE Dept = @d", conn);',
+  'cmd.Parameters.AddWithValue("@d", dept);   // bound parameter',
+  'conn.Open();',
+  'var r = cmd.ExecuteReader();'
+ ].join('\n'),
+ h5:[
+  'const name = path.basename(req.query.name);         // strip directory parts',
+  'const base = path.resolve("./uploads");',
+  'const file = path.join(base, name);',
+  'if (!file.startsWith(base)) return res.sendStatus(400);   // confine to base',
+  'const data = fs.readFileSync(file);',
+  'const { execFile } = require("child_process");',
+  'execFile("file", [file], (e,o) => res.send(o + data)); // arg list, no shell'
+ ].join('\n'),
+ h6:[
+  'row = db.execute("SELECT hash,secret FROM u WHERE name=?", [user]).one()',
+  'if bcrypt.checkpw(pw.encode(), row.hash):            # slow, salted hash',
+  '    expected = hmac.new(row.secret, user.encode()).hexdigest()',
+  '    if hmac.compare_digest(token, expected):         # constant-time compare',
+  '        return make_session(user)',
+  'return None'
+ ].join('\n'),
+ h7:[
+  '$allowed = ["home", "about", "contact"];',
+  '$tpl = $_GET["tpl"] ?? "home";',
+  'if (!in_array($tpl, $allowed, true)) { $tpl = "home"; }   // allowlist',
+  'include("templates/" . $tpl . ".php");',
+  '// no extract() of user data, and no eval()'
+ ].join('\n'),
+ h8:[
+  'byte[] body = ReadRequestBody(ctx);',
+  '// use a safe, type-constrained serializer instead of BinaryFormatter:',
+  'var msg = JsonSerializer.Deserialize<Message>(body);',
+  'var handler = _map[msg.Type];',
+  'handler.Invoke(msg.Payload);'
+ ].join('\n'),
+ h9:[
+  '@app.route("/preview")',
+  'def preview():',
+  '    tpl = request.args.get("tpl", "")',
+  '    # fixed template; the value is bound and auto-escaped, never evaluated:',
+  '    return render_template_string("<div>{{ tpl }}</div>", tpl=tpl)'
+ ].join('\n'),
+ h10:[
+  'from urllib.parse import urlparse',
+  'target = request.args.get("url")',
+  'host = urlparse(target).hostname',
+  'if host not in {"api.example.com", "cdn.example.com"}:   # allowlist',
+  '    abort(400)',
+  'return requests.get(target, allow_redirects=False).text'
+ ].join('\n'),
+ h11:[
+  '// The fix is in the dependency, not the log line:',
+  '//   - upgrade log4j-core to a patched release (>= 2.17.1)',
+  '//   - the vulnerable JNDI message lookup is removed / disabled',
+  'logger.info("login user={} ua={}", user, ua);   // parameterised logging'
+ ].join('\n'),
+ h12:[
+  'var settings = new XmlReaderSettings {',
+  '    DtdProcessing = DtdProcessing.Prohibit,   // refuse DTDs / entities',
+  '    XmlResolver = null };',
+  'using var reader = XmlReader.Create(new StringReader(xml), settings);',
+  'var doc = new XmlDocument();',
+  'doc.Load(reader);'
+ ].join('\n'),
+ h13:[
+  'const next = req.query.next || "/";',
+  '// only allow local, relative paths; reject absolute and protocol-relative URLs:',
+  'if (!next.startsWith("/") || next.startsWith("//")) {',
+  '  return res.redirect("/");',
+  '}',
+  'res.redirect(next);'
+ ].join('\n'),
+ h14:[
+  'const user = getUser(req.session.id);',
+  'user.name  = req.body.name;    // copy only the allowed fields',
+  'user.email = req.body.email;   // never Object.assign(user, req.body)',
+  'user.save();',
+  'res.json(user);'
+ ].join('\n'),
+ h15:[
+  'host := r.URL.Query().Get("host")',
+  '// argument list, no shell; validate host as needed:',
+  'out, _ := exec.Command("ping", "-c1", host).Output()',
+  'w.Write(out)'
+ ].join('\n'),
+ h16:[
+  'const ALLOWED = new Set(["https://app.example.com"]);',
+  'if (ALLOWED.has(req.headers.origin)) {                     // allowlist origins',
+  '  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);',
+  '  res.setHeader("Access-Control-Allow-Credentials", "true");',
+  '}',
+  'next();'
+ ].join('\n')
+};
+const HUNT_REFS = {
+ h1:[{t:'OWASP: SQL Injection Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html'},{t:'OWASP: Cross-Site Scripting (XSS)',u:'https://owasp.org/www-community/attacks/xss/'}],
+ h2:[{t:'OWASP: Command Injection',u:'https://owasp.org/www-community/attacks/Command_Injection'},{t:'PortSwigger: OS command injection',u:'https://portswigger.net/web-security/os-command-injection'}],
+ h3:[{t:'CWE-120: Classic Buffer Overflow',u:'https://cwe.mitre.org/data/definitions/120.html'},{t:'OWASP: Buffer Overflow',u:'https://owasp.org/www-community/vulnerabilities/Buffer_Overflow'}],
+ h4:[{t:'OWASP: SQL Injection Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html'},{t:'Microsoft: SqlCommand.Parameters',u:'https://learn.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters'}],
+ h5:[{t:'OWASP: Path Traversal',u:'https://owasp.org/www-community/attacks/Path_Traversal'},{t:'PortSwigger: OS command injection',u:'https://portswigger.net/web-security/os-command-injection'}],
+ h6:[{t:'OWASP: Password Storage Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html'},{t:'Python docs: hmac.compare_digest',u:'https://docs.python.org/3/library/hmac.html'}],
+ h7:[{t:'OWASP: Path Traversal',u:'https://owasp.org/www-community/attacks/Path_Traversal'},{t:'PHP Manual: include',u:'https://www.php.net/manual/en/function.include.php'}],
+ h8:[{t:'OWASP: Deserialization Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html'},{t:'Microsoft: BinaryFormatter security guide',u:'https://learn.microsoft.com/en-us/dotnet/standard/serialization/binaryformatter-security-guide'}],
+ h9:[{t:'PortSwigger: Server-side template injection',u:'https://portswigger.net/web-security/server-side-template-injection'}],
+ h10:[{t:'OWASP: Server-Side Request Forgery',u:'https://owasp.org/www-community/attacks/Server_Side_Request_Forgery'},{t:'PortSwigger: SSRF',u:'https://portswigger.net/web-security/ssrf'}],
+ h11:[{t:'NVD: CVE-2021-44228 (Log4Shell)',u:'https://nvd.nist.gov/vuln/detail/CVE-2021-44228'},{t:'Apache Log4j Security',u:'https://logging.apache.org/log4j/2.x/security.html'}],
+ h12:[{t:'OWASP: XXE Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html'},{t:'PortSwigger: XXE injection',u:'https://portswigger.net/web-security/xxe'}],
+ h13:[{t:'OWASP: Open Redirect',u:'https://community.owasp.org/attacks/open_redirect'},{t:'PortSwigger: Open redirection (reflected)',u:'https://portswigger.net/kb/issues/00500100_open-redirection-reflected'},{t:'PayloadsAllTheThings: Open Redirect',u:'https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Open%20Redirect/README.md'},{t:'Snyk Learn: Open redirect (JavaScript)',u:'https://learn.snyk.io/lesson/open-redirect/?ecosystem=javascript'}],
+ h14:[{t:'OWASP: Mass Assignment Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html'}],
+ h15:[{t:'OWASP: Command Injection',u:'https://owasp.org/www-community/attacks/Command_Injection'},{t:'Go: os/exec',u:'https://pkg.go.dev/os/exec'}],
+ h16:[{t:'PortSwigger: CORS',u:'https://portswigger.net/web-security/cors'},{t:'MDN: Cross-Origin Resource Sharing',u:'https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS'}]
+};
 const HUNTS = [
  {id:'h1', title:'User lookup endpoint', lang:'php', xp:40, diff:'Easy',
   brief:'A PHP endpoint that looks up a user. Tap every line you think is dangerous, then submit.',
@@ -1773,6 +1914,11 @@ function vHuntPlay(){
        '<b>'+(perfect?'Flawless audit.':'Here is the breakdown.')+'</b> '+
        'You correctly flagged '+hits+' of '+hu.vuln.length+' vulnerable line'+(hu.vuln.length>1?'s':'')+
        (misses?', with '+misses+' false positive'+(misses>1?'s':'')+'':'')+'.<br><br>'+hu.debrief+'</div>';
+    if(HUNT_FIX[hu.id]){
+      h+='<button class="btn ghost" data-act="togglefix">'+(HS.showFix?'Hide the corrected code':'Show the corrected code')+'</button>';
+      if(HS.showFix) h+=codebox(HUNT_FIX[hu.id], hu.lang, 'Corrected code ✓');
+    }
+    h+=refsListHTML(HUNT_REFS[hu.id], 'Learn more about this vulnerability');
     h+='<button class="btn ghost" data-act="hunt-back">Back to hunts</button>';
   }
   return h;
@@ -1877,6 +2023,8 @@ function handleAct(el){
       render();
       break;
     }
+
+    case 'togglefix': HS.showFix=!HS.showFix; render(); break;
 
     case 'hunt-check': {
       const hu=HUNTS.find(x=>x.id===HS.id);
