@@ -84,14 +84,15 @@ strcpy(buf, user_input);   // no length check — overflow if input > 64 bytes
 
 ## Languages & lessons
 
-Fifteen tracks, seventy-two lessons in the current release, organized into **Foundations**, a **Language Basics** series, **Languages & vulnerabilities**, **Attack patterns & real-world**, and an **Exploitation** phase. Each Language Basics track opens with a language **fact file** (released / current version / end-of-life) and includes a lesson on **deprecated & removed** functions.
+Sixteen tracks, seventy-six lessons in the current release, organized into **Foundations**, a **Language & runtime basics** series, **Languages & vulnerabilities**, **Attack patterns & real-world**, and an **Exploitation** phase. Each basics track opens with a **fact file** (released / current version / end-of-life) and includes a lesson on **deprecated & removed** features.
 
 | Track | Focus | Lessons |
 |-------|-------|:-------:|
 | **Code Recon** | Read any program with no coding background: input → logic → output, variables, functions, control flow | 4 |
 | **PHP Basics** | Learn the language from zero: run PHP, the interactive CLI shell, the built-in server, embedding in HTML, syntax, Composer, and deprecated functions | 8 |
 | **Python Basics** | Learn the language from zero: run Python, the REPL, pip & virtual environments, syntax, and Python 2 → 3 deprecations | 6 |
-| **JavaScript Basics** | Learn the language from zero: browser vs Node, the REPL, npm, syntax, and deprecated/legacy JS | 6 |
+| **JavaScript Basics** | The language (ECMAScript): how it runs, syntax, objects & functions, and legacy features | 5 |
+| **Node.js Basics** | The runtime that runs JavaScript on the server: the CLI, CommonJS vs ES modules, npm, and Node pitfalls | 5 |
 | **PHP** | Superglobals, SQL injection, command injection / RCE, XSS, type juggling & loose comparisons | 5 |
 | **ASP.NET / C#** | Request binding, ADO.NET SQL injection, insecure deserialization, XXE, mass assignment | 5 |
 | **C / C++** | Pointers & buffers, dangerous C functions, integer overflow & use-after-free, format strings | 4 |
@@ -133,13 +134,19 @@ Fifteen tracks, seventy-two lessons in the current release, organized into **Fou
 - pip & virtual environments
 - Deprecated & removed (Python 2 vs 3)
 
-**JavaScript Basics** — learn the language
-- What JavaScript is & how it runs
-- Running JavaScript from the command line (`node`, REPL, `npx`)
+**JavaScript Basics** — the language (ECMAScript)
+- What JavaScript is (the language)
+- Running JavaScript (browser console, Node)
 - Variables, types & template literals
 - Objects, arrays & functions
-- npm & package.json
 - Deprecated & legacy JavaScript
+
+**Node.js Basics** — the runtime
+- What Node.js is
+- Running Node & the CLI
+- Modules: CommonJS vs ES modules
+- npm & package.json
+- Node deprecations & pitfalls
 
 **PHP**
 - Reading PHP superglobals
