@@ -264,7 +264,9 @@ const KW = {
   js:'const let var function return if else for while new class this document window true false null undefined async await try catch import from export typeof require module',
   python:'def return if elif else for in while import from as class with try except raise True False None print lambda pass not and or is global del yield',
   java:'import public private protected class static final void String int long boolean var return if else for while do new null true false try catch finally throw throws this extends implements interface package abstract',
-  sql:'select from where and or order by limit insert into values update set delete join inner left on union all as group having create table drop like'
+  sql:'select from where and or order by limit insert into values update set delete join inner left on union all as group having create table drop like',
+  go:'package import func var const type struct interface map chan go defer return if else for range switch case break continue default nil true false string int int64 byte error bool make new append len cap',
+  bash:'if then else elif fi for while do done case esac function in echo export local return exit read then set unset source'
 };
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function hl(src,lang){
@@ -282,10 +284,11 @@ function hl(src,lang){
   ,flags);
   return esc(src).replace(re,(m,com,str,vr,num,kw,fn)=>{
     if(com!==undefined){
-      // '#include' in C++ is not a comment; '#' comments only for php/python
-      if(com[0]==='#' && lang!=='php' && lang!=='python') return m;
+      // '#include' in C++ is not a comment; '#' comments only for php/python/bash
+      const hashLang = (lang==='php'||lang==='python'||lang==='bash');
+      if(com[0]==='#' && !hashLang) return m;
       if(com.slice(0,2)==='--' && lang!=='sql') return m;
-      if(com[0]==='#' && (lang==='php'||lang==='python')) return '<span class="tk-com">'+com+'</span>';
+      if(com[0]==='#' && hashLang) return '<span class="tk-com">'+com+'</span>';
       if(com.slice(0,2)==='--' && lang==='sql') return '<span class="tk-com">'+com+'</span>';
       return '<span class="tk-com">'+com+'</span>';
     }
@@ -319,7 +322,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.10.0';
+const APP_VERSION='1.11.0';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -660,6 +663,56 @@ const TRACKS = [
   ]
  },
  {
+  id:'cbasics', name:'C Basics', tag:'BASICS', icon:'C', accent:'violet',
+  sub:'The compiled systems language: how it compiles, pointers, memory, and dangerous functions.',
+  meta:{released:'1972',current:'C23 (ISO/IEC 9899:2024)',eol:'K&R C / C89 (legacy)',note:'Created by Dennis Ritchie at Bell Labs. A compiled systems language behind operating systems, embedded devices and much of the software stack.',link:'https://en.cppreference.com/w/c'},
+  lessons:[
+   {id:'cb1', name:'What C is & how it compiles', xp:15, cards:[
+     {t:'md',html:'<p><b>C</b> is a <b>compiled</b>, statically typed systems language — the opposite of PHP/Python/JS. It is not interpreted: a <b>compiler</b> translates your <code class="inl">.c</code> source into a machine-code <b>executable</b> that the CPU runs directly.</p><p>That is why C is fast and close to the hardware — and why its bugs (memory corruption) execute against real memory. The build has stages: <b>preprocess → compile → link</b> → executable.</p>'},
+     {t:'read',lang:'cpp',label:'hello.c',code:'#include <stdio.h>\n\nint main(void) {\n    printf("Hello, C!\\n");\n    return 0;\n}',note:'Every C program has a <code class="inl">main()</code>. But this file cannot run yet — C is compiled, so it must first be turned into an executable.'},
+     {t:'read',lang:'bash',label:'compile & run',code:'$ gcc hello.c -o hello   # preprocess -> compile -> link\n$ ./hello                # run the executable\nHello, C!',note:'<code class="inl">gcc</code> (or <code class="inl">clang</code>) turns <code class="inl">hello.c</code> into a native binary. There is no interpreter at run time — the CPU runs the compiled machine code directly.'},
+     {t:'quiz',q:'How is a C program run, compared with PHP or Python?',
+      opts:['It is interpreted line by line','It is compiled by gcc/clang into a machine-code executable that runs directly','It runs in a browser','It needs a virtual machine'],a:1,
+      why:'C is <b>compiled</b>: a compiler produces a native executable. That is why it is fast and low-level — and why memory bugs execute against real memory.'}
+   ]},
+   {id:'cb2', name:'The compile toolchain', xp:20, cards:[
+     {t:'md',html:'<p>Compiling is really several steps: the <b>preprocessor</b> expands <code class="inl">#include</code> and <code class="inl">#define</code>, the <b>compiler</b> produces object files, and the <b>linker</b> combines them (plus libraries) into one executable.</p><p>Useful flags: <code class="inl">-Wall</code> (warnings), <code class="inl">-g</code> (debug info), <code class="inl">-O2</code> (optimize). Larger projects automate builds with <b>make</b> and a <code class="inl">Makefile</code>.</p>'},
+     {t:'read',lang:'bash',label:'toolchain',code:'$ gcc -Wall -g main.c utils.c -o app   # warnings + debug info\n$ clang -O2 main.c -o app              # optimized build\n\n$ make            # build via a Makefile\n$ make clean      # remove build artifacts',note:'<code class="inl">-Wall</code> surfaces bugs early, <code class="inl">-g</code> adds debug symbols, <code class="inl">-O2</code> optimizes. <code class="inl">#include</code> pulls in header declarations; the linker resolves them against the real library code.'},
+     {t:'quiz',q:'What does the linker do in the C toolchain?',
+      opts:['Runs the program','Combines compiled object files and libraries into a single executable','Formats the source code','Downloads packages'],a:1,
+      why:'The <b>linker</b> stitches object files together with the libraries they call, producing the final executable. The preprocessor and compiler run before it.'}
+   ]},
+   {id:'cb3', name:'Variables, types & pointers', xp:20, cards:[
+     {t:'md',html:'<p>C requires you to declare a <b>type</b>: <code class="inl">int</code>, <code class="inl">char</code>, <code class="inl">float</code>, <code class="inl">double</code>, plus arrays. Its signature feature is the <b>pointer</b> — a variable that holds a <b>memory address</b>.</p><p><code class="inl">&x</code> means "address of x"; <code class="inl">*p</code> means "the value stored at p". Pointers are powerful and the root of most C vulnerabilities.</p>'},
+     {t:'read',lang:'cpp',label:'pointers.c',code:'int   x = 42;         // an integer\nint  *p = &x;         // p holds the ADDRESS of x\nprintf("%d\\n", *p);   // *p = the value AT that address = 42\n\nchar name[16];        // a fixed 16-byte buffer',note:'A pointer is just an address. Reading or writing through a wrong or unchecked pointer is exactly how buffer overflows and use-after-free happen — the C/C++ security track drills these.'},
+     {t:'quiz',q:'In C, what is a pointer?',
+      opts:['A kind of loop','A variable that holds a memory address','A comment','A function name'],a:1,
+      why:'A <b>pointer</b> stores a memory address. <code class="inl">&x</code> takes an address; <code class="inl">*p</code> follows one. Mishandled pointers cause C\'s memory-corruption bugs.'}
+   ]},
+   {id:'cb4', name:'Control flow & functions', xp:20, cards:[
+     {t:'md',html:'<p>C has the usual <code class="inl">if/else</code>, <code class="inl">for</code>, <code class="inl">while</code>, and <code class="inl">switch</code>, with blocks in <code class="inl">{ }</code>. Functions declare a return type and typed parameters.</p>'},
+     {t:'read',lang:'cpp',label:'flow.c',code:'int add(int a, int b) {   // returns an int\n    return a + b;\n}\n\nint main(void) {\n    for (int i = 0; i < 3; i++) {\n        if (i % 2 == 0)\n            printf("%d is even\\n", i);\n    }\n    return add(2, 3);\n}',note:'The same control-flow shapes as other languages, but with explicit types. You do not need to write C to audit it — reading it is the skill.'},
+     {t:'quiz',q:'What must a C function declare that a Python function does not?',
+      opts:['Its colour','The types of its parameters and its return value','A password','A URL'],a:1,
+      why:'C is statically typed: every function states its return type and the type of each parameter. The compiler checks these before the program runs.'}
+   ]},
+   {id:'cb5', name:'The standard library & memory', xp:25, cards:[
+     {t:'md',html:'<p>C\'s standard library gives you I/O (<code class="inl">printf</code>/<code class="inl">scanf</code>, <code class="inl">stdio.h</code>), strings (<code class="inl">string.h</code>: <code class="inl">strlen</code>, <code class="inl">strcpy</code>), and <b>manual memory</b> (<code class="inl">stdlib.h</code>: <code class="inl">malloc</code>/<code class="inl">free</code>).</p><p>There is <b>no garbage collector</b> — you allocate and free memory yourself. Forgetting to free (leak), using after free, or writing past the end are all vulnerabilities.</p>'},
+     {t:'read',lang:'cpp',label:'memory.c',code:'#include <stdlib.h>\n#include <string.h>\n\nchar *buf = malloc(64);   // ask the OS for 64 bytes\nstrcpy(buf, "hello");     // copy a string in\n// ... use buf ...\nfree(buf);                // give the memory back',note:'Manual memory is C\'s power and its peril: forgetting <code class="inl">free</code> leaks; using <code class="inl">buf</code> after <code class="inl">free</code> is use-after-free; copying more than 64 bytes overflows it.'},
+     {t:'quiz',q:'How is memory managed in C?',
+      opts:['Automatically by a garbage collector','Manually with malloc/free — the programmer owns it','By the browser','It is not needed'],a:1,
+      why:'C has <b>no garbage collector</b>. You call <code class="inl">malloc</code> to allocate and <code class="inl">free</code> to release. Mismanaging that is the source of leaks and use-after-free bugs.'}
+   ]},
+   {id:'cb6', name:'Deprecated & dangerous functions', xp:25, cards:[
+     {t:'md',html:'<p>Some C standard functions are so unsafe they were removed or are universally flagged. The worst is <code class="inl">gets()</code> — it reads input with <b>no length limit</b> and was <b>removed from the C standard in C11</b>. The unsafe string family (<code class="inl">strcpy</code>, <code class="inl">strcat</code>, <code class="inl">sprintf</code>) has no bounds checking.</p>'},
+     {t:'read',lang:'cpp',label:'dangerous vs bounded',code:'gets(buf);                  // REMOVED in C11 — never bounds-checked\nstrcpy(buf, input);         // no length limit -> overflow\nsprintf(buf, "%s", input);  // same problem\n\nsnprintf(buf, sizeof buf, "%s", input);  // bounded: safer',note:'<code class="inl">gets()</code> is gone from the language for good reason. <code class="inl">strcpy</code>/<code class="inl">sprintf</code> on untrusted input are classic overflow findings — prefer the sized versions.'},
+     {t:'quiz',q:'Why was C\'s <code class="inl">gets()</code> function removed from the language?',
+      opts:['It was slow','It had no way to limit input length, so it always risked a buffer overflow','It only worked on Windows','It was too new'],a:1,
+      why:'<code class="inl">gets()</code> read input with <b>no bound</b>, so any input longer than the buffer overflowed it. It was removed in C11; use <code class="inl">fgets</code> with a size instead.'}
+   ]}
+  ]
+ },
+ {
   id:'php', name:'PHP', tag:'WEB', icon:'php', accent:'violet',
   sub:'The classic web-app language. Powers huge legacy attack surface.',
   lessons:[
@@ -849,6 +902,41 @@ const TRACKS = [
   ]
  },
  {
+  id:'go', name:'Go', tag:'BACKEND', icon:'Go', accent:'amber',
+  sub:'Google\'s compiled language for servers and cloud. Clean syntax, familiar bug classes.',
+  lessons:[
+   {id:'go1', name:'Reading Go & where input enters', xp:25, cards:[
+     {t:'md',html:'<p><b>Go</b> is statically typed and compiled, with a clean syntax: <code class="inl">:=</code> declares and infers a variable, and errors are returned explicitly. In web services (<code class="inl">net/http</code>, Gin, Echo) untrusted input arrives via <code class="inl">r.URL.Query().Get()</code>, <code class="inl">r.FormValue()</code>, <code class="inl">r.Header.Get()</code>, and path variables.</p>'},
+     {t:'read',lang:'go',label:'net/http handler',code:'func handler(w http.ResponseWriter, r *http.Request) {\n    name := r.URL.Query().Get("name")     // source: ?name=\n    fmt.Fprintf(w, "<h1>%s</h1>", name)   // reflected into HTML\n}',note:'Go\'s <code class="inl">html/template</code> auto-escapes, but writing straight to the response with <code class="inl">Fprintf</code> does not — reflected <b>XSS</b>. <code class="inl">:=</code> declares and infers the variable type.'},
+     {t:'quiz',q:'Where does <code class="inl">r.URL.Query().Get("name")</code> get its value?',
+      opts:['A constant','The HTTP request query string — untrusted input','Another Go file','The compiler'],a:1,
+      why:'It reads the URL query string from the request. Like all request data it is attacker-controlled and must be treated as a source.'}
+   ]},
+   {id:'go2', name:'SQL injection in Go', xp:30, cards:[
+     {t:'md',html:'<p>Go\'s <code class="inl">database/sql</code> supports <b>placeholders</b> (<code class="inl">?</code> for MySQL, <code class="inl">$1</code> for Postgres). Building the query string with <code class="inl">fmt.Sprintf</code> instead is injectable.</p>'},
+     {t:'read',lang:'go',label:'Vulnerable',code:'q := fmt.Sprintf("SELECT * FROM users WHERE name = \'%s\'", name)\nrows, _ := db.Query(q)   // SQL injection',note:'<code class="inl">fmt.Sprintf</code> welds input into the SQL text, exactly like concatenation in other languages.'},
+     {t:'read',lang:'go',label:'Safe — placeholder',code:'rows, _ := db.Query("SELECT * FROM users WHERE name = ?", name)  // bound',note:'The <code class="inl">?</code> placeholder keeps <code class="inl">name</code> as data. This is the fix you look for.'},
+     {t:'quiz',q:'Which Go database call is safe from SQL injection?',
+      opts:['<code class="inl">db.Query(fmt.Sprintf("... %s", name))</code>','<code class="inl">db.Query("... = ?", name)</code> with a placeholder','Concatenating with +','Running it twice'],a:1,
+      why:'A parameterized query with a <b>placeholder</b> (<code class="inl">?</code> / <code class="inl">$1</code>) separates code from data. <code class="inl">fmt.Sprintf</code> into the query is the injectable pattern.'}
+   ]},
+   {id:'go3', name:'Command injection in Go', xp:30, cards:[
+     {t:'md',html:'<p>Go runs OS commands with <code class="inl">os/exec</code>. <code class="inl">exec.Command("sh", "-c", str)</code> runs a <b>shell</b> and is injectable; <code class="inl">exec.Command("ping", "-c1", host)</code> passes arguments directly with no shell.</p>'},
+     {t:'read',lang:'go',label:'Vulnerable vs safe',code:'// vulnerable: a shell parses the built string\nexec.Command("sh", "-c", "ping -c1 "+host).Run()\n\n// safe: arguments passed directly, no shell\nexec.Command("ping", "-c1", host).Run()',note:'Routing through <code class="inl">sh -c</code> exposes <code class="inl">;</code> <code class="inl">|</code> <code class="inl">$( )</code>. The argument-list form sends <code class="inl">host</code> as a single argument to the binary.'},
+     {t:'quiz',q:'What makes <code class="inl">exec.Command("sh","-c", "ping "+host)</code> injectable?',
+      opts:['Using Go','User input is concatenated into a command run through a shell','ping is missing','It returns an error'],a:1,
+      why:'A concatenated string run via <code class="inl">sh -c</code> lets shell metacharacters chain commands. Pass an argument list with no shell instead.'}
+   ]},
+   {id:'go4', name:'SSRF & path traversal in Go', xp:30, cards:[
+     {t:'md',html:'<p>Two more familiar classes in Go: <b>SSRF</b> — <code class="inl">http.Get(userURL)</code> fetches an attacker-chosen URL (including cloud metadata) — and <b>path traversal</b> — joining a user filename onto a base path and opening it lets <code class="inl">../</code> escape.</p>'},
+     {t:'read',lang:'go',label:'Two sinks',code:'resp, _ := http.Get(r.URL.Query().Get("url"))   // SSRF\n\np := filepath.Join("/data", r.URL.Query().Get("f"))\nf, _ := os.Open(p)                                // path traversal via ../',note:'<code class="inl">filepath.Join</code> does not stop <code class="inl">../</code> escaping the base — call <code class="inl">filepath.Clean</code> and verify the result stays inside <code class="inl">/data</code>. Allowlist URLs and block internal ranges for the fetch.'},
+     {t:'quiz',q:'Why is <code class="inl">http.Get(userURL)</code> in a server risky?',
+      opts:['It is slow','SSRF — the server can reach internal systems (like cloud metadata) the user cannot','It uses too much memory','Nothing'],a:1,
+      why:'Fetching a user-supplied URL server-side is <b>SSRF</b>: it abuses the server\'s network position to reach internal-only resources such as the cloud metadata endpoint.'}
+   ]}
+  ]
+ },
+ {
   id:'java', name:'Java & the JVM', tag:'JVM', icon:'☕', accent:'violet',
   sub:'Enterprise backends and Android — strong typing, classic injection and deserialization bugs.',
   lessons:[
@@ -928,6 +1016,13 @@ const TRACKS = [
      {t:'quiz',q:'Why is <code class="inl">res.redirect(req.query.next)</code> dangerous?',
       opts:['Redirects are always unsafe','An attacker controls the destination, so a link on the trusted site can send victims to a phishing page','It is slow','It breaks cookies'],a:1,
       why:'An unvalidated redirect target lets an attacker craft a trusted-looking link that bounces victims to a malicious site. Allowlist targets or accept only relative paths.'}
+   ]},
+   {id:'w7', name:'CORS misconfiguration', xp:30, cards:[
+     {t:'md',html:'<p><b>CORS</b> decides which other origins may <i>read</i> a cross-origin response. A dangerous misconfiguration reflects the request\'s <code class="inl">Origin</code> header back in <code class="inl">Access-Control-Allow-Origin</code> <b>and</b> sets <code class="inl">Access-Control-Allow-Credentials: true</code> — now <b>any</b> website can make authenticated requests as the victim and read the response. Trusting the <code class="inl">null</code> origin or a broad wildcard is similarly risky.</p>'},
+     {t:'read',lang:'js',label:'Vulnerable vs safe',code:'// vulnerable: reflect whatever Origin the request claims + allow credentials\nres.setHeader("Access-Control-Allow-Origin", req.headers.origin);\nres.setHeader("Access-Control-Allow-Credentials", "true");\n\n// safer: allowlist specific trusted origins only\nif (ALLOWED.has(req.headers.origin))\n  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);',note:'Reflecting the <code class="inl">Origin</code> with credentials enabled lets any site read authenticated responses. Allowlist exact origins, and never pair a reflected/wildcard origin with <code class="inl">Allow-Credentials: true</code>.'},
+     {t:'quiz',q:'Why is reflecting the request <code class="inl">Origin</code> with <code class="inl">Allow-Credentials: true</code> dangerous?',
+      opts:['It is slow','Any website can then send authenticated requests and read the responses, stealing user data','It blocks all requests','It breaks caching'],a:1,
+      why:'Echoing the caller\'s origin while allowing credentials trusts <b>every</b> site, so a malicious page can read the victim\'s authenticated data. Allowlist specific origins instead.'}
    ]}
   ]
  },
@@ -962,6 +1057,13 @@ const TRACKS = [
      {t:'quiz',q:'Why compare security tokens with a constant-time function?',
       opts:['It is faster','A normal == can leak how many leading bytes matched via timing, helping an attacker recover the secret','== does not work on strings','To save memory'],a:1,
       why:'Byte-by-byte <code class="inl">==</code> exits early on a mismatch, so response time reveals partial matches. <b>Constant-time compare</b> removes that side-channel.'}
+   ]},
+   {id:'cr5', name:'JWT algorithm confusion', xp:35, cards:[
+     {t:'md',html:'<p>A <b>JWT</b>\'s header names the algorithm used to sign it — and trusting that header is the bug. Two classics:</p><p>• <b><code class="inl">alg: none</code></b> — some libraries accept an unsigned token as valid.<br>• <b>RS256 → HS256 confusion</b> — the server expects RSA (verify with the <i>public</i> key), but an attacker sends an <code class="inl">HS256</code> token, and the library verifies it using the public key as the HMAC secret — which the attacker also has. Forged admin tokens follow.</p>'},
+     {t:'read',lang:'js',label:'Vulnerable vs safe',code:'// vulnerable: trusts the alg in the attacker-controlled header\njwt.verify(token, key);   // may accept alg:none, or HS256 verified with the public key\n\n// safe: pin the algorithm(s) you accept\njwt.verify(token, key, { algorithms: ["RS256"] });',note:'Always pin the accepted <code class="inl">algorithms</code>. Never let the token\'s own header decide how it is verified — that is how <code class="inl">alg:none</code> and RS256/HS256 confusion forge tokens.'},
+     {t:'quiz',q:'How does JWT "algorithm confusion" let an attacker forge a token?',
+      opts:['By stealing the private key','The server verifies an attacker-crafted HS256 token using the public key as the HMAC secret (or accepts alg:none)','By brute forcing the password','By XSS'],a:1,
+      why:'If the verifier trusts the token\'s <code class="inl">alg</code>, an attacker signs an HS256 token with the known <b>public</b> key and the server accepts it. Pin the expected algorithm to prevent this.'}
    ]}
   ]
  },
@@ -995,6 +1097,13 @@ const TRACKS = [
      {t:'quiz',q:'What is the flaw in "check the balance, then subtract it" as two separate steps?',
       opts:['It is too slow','Between the check and the update a concurrent request can also pass the check — a TOCTOU race','Subtraction is imprecise','It uses too much memory'],a:1,
       why:'<b>TOCTOU</b>: the state can change between the check and the use, so two concurrent requests both pass the check and both act. Use an atomic conditional update or a lock.'}
+   ]},
+   {id:'a5', name:'Grepping for sinks', xp:30, cards:[
+     {t:'md',html:'<p>The fastest way into an unfamiliar codebase is not to read all of it — it is to <b>grep for the short list of dangerous sinks</b>, then trace each hit backwards to a source. Tools scale this up: <b>ripgrep</b> for speed, <b>semgrep</b> for language-aware rules, and <b>CodeQL</b> for deep dataflow.</p>'},
+     {t:'read',lang:'bash',label:'hunt the sinks',code:'# grep the repo for dangerous sinks, then trace each hit to a source\n$ rg -n "system|exec|shell_exec|child_process"    # shell / RCE\n$ rg -n "query|execute|Sprintf.*SELECT"           # SQL\n$ rg -n "innerHTML|render_template_string|pickle" # HTML / template / deserialize\n\n$ semgrep --config auto .    # language-aware rules with dataflow',note:'Sinks are a short, known list — grep them first, then walk each hit back to see if untrusted input reaches it. <code class="inl">semgrep</code> and CodeQL add dataflow so you get fewer false positives.'},
+     {t:'quiz',q:'Which tool adds dataflow analysis to cut false positives when hunting sinks?',
+      opts:['plain grep','semgrep / CodeQL','cat','ls'],a:1,
+      why:'<b>semgrep</b> and <b>CodeQL</b> understand code structure and trace data from source to sink, so they flag reachable bugs rather than every text match — far fewer false positives than plain grep.'}
    ]}
   ]
  },
@@ -1022,6 +1131,20 @@ const TRACKS = [
      {t:'quiz',q:'How did an SSRF turn into a 100-million-record breach at Capital One?',
       opts:['It crashed the server','SSRF reached the cloud metadata endpoint, which returned IAM credentials used to read stored data','It guessed the admin password','It exploited a buffer overflow'],a:1,
       why:'The SSRF fetched <code class="inl">169.254.169.254</code> metadata to steal the instance\'s <b>IAM role credentials</b>, then used them against storage. SSRF + cloud metadata is a critical combination to recognize.'}
+   ]},
+   {id:'b4', name:'Shellshock — Bash parses env vars', xp:40, cards:[
+     {t:'md',html:'<p><b>Shellshock</b> (CVE-2014-6271, 2014) was a flaw in GNU <b>Bash</b>. Bash stored exported functions in environment variables — and kept executing any commands that <i>trailed</i> the function definition. So if attacker-controlled data reached a Bash environment variable, it ran commands.</p><p>The classic vector was <b>CGI</b> web scripts, which copy HTTP headers (like <code class="inl">User-Agent</code>) into environment variables before invoking Bash.</p>'},
+     {t:'read',lang:'bash',label:'the magic value',code:'# a function definition followed by a trailing command:\n$ env x=\'() { :; }; echo PWNED\' bash -c "true"\nPWNED\n\n# over HTTP against a vulnerable CGI script:\n#   User-Agent: () { :; }; /bin/cat /etc/passwd',note:'The <code class="inl">() { :; };</code> is an empty function; everything after it ran when Bash imported the variable. Any path that put attacker input into a Bash env var — especially CGI — became RCE. The fix was patching Bash.'},
+     {t:'quiz',q:'What did Shellshock abuse?',
+      opts:['A SQL query','Bash executing trailing commands after a function definition stored in an environment variable','A weak password','A buffer overflow'],a:1,
+      why:'Bash kept running commands appended after an exported function in an environment variable. When attacker input reached such a variable (notably via CGI headers), it executed — remote code execution.'}
+   ]},
+   {id:'b5', name:'Equifax — Struts & a header', xp:45, cards:[
+     {t:'md',html:'<p>The 2017 <b>Equifax</b> breach exposed about <b>147 million</b> people. The entry point was Apache <b>Struts</b> (CVE-2017-5638): Struts mishandled a malformed <code class="inl">Content-Type</code> header and evaluated it as an <b>OGNL</b> expression — an expression language — so a crafted header ran code (RCE). A patch had been available for months but was not applied in time.</p>'},
+     {t:'read',lang:'java',label:'a header that runs code',code:'// a malicious Content-Type carrying an OGNL expression:\nContent-Type: %{(#cmd=\'id\').(#p=new java.lang.ProcessBuilder(#cmd))...}\n// Struts evaluated the header -> the command ran on the server',note:'Two lessons at once: a <b>vulnerable dependency</b> (Struts) turned a header into RCE, and an <b>available patch</b> went unapplied. Auditing dependencies and patching promptly matter as much as secure code.'},
+     {t:'quiz',q:'How did the Equifax breach begin?',
+      opts:['A phishing email','A crafted Content-Type header exploited a known, unpatched Apache Struts RCE (OGNL)','A stolen laptop','A weak admin password'],a:1,
+      why:'Attackers sent a malicious <code class="inl">Content-Type</code> header that Struts evaluated as an OGNL expression, achieving RCE. The flaw (CVE-2017-5638) was already patched upstream but not deployed in time.'}
    ]}
   ]
  },
@@ -1063,6 +1186,20 @@ const TRACKS = [
      {t:'quiz',q:'What is a "gadget chain" in deserialization exploitation?',
       opts:['A hardware device','A sequence of methods in existing app/library classes that a crafted object triggers on deserialization to reach code execution','A kind of firewall','A password wordlist'],a:1,
       why:'A <b>gadget chain</b> strings together methods in classes already on the classpath so deserializing a crafted object reaches a dangerous call. Tools like <b>ysoserial</b> build these payloads; the defence is to never deserialize untrusted data.'}
+   ]},
+   {id:'ex6', name:'Buffer overflow 101', xp:45, cards:[
+     {t:'md',html:'<p><b>Lab / authorized use only.</b> A stack buffer overflow can hijack execution. When a function runs, its local buffer and the <b>saved return address</b> sit together on the stack. Writing past the buffer overwrites that return address — control it, and when the function returns the CPU jumps wherever the attacker chose.</p><p>Modern defences raise the bar: <b>stack canaries</b> detect overwrites, <b>ASLR</b> randomizes addresses, and <b>NX/DEP</b> stops code running from the stack — so real exploits use techniques like <b>ROP</b>.</p>'},
+     {t:'read',lang:'cpp',label:'the classic primitive',code:'void vuln(char *input) {\n    char buf[64];          // 64-byte buffer on the stack\n    strcpy(buf, input);    // > 64 bytes overflows into the saved return address\n}\n// overwrite the return address -> redirect execution when vuln() returns',note:'Overflow a stack buffer to overwrite the return address. Canaries, ASLR and NX/DEP make this harder; exploitation adapts with ROP and info leaks. For labs and authorized testing only.'},
+     {t:'quiz',q:'In a classic stack buffer overflow, what does overwriting the saved return address achieve?',
+      opts:['It speeds up the program','It redirects the CPU to attacker-chosen code when the function returns','It frees memory','It encrypts the stack'],a:1,
+      why:'The saved return address decides where execution resumes after the function. Overwriting it with a controlled value redirects the CPU — the basis of stack-overflow exploitation.'}
+   ]},
+   {id:'ex7', name:'Path traversal to impact', xp:40, cards:[
+     {t:'md',html:'<p><b>Authorized testing only.</b> A path-traversal read (<code class="inl">../</code>) is proven by pulling a known file, then escalated. Read <code class="inl">/etc/passwd</code>, app config, source, or cloud credentials; reading secrets (DB passwords, API keys) often leads straight to bigger access. In some stacks a <b>write</b> traversal plus <b>log poisoning</b> turns file read into RCE.</p>'},
+     {t:'read',lang:'bash',label:'proof & escalation',code:'# read a known file to prove the traversal:\n?file=../../../../etc/passwd\n?file=../../app/config/database.yml      # DB credentials\n?file=../../../../proc/self/environ      # env vars / secrets\n# escalate: write into a web-executable path, or poison a log then include it',note:'Proof of impact = retrieving a sensitive file (credentials, source, cloud metadata). The fix is confining paths to a base directory and rejecting <code class="inl">..</code>. Authorized targets only.'},
+     {t:'quiz',q:'What is a reliable way to prove a path-traversal vulnerability?',
+      opts:['Refresh the page','Retrieve a known sensitive file (e.g. /etc/passwd) using ../ sequences','Change the password','Clear the cache'],a:1,
+      why:'Pulling a known file such as <code class="inl">/etc/passwd</code> or a config file with credentials demonstrates real impact. Confine paths to a base directory and reject <code class="inl">..</code> to fix it.'}
    ]}
   ]
  }
@@ -1073,6 +1210,23 @@ const TRACKS = [
    Rendered on the last card; open in a new tab.
    ========================================================= */
 const LESSON_REFS = {
+ 'cb1':[{t:'cppreference: C',u:'https://en.cppreference.com/w/c'},{t:'GCC (GNU Compiler Collection)',u:'https://gcc.gnu.org/'}],
+ 'cb2':[{t:'GCC online documentation',u:'https://gcc.gnu.org/onlinedocs/'},{t:'GNU Make manual',u:'https://www.gnu.org/software/make/manual/make.html'}],
+ 'cb3':[{t:'cppreference: types',u:'https://en.cppreference.com/w/c/language/type'},{t:'cppreference: pointers',u:'https://en.cppreference.com/w/c/language/pointer'}],
+ 'cb4':[{t:'cppreference: statements',u:'https://en.cppreference.com/w/c/language/statements'}],
+ 'cb5':[{t:'cppreference: malloc',u:'https://en.cppreference.com/w/c/memory/malloc'},{t:'cppreference: string handling',u:'https://en.cppreference.com/w/c/string/byte'}],
+ 'cb6':[{t:'CWE-242: Use of gets()',u:'https://cwe.mitre.org/data/definitions/242.html'},{t:'cppreference: gets (removed)',u:'https://en.cppreference.com/w/c/io/gets'}],
+ 'go1':[{t:'Go: net/http',u:'https://pkg.go.dev/net/http'}],
+ 'go2':[{t:'Go: database/sql',u:'https://pkg.go.dev/database/sql'},{t:'OWASP: SQL Injection Prevention Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html'}],
+ 'go3':[{t:'Go: os/exec',u:'https://pkg.go.dev/os/exec'},{t:'OWASP: Command Injection',u:'https://owasp.org/www-community/attacks/Command_Injection'}],
+ 'go4':[{t:'Go: net/http',u:'https://pkg.go.dev/net/http'},{t:'OWASP: Server-Side Request Forgery',u:'https://owasp.org/www-community/attacks/Server_Side_Request_Forgery'}],
+ 'w7':[{t:'PortSwigger: CORS',u:'https://portswigger.net/web-security/cors'},{t:'MDN: Cross-Origin Resource Sharing',u:'https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS'}],
+ 'cr5':[{t:'PortSwigger: JWT attacks',u:'https://portswigger.net/web-security/jwt'},{t:'OWASP: JWT Cheat Sheet',u:'https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html'}],
+ 'a5':[{t:'Semgrep',u:'https://semgrep.dev/'},{t:'ripgrep',u:'https://github.com/BurntSushi/ripgrep'},{t:'OWASP Code Review Guide',u:'https://owasp.org/www-project-code-review-guide/'}],
+ 'b4':[{t:'NVD: CVE-2014-6271 (Shellshock)',u:'https://nvd.nist.gov/vuln/detail/CVE-2014-6271'}],
+ 'b5':[{t:'NVD: CVE-2017-5638 (Apache Struts)',u:'https://nvd.nist.gov/vuln/detail/CVE-2017-5638'}],
+ 'ex6':[{t:'CWE-121: Stack-based Buffer Overflow',u:'https://cwe.mitre.org/data/definitions/121.html'},{t:'OWASP: Buffer Overflow',u:'https://owasp.org/www-community/vulnerabilities/Buffer_Overflow'}],
+ 'ex7':[{t:'PortSwigger: File path traversal',u:'https://portswigger.net/web-security/file-path-traversal'},{t:'OWASP: Path Traversal',u:'https://owasp.org/www-community/attacks/Path_Traversal'}],
  'jsb1':[{t:'MDN: JavaScript',u:'https://developer.mozilla.org/en-US/docs/Web/JavaScript'},{t:'ECMAScript spec (TC39)',u:'https://tc39.es/ecma262/'}],
  'jsb2':[{t:'MDN: Console (DevTools)',u:'https://developer.mozilla.org/en-US/docs/Web/API/console'}],
  'jsb3':[{t:'MDN: Grammar and types',u:'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Grammar_and_types'}],
@@ -1349,7 +1503,29 @@ const HUNTS = [
    '});'
   ],
   vuln:[2],
-  debrief:'<p><b>Line 3</b> merges the entire request body onto the user object with <code class="inl">Object.assign</code> — <b>mass assignment</b>. An attacker adds <code class="inl">"role":"admin"</code> (or <code class="inl">isAdmin:true</code>) to the body and escalates privileges. Copy only the allowed fields explicitly (name, email), never the whole body.</p>'}
+  debrief:'<p><b>Line 3</b> merges the entire request body onto the user object with <code class="inl">Object.assign</code> — <b>mass assignment</b>. An attacker adds <code class="inl">"role":"admin"</code> (or <code class="inl">isAdmin:true</code>) to the body and escalates privileges. Copy only the allowed fields explicitly (name, email), never the whole body.</p>'},
+ {id:'h15', title:'Ping service (Go)', lang:'go', xp:50, diff:'Medium',
+  brief:'A Go HTTP handler that pings a host. Find the command injection.',
+  lines:[
+   'func ping(w http.ResponseWriter, r *http.Request) {',
+   '    host := r.URL.Query().Get("host")',
+   '    out, _ := exec.Command("sh", "-c", "ping -c1 "+host).Output()',
+   '    w.Write(out)',
+   '}'
+  ],
+  vuln:[2],
+  debrief:'<p><b>Line 3</b> builds a shell command from user input and runs it through <code class="inl">sh -c</code> — <b>command injection</b>. <code class="inl">?host=8.8.8.8;id</code> runs both commands. Use <code class="inl">exec.Command("ping","-c1",host)</code> with an argument list and no shell, and validate the host. Line 2 is only the source.</p>'},
+ {id:'h16', title:'API CORS headers (Node)', lang:'js', xp:50, diff:'Hard',
+  brief:'Middleware that sets CORS headers for an authenticated API. Spot the misconfiguration.',
+  lines:[
+   'app.use((req, res, next) => {',
+   '  res.setHeader("Access-Control-Allow-Origin", req.headers.origin);',
+   '  res.setHeader("Access-Control-Allow-Credentials", "true");',
+   '  next();',
+   '});'
+  ],
+  vuln:[1,2],
+  debrief:'<p><b>Lines 2–3</b> reflect the request\'s <code class="inl">Origin</code> back and allow credentials — so <b>any</b> website can make authenticated requests and read the responses, stealing user data. Allowlist specific trusted origins, and never pair a reflected origin with <code class="inl">Allow-Credentials: true</code>.</p>'}
 ];
 
 /* =========================================================
@@ -1391,8 +1567,8 @@ function vHome(){
 
   const GROUP_ORDER=['Foundations','Language & runtime basics','Languages & vulnerabilities','Attack patterns & real-world','Exploitation'];
   const groupOf=(id)=> id==='recon' ? 'Foundations'
-    : (id==='phpbasics' || id==='pybasics' || id==='jsbasics' || id==='nodebasics') ? 'Language & runtime basics'
-    : ['php','dotnet','cpp','web','python','java'].includes(id) ? 'Languages & vulnerabilities'
+    : (id==='phpbasics' || id==='pybasics' || id==='jsbasics' || id==='nodebasics' || id==='cbasics') ? 'Language & runtime basics'
+    : ['php','dotnet','cpp','web','python','java','go'].includes(id) ? 'Languages & vulnerabilities'
     : id==='exploit' ? 'Exploitation'
     : 'Attack patterns & real-world';
   for(const g of GROUP_ORDER){
