@@ -96,7 +96,9 @@ h1.pg{font-family:var(--disp);font-size:24px;font-weight:700;margin:14px 0 4px;t
 .tricon{
   width:44px;height:44px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;
   font-family:var(--mono);font-weight:600;font-size:13px;border:1px solid var(--line);background:var(--panel2);
+  color:var(--good);
 }
+.tricon svg{width:23px;height:23px;display:block}
 .trmeta{flex:1;min-width:0}
 .trname{font-family:var(--disp);font-weight:700;font-size:16px}
 .trsub{font-size:12.5px;color:var(--mut);margin:1px 0 7px}
@@ -321,6 +323,15 @@ const RANKS = [
   [0,'Script Kiddie'],[120,'Recruit'],[300,'Code Reader'],[600,'Analyst'],
   [1000,'Bug Hunter'],[1500,'Exploit Dev'],[2200,'Red Teamer'],[3000,'APT Operator']
 ];
+/* monochrome line icons for the non-basics track rows (inherit .tricon color) */
+const TRACK_SVG = {
+  webpat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5"/><path d="M12 1.5v3.5M12 19v3.5M1.5 12h3.5M19 12h3.5"/></svg>',
+  crypto:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/></svg>',
+  audit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></svg>',
+  breach:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>',
+  exploit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13H11l-1 9 8.5-11.5H12z"/></svg>',
+  java:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9h11v4.5a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M9 3.5v2M12 3.5v2"/></svg>'
+};
 const BASICS_ICONS = {
   phpbasics:'icons/language_icons/php-32px.png',
   pybasics:'icons/language_icons/python-32px.png',
@@ -341,7 +352,7 @@ const BADGES = [
 ];
 
 /* ---------- version ---------- */
-const APP_VERSION='1.11.1';
+const APP_VERSION='1.11.2';
 
 /* ---------- persistent state ---------- */
 const KEY='codelearn.v1';
@@ -1611,7 +1622,7 @@ function vHome(){
     for(const t of inGroup){
       const p=trackProgress(t);
       h+='<button class="card tap trackcard" data-act="track" data-id="'+t.id+'">'+
-          '<div class="tricon">'+t.icon+'</div>'+
+          '<div class="tricon">'+(TRACK_SVG[t.id]||t.icon)+'</div>'+
           '<div class="trmeta">'+
             '<div class="trname">'+t.name+' <span class="chip '+(t.accent)+'" style="vertical-align:2px">'+t.tag+'</span></div>'+
             '<div class="trsub">'+t.sub+'</div>'+
